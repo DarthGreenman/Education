@@ -1,0 +1,24 @@
+# ninja log v5
+906	1074	7195855043904899	lib/Geometric.lib	69fd88d02aa2e273
+18	579	7185546675155702	lib/CMakeFiles/Addressing_someone.dir/Shape.cpp.obj	4603c104778a205c
+5	1083	7195855044674891	homework_02_11_05/CMakeFiles/homework_02_11_05.dir/homework_02_11_05.cpp.obj	ec31efbd661bf72
+6	94	7195855163894870	build.ninja	542f4d64917aa9a7
+16	623	7185546675615689	lib/CMakeFiles/Addressing_someone.dir/Geometric_shapes.cpp.obj	565f454c18066769
+10	547	7185552484462387	lib/CMakeFiles/Geometric_shapes.dir/Shape.cpp.obj	cec1a49cfe55c6e3
+8	596	7185552484952759	lib/CMakeFiles/Geometric_shapes.dir/Geometric_shapes.cpp.obj	ad9e0b204a8e38d3
+596	725	7185552485762397	lib/Geometric_shapes.lib	29c7332280398005
+596	725	7185552485762397	Geometric_shapes.dll	29c7332280398005
+1083	1210	7195855045534892	homework_02_11_05.exe	7c27d8c7bd2ff5bc
+9	16	0	clean	ca20ad35778315c3
+11	860	7195855042434879	lib/CMakeFiles/Geometric.dir/Shape.cpp.obj	b56e106bc714dae7
+9	906	7195855042904876	lib/CMakeFiles/Geometric.dir/Geometric.cpp.obj	9c475f8d6b9e719c
+906	1074	7195855043904899	Geometric.dll	69fd88d02aa2e273
+9	15	0	clean	8c45b54705a541e8
+11	561	7195855217044883	lib/CMakeFiles/Geometric.dir/Shape.cpp.obj	c620cbf755192db3
+9	597	7195855217414887	lib/CMakeFiles/Geometric.dir/Geometric.cpp.obj	9264dc101ae3579
+597	727	7195855218274898	Geometric.dll	69fd88d02aa2e273
+597	727	7195855218274898	lib/Geometric.lib	69fd88d02aa2e273
+5	804	7195855219474893	homework_02_11_05/CMakeFiles/homework_02_11_05.dir/homework_02_11_05.cpp.obj	ec31efbd661bf72
+804	930	7195855220294876	homework_02_11_05.exe	7c27d8c7bd2ff5bc
+8	1123	7195891897521758	homework_02_11_05/CMakeFiles/homework_02_11_05.dir/homework_02_11_05.cpp.obj	ec31efbd661bf72
+1123	1249	7195891898371768	homework_02_11_05.exe	7c27d8c7bd2ff5bc
