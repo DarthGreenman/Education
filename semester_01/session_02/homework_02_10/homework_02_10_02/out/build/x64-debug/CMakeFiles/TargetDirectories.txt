@@ -1,0 +1,5 @@
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_10/homework_02_10_02/out/build/x64-debug/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_10/homework_02_10_02/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_10/homework_02_10_02/out/build/x64-debug/homework_02_10_02/CMakeFiles/homework_02_10_02.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_10/homework_02_10_02/out/build/x64-debug/homework_02_10_02/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_10/homework_02_10_02/out/build/x64-debug/homework_02_10_02/CMakeFiles/rebuild_cache.dir

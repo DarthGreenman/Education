@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "homework_04_04_02/Catch2_build/src",
+		"source" : "D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/unit_testing_frameworks/Catch2/src"
+	}
+}

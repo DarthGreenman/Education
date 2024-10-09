@@ -1,4 +1,4 @@
-/* Fraction.h */
+п»ї/* Fraction.h */
 
 #ifndef FRACTION_H
 #define FRACTION_H
@@ -23,7 +23,7 @@ namespace bag {
 		Fraction(int numerator, int denominator) :
 			num_{ numerator }, 
 			den_{ denominator != 0 ? denominator :
-			throw std::logic_error("Знаменатель равен нулю.") } {}
+			throw std::logic_error("Р—РЅР°РјРµРЅР°С‚РµР»СЊ СЂР°РІРµРЅ РЅСѓР»СЋ.") } {}
 
 		~Fraction() {}
 	

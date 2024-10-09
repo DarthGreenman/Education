@@ -54,21 +54,13 @@ calculator::divide(const calculator::operand_order& order) const
 	return result;
 }
 
-double calculator::get_value(const calculator::operand_position& position)
-{
-	return position == calculator::operand_position::left ? lhv_ : rhv_;
+double calculator::get_value(const calculator::operand_position& position) {
+	return
+		position == calculator::operand_position::left ? lhv_ : rhv_;
 }
 
-std::pair<double, bool> calculator::divide(double divisible, double divider) const
-{
-	double result{};
-	bool division_by_zero{};
-
-	if (divider != 0) {
-		result = divisible / divider;
-	}
-	else {
-		division_by_zero = true;
-	}
-	return std::pair<double, bool>(result, division_by_zero);
+std::pair<double, bool> calculator::divide(double divisible, double divider) const {
+	return
+		divider != 0 ? std::make_pair(divisible / divider, false) :
+		std::make_pair(0.0, true);
 }

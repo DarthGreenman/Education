@@ -1,3 +1,4 @@
+
 #include "counter.h"
 
 namespace bag {

@@ -16,12 +16,12 @@ T get_input_value(const std::string & =
 
 int main()
 {
-    const bag::console_localisation localisation(1251);
+    const math::console_localisation localisation(1251);
     using std::cout;
     using std::cin;
     using std::string;
 
-    bag::counter* count{};
+    math::Counter* count{};
     cout << "Вы хотите указать начальное значение счётчика?"
         "\nВведите 'Да' или 'Нет': ";
     if (const bool assign_value{ answer("Да", "Нет") };
@@ -29,10 +29,10 @@ int main()
     {
         cout << "Введите начальное значение счётчика: ";
         const size_t value{get_input_value<size_t>()};
-        count = new bag::counter{ value };
+        count = new math::Counter{ value };
     }
     else {
-        count = new bag::counter{};
+        count = new math::Counter{};
     }
 
     for (;;) {

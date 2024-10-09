@@ -1,0 +1,115 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "homework_02_11_05",
+					"jsonFile" : "directory-homework_02_11_05-Debug-0801f491fcb2f344db1f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "homework_02_11_05",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"build" : "lib",
+					"jsonFile" : "directory-lib-Debug-e9069484d90298468a11.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "lib",
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "homework_02_11_05",
+					"targetIndexes" : 
+					[
+						1
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2
+					],
+					"name" : "Geometric",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "Geometric::@306ed2d68c6501e8728f",
+					"jsonFile" : "target-Geometric-Debug-b36e67deb4bda19da030.json",
+					"name" : "Geometric",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "homework_02_11_05::@b6205d8682eac440547f",
+					"jsonFile" : "target-homework_02_11_05-Debug-39022095d0213007e4d6.json",
+					"name" : "homework_02_11_05",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug",
+		"source" : "D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

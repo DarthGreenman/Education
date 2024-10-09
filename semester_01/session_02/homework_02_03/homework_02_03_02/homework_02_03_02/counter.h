@@ -5,7 +5,7 @@
 
 #include <utility>
 
-namespace bag {
+namespace math {
 	class counter {
 	public:
 		counter();

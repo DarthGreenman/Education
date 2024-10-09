@@ -1,4 +1,4 @@
-/* Fraction.cpp */
+﻿/* Fraction.cpp */
 
 #include "Fraction.h"
 

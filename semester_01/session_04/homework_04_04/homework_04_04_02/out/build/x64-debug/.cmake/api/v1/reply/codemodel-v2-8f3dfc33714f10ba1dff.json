@@ -1,0 +1,143 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "homework_04_04_02",
+					"childIndexes" : 
+					[
+						2
+					],
+					"jsonFile" : "directory-homework_04_04_02-Debug-e0b505d634a9e73413bc.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "homework_04_04_02",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"build" : "homework_04_04_02/Catch2_build",
+					"childIndexes" : 
+					[
+						3
+					],
+					"jsonFile" : "directory-homework_04_04_02.Catch2_build-Debug-176db77fa7d32a044683.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/unit_testing_frameworks/Catch2"
+				},
+				{
+					"build" : "homework_04_04_02/Catch2_build/src",
+					"jsonFile" : "directory-homework_04_04_02.Catch2_build.src-Debug-76a30bd66b31768f5f07.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 1,
+					"source" : "D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/unit_testing_frameworks/Catch2/src",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0,
+						1
+					],
+					"name" : "homework_04_04_02",
+					"targetIndexes" : 
+					[
+						2
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2,
+						3
+					],
+					"name" : "Catch2",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 3,
+					"id" : "Catch2::@e67114c797096ca1e92c",
+					"jsonFile" : "target-Catch2-Debug-892e6e4afdbeb7f2ed38.json",
+					"name" : "Catch2",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "Catch2WithMain::@e67114c797096ca1e92c",
+					"jsonFile" : "target-Catch2WithMain-Debug-c420ba928e45a394217d.json",
+					"name" : "Catch2WithMain",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "homework_04_04_02::@bc5a0fd3056416f03f89",
+					"jsonFile" : "target-homework_04_04_02-Debug-1fdfac37b79c2aa32699.json",
+					"name" : "homework_04_04_02",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_02/out/build/x64-debug",
+		"source" : "D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_02"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}

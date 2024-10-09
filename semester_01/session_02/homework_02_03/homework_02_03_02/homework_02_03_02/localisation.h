@@ -16,7 +16,7 @@
 
 #include <Windows.h>
 
-namespace bag {
+namespace math {
 	class console_localisation {
 	public:
 		console_localisation(unsigned long int code_page_id) :

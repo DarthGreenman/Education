@@ -133,6 +133,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Geometric.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
