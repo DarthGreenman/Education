@@ -4,7 +4,6 @@
 #define MY_PARSER_H
 
 #include "my_numeric.h"
-#include "my_types.h"
 
 #include <iosfwd>
 #include <map>
@@ -35,14 +34,14 @@ namespace my
         // Входные данные: запрос - строка формата "ЗАГОЛОВОК:КЛЮЧ", в данном случае разделитель ':'
         template<typename Type,
             typename = std::enable_if_t<std::is_integral_v<Type> || std::is_floating_point_v<Type> || std::is_same_v<Type, std::string>>>
-        auto get_value(const std::string& param) const
+        auto get_value(const std::string& param, char delim = '.') const
         {
             using namespace std;
-            if (const auto q = count(begin(param), end(param), ascii::colon); q != 1)
-                throw invalid_argument{ "\nException \"Error in request format\" in line: " +
-                to_string(__LINE__) + ", file:\n" + string{ __FILE__ } };
+            if (const auto q = count(begin(param), end(param), delim); q != 1)
+                throw invalid_argument{ "\nException \"Error in request format\" in line: " + 
+                to_string(__LINE__) + ", file:\n" + string{ __FILE__ } + '\n'};
 
-            return get_value<Type>(get_pair(param, ascii::colon));
+            return get_value<Type>(get_pair(param, delim));
         }
 
         // Возращает значение ключа в целочисленном типе; в типе числа с плавающей запятой; в строке,
@@ -67,7 +66,7 @@ namespace my
             string error_message{ "\nThere is no parameter with name: " + param.second + "\nParameters from this heading " + param.first + ": " };
             for (auto lower = records_.lower_bound(param.first); lower != records_.upper_bound(param.first); ++lower)
                 error_message += lower->second.first + ' ';
-            throw std::invalid_argument{ error_message };
+            throw std::invalid_argument{ error_message + '\n'};
         }
 
     private:
@@ -88,8 +87,8 @@ namespace my
             for (; first != last; ++first)
             {
                 if (!rules(*first))
-                    throw invalid_argument{ "\nException \"Unresolved symbol\" in line: " + to_string(__LINE__) +
-                        ", file:\n" + string{ __FILE__ } };
+                    throw invalid_argument{ "\nException \"Unresolved symbol\" in line: " + 
+                    to_string(__LINE__) + ", file:\n" + string{ __FILE__ } + '\n'};
                 lexeme.push_back(*first);
             }
             
@@ -102,7 +101,7 @@ namespace my
         auto get_param(const_iterator first, const_iterator last, std::string& heading) const
             ->std::pair<std::string, std::string>;
         
-        auto get_pair(const std::string& param, ascii::character delim) const->std::pair<std::string, std::string>;
+        auto get_pair(const std::string& param, char delim) const->std::pair<std::string, std::string>;
 
     private:
         std::multimap<std::string, std::pair<std::string, std::string>> records_{};

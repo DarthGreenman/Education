@@ -16,23 +16,23 @@ namespace my
     {
         enum character
         {
-            tab                  = 0b00001001,
+            tab                  = 0b00001001, 
             //
             space                = 0b00100000,
-            exclamation_mark     = 0b00100001,
-            double_quote         = 0b00100010,
-            number               = 0b00100011,
-            dollar_sign          = 0b00100100,
+            exclamation_mark     = 0b00100001, // !
+            double_quote         = 0b00100010, // "
+            number               = 0b00100011, // #
+            dollar_sign          = 0b00100100, 
             percent              = 0b00100101,
             ampersand            = 0b00100110,
-            single_quote         = 0b00100111,
-            left_parenthesis     = 0b00101000,
-            right_parenthesis    = 0b00101001,
-            asterisk             = 0b00101010,
+            single_quote         = 0b00100111, // '
+            left_parenthesis     = 0b00101000, // (
+            right_parenthesis    = 0b00101001, // )
+            asterisk             = 0b00101010, // *
             plus                 = 0b00101011,
-            comma                = 0b00101100,
+            comma                = 0b00101100, // ,
             minus                = 0b00101101,
-            period               = 0b00101110,
+            period               = 0b00101110, // .
             slash                = 0b00101111,
             zero                 = 0b00110000,
             one                  = 0b00110001,
@@ -44,13 +44,13 @@ namespace my
             seven                = 0b00110111,
             eight                = 0b00111000,
             nine                 = 0b00111001,
-            colon                = 0b00111010,
-            semicolon            = 0b00111011,
+            colon                = 0b00111010, // :
+            semicolon            = 0b00111011, // ;
             less_than            = 0b00111100,
             equality_sign        = 0b00111101,
             greater_than         = 0b00111110,
             question_mark        = 0b00111111,
-            at_sign              = 0b01000000,
+            at_sign              = 0b01000000, // @
             A                    = 0b01000001,
             B                    = 0b01000010,
             C                    = 0b01000011,
@@ -77,12 +77,12 @@ namespace my
             X                    = 0b01011000,
             Y                    = 0b01011001,
             Z                    = 0b01011010,
-            left_square_bracket  = 0b01011011,
+            left_square_bracket  = 0b01011011, // [
             backslash            = 0b01011100,
-            right_square_bracket = 0b01011101,
-            caret                = 0b01011110,
-            underscore           = 0b01011111,
-            grave                = 0b01100000,
+            right_square_bracket = 0b01011101, // ]
+            caret                = 0b01011110, // ^
+            underscore           = 0b01011111, // _
+            grave                = 0b01100000,  
             a                    = 0b01100001,
             b                    = 0b01100010,
             c                    = 0b01100011,
@@ -109,9 +109,9 @@ namespace my
             x                    = 0b01111000,
             y                    = 0b01111001,
             z                    = 0b01111010,
-            left_curly_bracket   = 0b01111011,
+            left_curly_bracket   = 0b01111011, // {
             vertical_bar         = 0b01111100,
-            right_curly_bracket  = 0b01111101,
+            right_curly_bracket  = 0b01111101, // }
             tilde                = 0b01111110,
             delete_sign          = 0b01111111,
             beg_uppercase        = character::A,

@@ -60,7 +60,7 @@ auto my::parser::get_param(const_iterator first, const_iterator last, std::strin
 
         default:
             throw invalid_argument{ "\nException \"Unresolved symbol - the line must start with either a letter or [\" in line: " +
-                to_string(__LINE__) + ", file:\n" + string{ __FILE__ } };
+                to_string(__LINE__) + ", file:\n" + string{ __FILE__ } + '\n' };
     }
 
     return pair<string, string>{};
@@ -74,17 +74,20 @@ auto my::parser::get_range(my::parser::const_iterator first, my::parser::const_i
     
     using namespace ascii;
     const auto beg = std::find_if_not(first, last, [](char ch) { return ch == space || ch == tab; });
-    const auto end = std::find_if(beg != last ? beg : first, last , [](char ch) { return ch == semicolon || ch == number; });
+    const auto end = std::find_if(beg != last ? beg : first, last , [](char ch) { return ch == semicolon ||
+        ch == number || ch == space || ch == tab; });
     
-    return std::make_pair(beg, end);
+    return std::make_pair(beg != last ? beg : first, end);
 }
 
 
-auto my::parser::get_pair(const std::string& param, ascii::character delim) const -> std::pair<std::string, std::string>
+auto my::parser::get_pair(const std::string& param, char delim) const -> std::pair<std::string, std::string>
 {
     using namespace std;
     istringstream stream{ param };
-    const auto values = split(stream, static_cast<char>(delim));
+    const auto values = split(stream, delim);
+    if (values.size() < 2ull)
+        return make_pair(string{}, string{});
     
     return make_pair(values[0], values[1]);
 }

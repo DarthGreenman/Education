@@ -6,6 +6,7 @@
 #include "my_types.h"
 
 #include <cmath>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 
@@ -31,6 +32,9 @@ namespace my
 		Type number{};
 		for (auto first = begin(string); first != end(string); ++first, --digit)
 		{
+			if (!is_digit(*first))
+				throw invalid_argument{ "\nUnresolved symbol - value must be a numeric character in line: " +
+				to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
 			const auto numeric = to_numeric(*first);
 			number += numeric * static_cast<Type>(pow(10, digit));
 		}
