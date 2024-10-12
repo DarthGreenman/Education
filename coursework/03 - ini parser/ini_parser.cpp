@@ -9,35 +9,31 @@
 // 5. Имя ключа может состоять из букв, цифр, '_', но перый символ должен быть буквой.
 // * перечень разрешенных символов см. в my_parser.cpp, строка 40.
 
-#include "../../include/my_parser.h"
+#include "my_parser.h"
 
-#include <cstdlib>
 #include <exception>
 #include <fstream>
 #include <iosfwd>
 #include <iostream>
 #include <string>
-#include <utility>
 
 int main()
-{   
-    std::ifstream file{ "..\\..\\test_1.ini" };
+{
+    std::ifstream file{ "ini\\test_2.ini" };
     if (!file.is_open())
         return 1;
 
     try {
-        const my::parser ini{ file };
-        auto num = ini.get_value<int>("drivers.timer");
-        std::cout << num << '\n';
-        std::cout << ++num << '\n';
-        std::cout << ini.get_value<std::string>(std::make_pair("386Enh", "CGA80WOA.FON"));
-        std::cout << ini.get_value<std::string>(std::make_pair("386Enh", "CG80WOA.FON"));
+        const ini::parser ini{ file };
+        const auto num_1 = ini.get_value<float>({ { "Section1" }, { "var1" } });
+        const auto num_2 = ini.get_value<unsigned>("Section2.var1");
+        std::cout << num_1 + num_2 << '\n';
+        std::cout << ini.get_value<std::string>({ { "Section1" }, { "var2" } });
     }
     catch (const std::exception& err) {
         file.close();
         std::cout << err.what();
     }
 
-    std::system("pause");
     return 0;
 }

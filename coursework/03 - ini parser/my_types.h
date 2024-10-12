@@ -3,15 +3,8 @@
 #ifndef MY_TYPES_H
 #define MY_TYPES_H
 
-#include <cstddef>
-
 namespace my
 {
-    constexpr auto operator "" _z(unsigned long long number)
-    {
-        return static_cast<std::size_t>(number);
-    }
-
     namespace ascii
     {
         enum character

@@ -15,35 +15,38 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ini parser.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\my_parser.cpp">
+    <ClCompile Include="ini_parser.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\my_parser.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\my_numeric.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\my_types.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
+    <None Include="ini\test.ini">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="ini\test_1.ini">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
+    <None Include="ini\test_2.ini">
+      <Filter>Файлы ресурсов</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="basic_information.txt">
+    <Text Include="doc\basic_information.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\test_1.ini">
-      <Filter>Файлы ресурсов</Filter>
-    </None>
-    <None Include="..\..\test_2.ini">
-      <Filter>Файлы ресурсов</Filter>
-    </None>
+    <ClInclude Include="my_numeric.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="my_parser.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="my_types.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="my_utilities.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{187b9253-888f-4a13-8740-e7279f8cccfc}</ProjectGuid>
+    <ProjectGuid>{944ae122-f8e0-4178-a6a5-b9267ca3dfd8}</ProjectGuid>
     <RootNamespace>iniparser</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -70,9 +70,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -131,20 +128,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\my_parser.cpp" />
-    <ClCompile Include="ini parser.cpp" />
+    <ClCompile Include="ini_parser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\my_numeric.h" />
-    <ClInclude Include="..\..\include\my_parser.h" />
-    <ClInclude Include="..\..\include\my_types.h" />
+    <None Include="ini\test.ini" />
+    <None Include="ini\test_1.ini" />
+    <None Include="ini\test_2.ini" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="basic_information.txt" />
+    <Text Include="doc\basic_information.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\test_1.ini" />
-    <None Include="..\..\test_2.ini" />
+    <ClInclude Include="my_numeric.h" />
+    <ClInclude Include="my_parser.h" />
+    <ClInclude Include="my_types.h" />
+    <ClInclude Include="my_utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
