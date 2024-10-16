@@ -23,10 +23,10 @@
     <ClInclude Include="includes\my_ultralong.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="includes\my_numeric.h">
+    <ClInclude Include="includes\my_utilities.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="includes\my_utilities.h">
+    <ClInclude Include="includes\my_types.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
