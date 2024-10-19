@@ -49,7 +49,6 @@ namespace my
 		static_assert(!(Width_in_bits % 8ull), "The bit field width must be a multiple of 8.");
 	public:
 		using size_type = std::size_t;
-		using bitset = std::bitset<Width_in_bits>;
 
 		template<size_type Width_in_bits>
 		friend std::ostream& operator<<(std::ostream& Os, const ultralong<Width_in_bits>& number);
@@ -136,6 +135,34 @@ namespace my
 
 		~ultralong() = default;
 
+		// Складываем числа BCD по правилам сложения двоичных чисел, и корректируем
+		// результат, дополняя тетрады из которых был перенос бита в старшую тетраду
+		// и тетрады которые предсталяют цифру большую 9-ти.
+		// Условия корректировки сложения:
+		// 1. Значение сложения в младшем полубайте больше 1001.
+		// 2. Перенос единицы в младший бит старшего полубайта.
+		ultralong& operator+=(const ultralong& number)
+		{
+			if (number.number_.none())
+				return *this;
+			
+			decltype(number_) sum{};
+			for (size_type shift{}; shift < Width_in_bits; shift += 8ull) 
+			{
+				constexpr decltype(number_) mask{ 0b11111111 };
+				const auto lhs = number_ >> shift & mask, 
+					rhs = number.number_ >> shift & mask;
+				if (auto numeric = bits::add(lhs, rhs); numeric.any())
+				{
+					if (numeric.to_ullong() > 9ull)
+						numeric = bits::adj(numeric);
+					sum = bits::add(sum, numeric << shift);
+				}
+			}
+			std::swap(sum, number_);
+			return *this;
+		}
+
 		/************************************************************************************************************************/
 		template<typename String_type = std::string,
 			typename = std::enable_if_t<my::is_strings_v<String_type>>>
@@ -215,7 +242,7 @@ namespace my
 		}
 
 	private:
-		bitset number_{};
+		std::bitset<Width_in_bits> number_{};
 	};
 
 	template<std::size_t N>

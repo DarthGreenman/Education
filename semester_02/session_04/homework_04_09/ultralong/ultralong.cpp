@@ -16,9 +16,18 @@ int main()
 {
 	try
 	{
+		
+		my::ultralong<40> number_1{ std::vector<char32_t>{'2','6','7','1'} };
+		my::ultralong<40> number_2{ "8420" };
+
+		std::cout << number_1 << '\t' << number_1.to_string() << '\n';
+		std::cout << number_2 << '\t' << number_2.to_string() << '\n';
+
+		number_1 += number_2;
+
+		std::cout << number_1 << '\t' << number_1.to_string() << '\n';
+	
 		/*
-		const my::ultralong<64> number_1{ std::vector<char32_t>{'2','0','5','6','4','5','0'} };
-		const my::ultralong<64> number_2{ "2056450" };
 		const my::ultralong<64> number_3{ std::vector<unsigned>{2,0,5,6,4,5,0} };
 		const my::ultralong<64> number_4{ {'2','0','5','6','4','5','0'} };
 		const my::ultralong<64> number_5{ L"2056450" };
@@ -49,31 +58,6 @@ int main()
 	{
 		std::cout << err.what();
 	}
-
-	std::bitset<8> a{ 5 };
-	std::bitset<8> b{ 7 };
-	b.flip();
-	const auto c = my::bits::add(b, std::bitset<8>{1});
-
-	const auto sum_b = my::bits::add(a, c);
-	const auto sum_d = sum_b.to_ulong();
-
-	my::ultralong<64> number_21{ "2056450" };
-	const decltype(number_21) number_22{ number_21 };
-
-	//std::cout << number_21 << '\t' << number_21.to_string() << '\n';
-	//std::cout << number_22 << '\t' << number_22.to_string() << '\n';
-
-	decltype(number_21) number_23{ U"123" };
-
-	my::swap(number_23, number_21);
-	//std::cout << number_21 << '\t' << number_21.to_string() << '\n';
-
-	std::cout << number_23 << '\t' << number_23.to_string() << '\n';
-	decltype(number_21) number_24{ std::move(number_23) };
-	std::cout << number_23 << '\t' << number_23.to_string() << '\n';
-	std::cout << number_24 << '\t' << number_24.to_string() << '\n';
-
 
 	return 0;
 }
