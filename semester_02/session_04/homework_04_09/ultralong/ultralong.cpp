@@ -1,15 +1,11 @@
 ﻿// ultralong.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
 //
 
-#include "includes/my_types.h"
 #include "includes/my_ultralong.h"
-#include "includes/my_utilities.h"
 
-#include <bitset>
 #include <exception>
 #include <iostream>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 int main()
@@ -17,8 +13,8 @@ int main()
 	try
 	{
 		
-		my::ultralong<40> number_1{ std::vector<char32_t>{'2','6','7','1'} };
-		my::ultralong<40> number_2{ "8420" };
+		my::ultralong<40> number_1{ std::vector<unsigned>{9,2,9} }; // 9,2,9
+		my::ultralong<40> number_2{ U"1538" }; // 1538
 
 		std::cout << number_1 << '\t' << number_1.to_string() << '\n';
 		std::cout << number_2 << '\t' << number_2.to_string() << '\n';
@@ -26,8 +22,11 @@ int main()
 		number_1 += number_2;
 
 		std::cout << number_1 << '\t' << number_1.to_string() << '\n';
+
+		const auto sum = number_1 + number_2;
+		std::cout << sum << '\t' << sum.to_string() << '\n';
 	
-		/*
+		
 		const my::ultralong<64> number_3{ std::vector<unsigned>{2,0,5,6,4,5,0} };
 		const my::ultralong<64> number_4{ {'2','0','5','6','4','5','0'} };
 		const my::ultralong<64> number_5{ L"2056450" };
@@ -39,8 +38,8 @@ int main()
 		std::cout << number_4 << '\t' << number_4.to_string() << '\n';
 		std::cout << number_5 << '\t' << number_5.to_string() << '\n';
 		std::cout << number_6 << '\t' << number_6.to_string() << '\n';
-		*/
-		/*
+		
+		
 		std::string report_1{ "Сальдо на момент отчета: " };
 		const auto sum_1 = number_1.to_string();
 		report_1 += sum_1;
@@ -52,7 +51,7 @@ int main()
 		const auto sum_3 = number_3.to_string<std::u8string>();
 		const auto sum_4 = number_3.to_string<std::u16string>();
 		const auto sum_5 = number_3.to_string<std::u32string>();
-		*/
+		
 	}
 	catch (const std::exception& err)
 	{

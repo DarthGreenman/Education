@@ -23,8 +23,6 @@
 
 #include <algorithm>
 #include <bitset>
-#include <cctype>
-#include <cstddef>
 #include <exception>
 #include <initializer_list>
 #include <iosfwd>
@@ -35,6 +33,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 namespace my
 {
@@ -43,18 +42,19 @@ namespace my
 		return std::string{ message + std::to_string(line) + ", file:\n" + std::string{ __FILE__ } + '\n' };
 	}
 
-	template<std::size_t Width_in_bits>
+	template<std::size_t Width>
 	class ultralong
 	{
-		static_assert(!(Width_in_bits % 8ull), "The bit field width must be a multiple of 8.");
+		static_assert(!(Width % bit::properties_numeric<Width>::bit_width), "The bit field width must be a multiple of 8.");
 	public:
 		using size_type = std::size_t;
+		using properties_numeric = bit::properties_numeric<Width>;
 
-		template<size_type Width_in_bits>
-		friend std::ostream& operator<<(std::ostream& Os, const ultralong<Width_in_bits>& number);
+		template<size_type Width>
+		friend std::ostream& operator<<(std::ostream& Os, const ultralong<Width>& number);
 
-		template<std::size_t Width_in_bits>
-		friend auto swap(ultralong<Width_in_bits>& lhs, ultralong<Width_in_bits>& rhs) noexcept;
+		template<std::size_t Width>
+		friend auto swap(ultralong<Width>& lhs, ultralong<Width>& rhs) noexcept;
 		
 		constexpr ultralong() = default;
 
@@ -110,13 +110,13 @@ namespace my
 		/************************************************************************************************************************/
 		explicit ultralong(const ultralong& number) : ultralong()
 		{
-			bits::copy(number.number_, number_);
+			bit::copy(number.number_, number_);
 		}
 		
 		ultralong& operator=(const ultralong& number)
 		{
 			if (number_ != number.number_)
-				bits::copy(number.number_, number_);
+				bit::copy(number.number_, number_);
 			return *this;
 		}
 
@@ -145,21 +145,11 @@ namespace my
 		{
 			if (number.number_.none())
 				return *this;
-			
-			decltype(number_) sum{};
-			for (size_type shift{}; shift < Width_in_bits; shift += 8ull) 
-			{
-				constexpr decltype(number_) mask{ 0b11111111 };
-				const auto lhs = number_ >> shift & mask, 
-					rhs = number.number_ >> shift & mask;
-				if (auto numeric = bits::add(lhs, rhs); numeric.any())
-				{
-					if (numeric.to_ullong() > 9ull)
-						numeric = bits::adj(numeric);
-					sum = bits::add(sum, numeric << shift);
-				}
-			}
+
+			auto sum = bit::add(number_, number.number_);
+			sum = adjusted(sum);
 			std::swap(sum, number_);
+			
 			return *this;
 		}
 
@@ -170,9 +160,9 @@ namespace my
 		{
 			using namespace std;
 			String_type number{};
-			number.reserve(Width_in_bits / 8ull);
+			number.reserve(Width / properties_numeric::bit_width);
 
-			to_string_impl(back_insert_iterator<decltype(number)>(number), Width_in_bits - 8ull);
+			to_string_impl(back_insert_iterator<decltype(number)>(number), Width - properties_numeric::bit_width);
 			if (const auto not_zero = find_if_not(cbegin(number), cend(number),
 				[](typename iterator_traits<decltype(cbegin(number))>::value_type elem) 
 				{
@@ -204,7 +194,7 @@ namespace my
 			if (find_if_not(first, last, is_digit) != last)
 				throw invalid_argument{ error_message("A character cannot be converted to a digit.", __LINE__) };
 			
-			if (Width_in_bits / 8ull < distance(first, last))
+			if (Width / properties_numeric::bit_width < distance(first, last))
 				throw out_of_range{ error_message("The type does not have the ability to accommodate the number.", __LINE__) };
 		}
 
@@ -219,8 +209,8 @@ namespace my
 					const decltype(number_) numeric{ 
 						static_cast<size_type>(is_chars_v<decay_t<decltype(elem)>> ? my::to_numeric(elem) :	elem) 
 					};
-					const auto shift = representation.second++ * 8ull;
-					representation.first ^= numeric << shift;
+					const auto offset = properties_numeric::bit_width * representation.second++;
+					representation.first ^= numeric << offset;
 				}
 				pair<decltype(number_), size_type> representation{}; // {{ big-endian },  {Индекс самого младшего байта }}
 			};
@@ -228,21 +218,45 @@ namespace my
 			return number.representation.first;
 		}
 
-		template<typename String_type>
-		auto to_string_impl(std::back_insert_iterator<String_type> it, int shift) const
+		/*
+		   0000 1001 0010 1001  (929)
+		 + 0001 0101 0011 1000  (1538)
+		   ___________________
+		   0001 1110 0110 0001  (7777) - двоичная сумма
+		 +      0110      0110  поправки (по правилу 1 и правилу 2)
+		   ___________________
+		   0010 0100 0110 0111  (2467) - сумма BCD
+		
+		   Правило 1 - к тетраде из которой был перенос нужно прибавить 0110.
+		   Правило 2 - к тетраде, которая больше 1001 нужно прибавить 0110.
+		*/
+		auto adjusted(const std::bitset<Width>& number, size_type offset = 0ull)
 		{
-			if (shift < 0)
+			if (offset >= Width)
+				return number;
+
+			const auto mask = properties_numeric::lsb ^ properties_numeric::msb;
+			std::decay_t<decltype(number)> sum{ number };
+			if (const decltype(sum) numeric{ sum >> offset & mask }; properties_numeric::is_adjust(numeric))
+				sum = bit::add(sum, properties_numeric::adj << offset);
+			
+			return adjusted(sum, offset += properties_numeric::bit_width);
+		}
+
+		template<typename String_type>
+		auto to_string_impl(std::back_insert_iterator<String_type> it, int offset) const
+		{
+			if (offset < 0)
 				return;
 
-			constexpr decltype(number_) mask{ 0b11111111 };
-			const auto numeric = bits::to_numeric(number_ >> shift & mask);
+			const auto numeric = bit::to_numeric(number_ >> offset & properties_numeric::lsb);
 			*it = to_char<typename String_type::value_type>(numeric);
 
-			to_string_impl(it, shift -= 8ull);
+			to_string_impl(it, offset -= properties_numeric::bit_width);
 		}
 
 	private:
-		std::bitset<Width_in_bits> number_{};
+		std::bitset<Width> number_{};
 	};
 
 	template<std::size_t N>
@@ -252,11 +266,19 @@ namespace my
 	}
 
 	template<std::size_t N>
-	std::ostream& operator<<(std::ostream& os, const ultralong<N>& number) {
-		using size_type = typename ultralong<N>::size_type;
-		for (size_type pos{}; pos < N; ++pos)
+	std::ostream& operator<<(std::ostream& os, const ultralong<N>& number) 
+	{
+		for (auto pos = 0ull; pos < N; ++pos)
 			os << number.number_.test(N - pos - 1ull);
 		return os;
+	}
+
+	template<std::size_t N>
+	auto operator+(const ultralong<N>& lhs, const ultralong<N>& rhs)
+	{
+		std::decay_t<decltype(lhs)> sum{ lhs };
+		sum += rhs;
+		return sum;
 	}
 }
 

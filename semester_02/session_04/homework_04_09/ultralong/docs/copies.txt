@@ -1,0 +1,14 @@
+auto adjusted(const std::bitset<Width>& number)
+{
+	std::decay_t<decltype(number)> sum{ number };
+	for (auto offset = 0ull; offset < Width; offset += properties_numeric::bit_width)
+	{
+		const auto mask = properties_numeric::lsb ^ properties_numeric::msb;
+		if (const decltype(sum) numeric{ sum >> offset & mask }; 
+			properties_numeric::is_adjust(numeric))
+		{
+			sum = bit::add(sum, properties_numeric::adj << offset);
+		}
+	}
+	return sum;
+}
