@@ -45,7 +45,7 @@ namespace my
 	template<std::size_t Width>
 	class ultralong
 	{
-		static_assert(!(Width % bit::properties_numeric<Width>::bit_width), "The bit field width must be a multiple of 8.");
+		static_assert(!(Width % bit::properties_numeric<Width>::width), "The bit field width must be a multiple of 8.");
 	public:
 		using size_type = std::size_t;
 		using properties_numeric = bit::properties_numeric<Width>;
@@ -146,10 +146,15 @@ namespace my
 			if (number.number_.none())
 				return *this;
 
-			auto sum = bit::add(number_, number.number_);
-			sum = adjusted(sum);
-			std::swap(sum, number_);
+			auto sum = bit::add(number_, number.number_);			
+			try {
+				sum = adjusted(sum);
+			}
+			catch (const std::exception& err) {
+				throw err;
+			}
 			
+			std::swap(sum, number_);
 			return *this;
 		}
 
@@ -160,9 +165,9 @@ namespace my
 		{
 			using namespace std;
 			String_type number{};
-			number.reserve(Width / properties_numeric::bit_width);
+			number.reserve(Width / properties_numeric::width);
 
-			to_string_impl(back_insert_iterator<decltype(number)>(number), Width - properties_numeric::bit_width);
+			to_string_impl(back_insert_iterator<decltype(number)>(number), Width - properties_numeric::width);
 			if (const auto not_zero = find_if_not(cbegin(number), cend(number),
 				[](typename iterator_traits<decltype(cbegin(number))>::value_type elem) 
 				{
@@ -194,7 +199,7 @@ namespace my
 			if (find_if_not(first, last, is_digit) != last)
 				throw invalid_argument{ error_message("A character cannot be converted to a digit.", __LINE__) };
 			
-			if (Width / properties_numeric::bit_width < distance(first, last))
+			if (Width / properties_numeric::width < distance(first, last))
 				throw out_of_range{ error_message("The type does not have the ability to accommodate the number.", __LINE__) };
 		}
 
@@ -209,7 +214,7 @@ namespace my
 					const decltype(number_) numeric{ 
 						static_cast<size_type>(is_chars_v<decay_t<decltype(elem)>> ? my::to_numeric(elem) :	elem) 
 					};
-					const auto offset = properties_numeric::bit_width * representation.second++;
+					const auto offset = properties_numeric::width * representation.second++;
 					representation.first ^= numeric << offset;
 				}
 				pair<decltype(number_), size_type> representation{}; // {{ big-endian },  {Индекс самого младшего байта }}
@@ -232,15 +237,17 @@ namespace my
 		*/
 		auto adjusted(const std::bitset<Width>& number, size_type offset = 0ull)
 		{
-			if (offset >= Width)
+			if (offset == Width)
 				return number;
 
 			const auto mask = properties_numeric::lsb ^ properties_numeric::msb;
-			std::decay_t<decltype(number)> sum{ number };
-			if (const decltype(sum) numeric{ sum >> offset & mask }; properties_numeric::is_adjust(numeric))
-				sum = bit::add(sum, properties_numeric::adj << offset);
+			const decltype(number) numeric{ number >> offset & mask };
+			if (offset == Width - properties_numeric::width && properties_numeric::is_adjust(numeric))
+				throw std::overflow_error{ "The calculation result is too large for the target type" };
+			const auto adj = properties_numeric::adj << offset;
 			
-			return adjusted(sum, offset += properties_numeric::bit_width);
+			return adjusted(properties_numeric::is_adjust(numeric) ? bit::add(number, adj) : number,
+				offset += properties_numeric::width);
 		}
 
 		template<typename String_type>
@@ -252,7 +259,7 @@ namespace my
 			const auto numeric = bit::to_numeric(number_ >> offset & properties_numeric::lsb);
 			*it = to_char<typename String_type::value_type>(numeric);
 
-			to_string_impl(it, offset -= properties_numeric::bit_width);
+			to_string_impl(it, offset -= properties_numeric::width);
 		}
 
 	private:

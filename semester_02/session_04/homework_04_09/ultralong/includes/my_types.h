@@ -53,7 +53,7 @@ namespace my
 		template<std::size_t N>
 		struct properties_numeric
 		{
-			static constexpr auto bit_width = 8ull;
+			static constexpr auto width = 8ull;
 			static constexpr std::bitset<N> lsb{ 0b0000'1111 };
 			static constexpr std::bitset<N> msb{ 0b1111'0000 };
 			static constexpr std::bitset<N> adj{ 0b1111'0110 };
@@ -68,7 +68,7 @@ namespace my
 			template<std::size_t N>
 			auto to_numeric_impl(const std::bitset<N>& bit, std::size_t pos = 0ull, int numeric = 0) 
 			{
-				if (pos == properties_numeric<N>::bit_width)
+				if (pos == properties_numeric<N>::width)
 					return numeric;
 				const decltype(numeric) num{ bit.test(pos) << pos };
 				return to_numeric_impl(bit, ++pos, numeric += num);

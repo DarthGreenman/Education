@@ -34,5 +34,8 @@
     <Text Include="docs\copies.txt">
       <Filter>Файлы ресурсов</Filter>
     </Text>
+    <Text Include="docs\notes.txt">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
   </ItemGroup>
 </Project>

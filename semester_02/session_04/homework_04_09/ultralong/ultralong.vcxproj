@@ -137,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\copies.txt" />
+    <Text Include="docs\notes.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

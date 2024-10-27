@@ -5,6 +5,7 @@
 
 #include <bitset>
 #include <type_traits>
+#include <stdexcept>
 
 namespace my 
 {
