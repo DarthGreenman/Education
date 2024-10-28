@@ -1,0 +1,10 @@
+template<size_type Width>
+friend std::ostream& operator<<(std::ostream& Os, const ultralong<Width>& number);
+
+template<std::size_t N>
+std::ostream& operator<<(std::ostream& os, const ultralong<N>& number) 
+{
+	for (auto pos = 0ull; pos < N; ++pos)
+		os << number.number_.test(N - pos - 1ull);
+	return os;
+}

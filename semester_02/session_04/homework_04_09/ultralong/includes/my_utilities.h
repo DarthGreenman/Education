@@ -3,16 +3,30 @@
 #ifndef MY_UTILITIES_H
 #define MY_UTILITIES_H
 
+#include "my_types.h"
+
 #include <bitset>
 #include <type_traits>
-#include <stdexcept>
 
 namespace my 
-{
+{	
 	namespace bit
 	{
+		namespace helper
+		{
+			template<std::size_t N>
+			auto to_numeric_impl(const std::bitset<N>& bit, std::size_t pos = 0ull, int numeric = 0)
+			{
+				if (pos == properties_numeric<N>::width)
+					return numeric;
+				const decltype(numeric) num{ bit.test(pos) << pos };
+				return to_numeric_impl(bit, ++pos, numeric += num);
+			}			
+		}
+
 		template<std::size_t N>
-		void copy(const std::bitset<N>& sourсe, std::bitset<N>& target) {
+		auto copy(const std::bitset<N>& sourсe, std::bitset<N>& target)
+		{
 			// Оператор | осуществляет операцию логического ИЛИ между соответствующими битами двух операндов.
 			// Результатом операции логического ИЛИ будет 0 только в случае, если оба бита равны 0.
 			// Во всех остальных случаях результат будет 1.
@@ -29,7 +43,7 @@ namespace my
 		// младшего разряда в текущий. Перенос происходит в том случае, если в младшем разряде сумма больше или равна
 		// основанию системы счисления.
 		template<std::size_t N>
-		auto add(const std::bitset<N>& lhs, const std::bitset<N>& rhs) -> std::decay_t<decltype(lhs)> 
+		auto add(const std::bitset<N>& lhs, const std::bitset<N>& rhs) -> std::decay_t<decltype(lhs)>
 		{
 			const auto carry = (lhs & rhs) << 1;
 			// Оператор ^ осуществляет операцию логического исключающего ИЛИ между соответствующими битами
@@ -37,6 +51,12 @@ namespace my
 			// Во всех остальных случаях результат будет 1.
 			const auto sum = lhs ^ rhs;
 			return carry == 0 ? sum : add(sum, carry);
+		}
+		
+		template<std::size_t N>
+		auto to_numeric(const std::bitset<N>& bit)
+		{
+			return helper::to_numeric_impl(bit);
 		}
 	}
 }

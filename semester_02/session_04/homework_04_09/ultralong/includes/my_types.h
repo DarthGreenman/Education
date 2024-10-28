@@ -61,25 +61,7 @@ namespace my
 			{
 				return numeric.to_ullong() > 9ull ? true : false;
 			}
-		};
-
-		namespace helper
-		{
-			template<std::size_t N>
-			auto to_numeric_impl(const std::bitset<N>& bit, std::size_t pos = 0ull, int numeric = 0) 
-			{
-				if (pos == properties_numeric<N>::width)
-					return numeric;
-				const decltype(numeric) num{ bit.test(pos) << pos };
-				return to_numeric_impl(bit, ++pos, numeric += num);
-			}
-		}
-
-		template<std::size_t N>
-		auto to_numeric(const std::bitset<N>& bit)
-		{
-			return helper::to_numeric_impl(bit);
-		}	
+		};	
 	}
 }
 #endif // !MY_TYPES_H

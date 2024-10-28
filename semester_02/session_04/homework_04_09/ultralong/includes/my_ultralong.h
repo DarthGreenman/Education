@@ -21,11 +21,9 @@
 #include "my_types.h"
 #include "my_utilities.h"
 
-#include <algorithm>
 #include <bitset>
 #include <exception>
 #include <initializer_list>
-#include <iosfwd>
 #include <iterator>
 #include <memory>
 #include <stdexcept>
@@ -33,13 +31,12 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 namespace my
 {
 	auto error_message(const std::string& message, int line)
 	{
-		return std::string{ message + std::to_string(line) + ", file:\n" + std::string{ __FILE__ } + '\n' };
+		return std::string{ message + "\nline: " + std::to_string(line) + "\nfile: " + std::string{__FILE__} + '\n'};
 	}
 
 	template<std::size_t Width>
@@ -50,12 +47,10 @@ namespace my
 		using size_type = std::size_t;
 		using properties_numeric = bit::properties_numeric<Width>;
 
-		template<size_type Width>
-		friend std::ostream& operator<<(std::ostream& Os, const ultralong<Width>& number);
-
 		template<std::size_t Width>
 		friend auto swap(ultralong<Width>& lhs, ultralong<Width>& rhs) noexcept;
 		
+		/************************************************************************************************************************/
 		constexpr ultralong() = default;
 
 		template<typename String_type = std::string,
@@ -158,28 +153,10 @@ namespace my
 			return *this;
 		}
 
-		/************************************************************************************************************************/
-		template<typename String_type = std::string,
-			typename = std::enable_if_t<my::is_strings_v<String_type>>>
-		auto to_string() const
+		auto get() const
 		{
-			using namespace std;
-			String_type number{};
-			number.reserve(Width / properties_numeric::width);
-
-			to_string_impl(back_insert_iterator<decltype(number)>(number), Width - properties_numeric::width);
-			if (const auto not_zero = find_if_not(cbegin(number), cend(number),
-				[](typename iterator_traits<decltype(cbegin(number))>::value_type elem) 
-				{
-					return elem == static_cast<decltype(elem)>('0');
-				}
-			); not_zero != cend(number))
-			{
-				number.erase(begin(number), not_zero);
-				number.shrink_to_fit();
-			}
-			return number;
-		}		
+			return number_;
+		}
 
 	private:
 		auto swap(ultralong& number) noexcept
@@ -193,7 +170,8 @@ namespace my
 			using namespace std;
 			auto is_digit = [](typename iterator_traits<Iterator>::value_type elem) 
 				{
-					return my::is_chars_v<decltype(elem)> ? isdigit(elem) : true;
+					return my::is_chars_v<decltype(elem)> ? isdigit(elem) : 
+						elem < 10 ? true : false;
 				};
 
 			if (find_if_not(first, last, is_digit) != last)
@@ -222,19 +200,9 @@ namespace my
 			const auto number = for_each(first, last, number_representation());
 			return number.representation.first;
 		}
-
-		/*
-		   0000 1001 0010 1001  (929)
-		 + 0001 0101 0011 1000  (1538)
-		   ___________________
-		   0001 1110 0110 0001  (7777) - двоичная сумма
-		 +      0110      0110  поправки (по правилу 1 и правилу 2)
-		   ___________________
-		   0010 0100 0110 0111  (2467) - сумма BCD
 		
-		   Правило 1 - к тетраде из которой был перенос нужно прибавить 0110.
-		   Правило 2 - к тетраде, которая больше 1001 нужно прибавить 0110.
-		*/
+		// Правило 1 - к тетраде из которой был перенос нужно прибавить 0110.
+		// Правило 2 - к тетраде, которая больше 1001 нужно прибавить 0110.
 		auto adjusted(const std::bitset<Width>& number, size_type offset = 0ull)
 		{
 			if (offset == Width)
@@ -250,18 +218,6 @@ namespace my
 				offset += properties_numeric::width);
 		}
 
-		template<typename String_type>
-		auto to_string_impl(std::back_insert_iterator<String_type> it, int offset) const
-		{
-			if (offset < 0)
-				return;
-
-			const auto numeric = bit::to_numeric(number_ >> offset & properties_numeric::lsb);
-			*it = to_char<typename String_type::value_type>(numeric);
-
-			to_string_impl(it, offset -= properties_numeric::width);
-		}
-
 	private:
 		std::bitset<Width> number_{};
 	};
@@ -273,20 +229,11 @@ namespace my
 	}
 
 	template<std::size_t N>
-	std::ostream& operator<<(std::ostream& os, const ultralong<N>& number) 
-	{
-		for (auto pos = 0ull; pos < N; ++pos)
-			os << number.number_.test(N - pos - 1ull);
-		return os;
-	}
-
-	template<std::size_t N>
 	auto operator+(const ultralong<N>& lhs, const ultralong<N>& rhs)
 	{
 		std::decay_t<decltype(lhs)> sum{ lhs };
 		sum += rhs;
 		return sum;
-	}
+	}	
 }
-
 #endif // !MY_ULTRALONG_H
