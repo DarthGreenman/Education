@@ -48,6 +48,9 @@ namespace my
 	template<typename T>
 	constexpr auto is_strings_v = is_strings<T>::value;
 
+	template<typename T>
+	concept Is_string = is_strings<T>::value;
+
 	namespace bit
 	{
 		template<std::size_t N>

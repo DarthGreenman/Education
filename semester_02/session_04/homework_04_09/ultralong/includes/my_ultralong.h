@@ -49,6 +49,10 @@ namespace my
 
 		template<std::size_t Width>
 		friend auto swap(ultralong<Width>& lhs, ultralong<Width>& rhs) noexcept;
+
+		template<typename String_type, std::size_t Width>
+			requires Is_string<String_type>
+		friend auto to_string(const ultralong<Width>& number);
 		
 		/************************************************************************************************************************/
 		constexpr ultralong() = default;
@@ -153,9 +157,9 @@ namespace my
 			return *this;
 		}
 
-		auto get() const
+		ultralong& operator*=(const ultralong& number)
 		{
-			return number_;
+			return *this;
 		}
 
 	private:
@@ -218,6 +222,8 @@ namespace my
 				offset += properties_numeric::width);
 		}
 
+		auto get() const { return number_; }
+
 	private:
 		std::bitset<Width> number_{};
 	};
@@ -234,6 +240,6 @@ namespace my
 		std::decay_t<decltype(lhs)> sum{ lhs };
 		sum += rhs;
 		return sum;
-	}	
+	}
 }
 #endif // !MY_ULTRALONG_H

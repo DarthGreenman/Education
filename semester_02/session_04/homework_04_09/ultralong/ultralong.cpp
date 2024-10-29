@@ -13,7 +13,6 @@ int main()
 {
 	try
 	{
-		
 		my::ultralong<40> number_1{ std::vector<unsigned>{9,2,9} }; // 9,2,9
 		my::ultralong<40> number_2{ U"1538" }; // 1538
 
@@ -52,6 +51,7 @@ int main()
 		const auto sum_3 = my::to_string<std::u8string>(number_3);
 		const auto sum_4 = my::to_string<std::u16string>(number_3);
 		const auto sum_5 = my::to_string<std::u32string>(number_3);
+	
 	}
 	catch (const std::exception& err)
 	{

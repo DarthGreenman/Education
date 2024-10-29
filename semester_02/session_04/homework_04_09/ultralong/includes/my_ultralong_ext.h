@@ -8,6 +8,7 @@
 #include "my_utilities.h"
 
 #include <algorithm>
+#include <bitset>
 #include <iosfwd>
 #include <iterator>
 #include <string>
@@ -19,21 +20,21 @@ namespace my
 	{
 		template<typename String_type = std::string, std::size_t N,
 			typename = std::enable_if_t<my::is_strings_v<String_type>>>
-		auto to_string_raw(const ultralong<N>& number, std::back_insert_iterator<String_type> it, int offset)
+		auto to_string_raw(const std::bitset<N>& number, std::back_insert_iterator<String_type> it, int offset)
 		{
 			if (offset < 0)
 				return;
 
 			using properties_numeric = typename ultralong<N>::properties_numeric;
-			const auto numeric = bit::to_numeric(number.get() >> offset & properties_numeric::lsb);
+			const auto numeric = bit::to_numeric(number >> offset & properties_numeric::lsb);
 			*it = to_char<typename String_type::value_type>(numeric);
 
 			to_string_raw(number, it, offset -= properties_numeric::width);
 		}
 	}
 
-	template<typename String_type = std::string, std::size_t N,
-		typename = std::enable_if_t<my::is_strings_v<String_type>>>
+	template<typename String_type = std::string, std::size_t N>
+		requires Is_string<String_type>
 	auto to_string(const ultralong<N>& number)
 	{
 		using namespace std;
@@ -42,7 +43,7 @@ namespace my
 		String_type number_as_string{};
 		number_as_string.reserve(N / properties_numeric::width);
 
-		helper::to_string_raw(number, back_insert_iterator<decltype(number_as_string)>(number_as_string), N - properties_numeric::width);
+		helper::to_string_raw(number.get(), back_insert_iterator<decltype(number_as_string)>(number_as_string), N - properties_numeric::width);
 		if (const auto not_zero = find_if_not(cbegin(number_as_string), cend(number_as_string),
 			[](typename iterator_traits<decltype(cbegin(number_as_string))>::value_type elem)
 			{
@@ -55,7 +56,7 @@ namespace my
 		}
 		return number_as_string;
 	}
-
+	
 	template<std::size_t N>
 	std::ostream& operator<<(std::ostream& os, const ultralong<N>& number)
 	{
