@@ -60,6 +60,7 @@ namespace my
 			static constexpr std::bitset<N> lsb{ 0b0000'1111 };
 			static constexpr std::bitset<N> msb{ 0b1111'0000 };
 			static constexpr std::bitset<N> adj{ 0b1111'0110 };
+			static constexpr std::bitset<N> none{ 0b0000'0000 };
 			static auto is_adjust(const std::bitset<N>& numeric)
 			{
 				return numeric.to_ullong() > 9ull ? true : false;

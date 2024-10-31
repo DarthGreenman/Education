@@ -31,6 +31,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 namespace my
 {
@@ -145,20 +146,36 @@ namespace my
 			if (number.number_.none())
 				return *this;
 
-			auto sum = bit::add(number_, number.number_);			
-			try {
-				sum = adjusted(sum);
-			}
-			catch (const std::exception& err) {
-				throw err;
-			}
-			
+			auto sum = bit::add_bcd(number_, number.number_);			
 			std::swap(sum, number_);
+			
 			return *this;
 		}
 
 		ultralong& operator*=(const ultralong& number)
 		{
+			using namespace std;
+			vector<std::bitset<Width>> sums{};
+			sums.reserve(Width);
+
+			for (auto offset = 0ull; offset < Width; ++offset)
+				if (number.number_.test(offset))
+					sums.push_back((number_ & ~properties_numeric::none) << offset);
+
+			/*
+			struct multi
+			{
+				void operator()(const std::bitset<Width>& elem) { mul_= bit::add_bcd(mul_, elem); }
+				std::bitset<Width> mul_{};
+			};
+			multi mul = for_each(cbegin(sums), cend(sums), multi());
+			*/
+
+			std::bitset<Width> mul{};
+			for (const auto& elem : sums)
+				mul = bit::add_bcd(mul, elem);
+
+			std::swap(mul, number_);
 			return *this;
 		}
 
@@ -203,23 +220,6 @@ namespace my
 			};
 			const auto number = for_each(first, last, number_representation());
 			return number.representation.first;
-		}
-		
-		// Правило 1 - к тетраде из которой был перенос нужно прибавить 0110.
-		// Правило 2 - к тетраде, которая больше 1001 нужно прибавить 0110.
-		auto adjusted(const std::bitset<Width>& number, size_type offset = 0ull)
-		{
-			if (offset == Width)
-				return number;
-
-			const auto mask = properties_numeric::lsb ^ properties_numeric::msb;
-			const decltype(number) numeric{ number >> offset & mask };
-			if (offset == Width - properties_numeric::width && properties_numeric::is_adjust(numeric))
-				throw std::overflow_error{ "The calculation result is too large for the target type" };
-			const auto adj = properties_numeric::adj << offset;
-			
-			return adjusted(properties_numeric::is_adjust(numeric) ? bit::add(number, adj) : number,
-				offset += properties_numeric::width);
 		}
 
 		auto get() const { return number_; }

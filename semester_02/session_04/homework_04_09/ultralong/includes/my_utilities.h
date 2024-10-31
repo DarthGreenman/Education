@@ -6,6 +6,7 @@
 #include "my_types.h"
 
 #include <bitset>
+#include <stdexcept>
 #include <type_traits>
 
 namespace my 
@@ -51,6 +52,32 @@ namespace my
 			// ¬о всех остальных случа€х результат будет 1.
 			const auto sum = lhs ^ rhs;
 			return carry == 0 ? sum : add(sum, carry);
+		}
+
+		// ѕравило 1 - к тетраде из которой был перенос нужно прибавить 0110.
+		// ѕравило 2 - к тетраде, котора€ больше 1001 нужно прибавить 0110.
+		template<std::size_t N>
+		auto adjusted(const std::bitset<N>& number, std::size_t offset = 0ull)
+		{
+			if (offset == N)
+				return number;
+
+			using properties_numeric = bit::properties_numeric<N>;
+			const auto mask = properties_numeric::lsb ^ properties_numeric::msb;
+			const decltype(number) numeric{ number >> offset & mask };
+			if (offset == N - properties_numeric::width && properties_numeric::is_adjust(numeric))
+				throw std::overflow_error{ "The calculation result is too large for the target type" };
+			const auto adj = properties_numeric::adj << offset;
+
+			return adjusted(properties_numeric::is_adjust(numeric) ? bit::add(number, adj) : number,
+				offset += properties_numeric::width);
+		}
+
+		template<std::size_t N>
+		auto add_bcd(const std::bitset<N>& lhs, const std::bitset<N>& rhs)
+		{
+			const auto sum = bit::add(lhs, rhs);
+			return bit::adjusted(sum);
 		}
 		
 		template<std::size_t N>
