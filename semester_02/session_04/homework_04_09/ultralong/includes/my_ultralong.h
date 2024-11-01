@@ -55,7 +55,7 @@ namespace my
 			requires Is_string<String_type>
 		friend auto to_string(const ultralong<Width>& number);
 		
-		/************************************************************************************************************************/
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		constexpr ultralong() = default;
 
 		template<typename String_type = std::string,
@@ -63,7 +63,7 @@ namespace my
 		explicit ultralong(const String_type& number_a_string) :
 			ultralong(std::crbegin(number_a_string), std::crend(number_a_string)) {}
 
-		/************************************************************************************************************************/
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		template<std::size_t N>
 		explicit ultralong(const char(&number_a_string)[N]) :
 			ultralong(std::string{ number_a_string }) {}
@@ -84,7 +84,7 @@ namespace my
 		explicit ultralong(const char32_t(&number_a_string)[N]) :
 			ultralong(std::u32string{ number_a_string }) {}
 
-		/************************************************************************************************************************/
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		template<typename Type, typename = std::enable_if_t<std::is_integral_v<Type>>>
 		explicit ultralong(const std::vector<Type>& number_a_vector) :
 			ultralong(std::crbegin(number_a_vector), std::crend(number_a_vector)) {}
@@ -93,7 +93,7 @@ namespace my
 		explicit ultralong(std::initializer_list<Type> number_a_list) :
 			ultralong(std::crbegin(number_a_list), std::crend(number_a_list)) {}
 		
-		/************************************************************************************************************************/
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		template<typename Iterator>
 		ultralong(Iterator first, Iterator last) : ultralong()
 		{
@@ -107,7 +107,7 @@ namespace my
 			std::swap(number_, number);
 		}
 
-		/************************************************************************************************************************/
+		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		explicit ultralong(const ultralong& number) : ultralong()
 		{
 			bit::copy(number.number_, number_);
@@ -159,23 +159,20 @@ namespace my
 			sums.reserve(Width);
 
 			for (auto offset = 0ull; offset < Width; ++offset)
-				if (number.number_.test(offset))
-					sums.push_back((number_ & ~properties_numeric::none) << offset);
+			{
+				const auto sum = number.number_.test(offset) ? number_ & ~properties_numeric::none :
+					number_ & properties_numeric::none;
+				sums.push_back(sum << offset);
+			}
 
-			/*
 			struct multi
 			{
-				void operator()(const std::bitset<Width>& elem) { mul_= bit::add_bcd(mul_, elem); }
+				auto operator()(const std::bitset<Width>& elem) { mul_= bit::add_bcd(mul_, elem); }
 				std::bitset<Width> mul_{};
 			};
+
 			multi mul = for_each(cbegin(sums), cend(sums), multi());
-			*/
-
-			std::bitset<Width> mul{};
-			for (const auto& elem : sums)
-				mul = bit::add_bcd(mul, elem);
-
-			std::swap(mul, number_);
+			std::swap(mul.mul_, number_);
 			return *this;
 		}
 
@@ -218,10 +215,9 @@ namespace my
 				}
 				pair<decltype(number_), size_type> representation{}; // {{ big-endian },  {Индекс самого младшего байта }}
 			};
-			const auto number = for_each(first, last, number_representation());
+			const auto number = for_each(first, last, number_representation{});
 			return number.representation.first;
 		}
-
 		auto get() const { return number_; }
 
 	private:
@@ -240,6 +236,14 @@ namespace my
 		std::decay_t<decltype(lhs)> sum{ lhs };
 		sum += rhs;
 		return sum;
+	}
+
+	template<std::size_t N>
+	auto operator*(const ultralong<N>& lhs, const ultralong<N>& rhs)
+	{
+		std::decay_t<decltype(lhs)> mul{ lhs };
+		mul *= rhs;
+		return mul;
 	}
 }
 #endif // !MY_ULTRALONG_H

@@ -131,6 +131,7 @@
     <ClCompile Include="ultralong.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\my_test.h" />
     <ClInclude Include="includes\my_types.h" />
     <ClInclude Include="includes\my_ultralong.h" />
     <ClInclude Include="includes\my_ultralong_ext.h" />

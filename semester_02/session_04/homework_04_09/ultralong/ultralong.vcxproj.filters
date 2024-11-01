@@ -32,6 +32,9 @@
     <ClInclude Include="includes\my_ultralong_ext.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="includes\my_test.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="docs\copies.txt">

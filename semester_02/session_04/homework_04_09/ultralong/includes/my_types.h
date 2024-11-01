@@ -30,6 +30,7 @@ namespace my
 		return std::char_traits<Char_type>::to_char_type(numeric + helper::offset<Char_type>());
 	}
 
+	// Функции типов ///////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T>
 	struct is_chars
 	{
@@ -48,9 +49,17 @@ namespace my
 	template<typename T>
 	constexpr auto is_strings_v = is_strings<T>::value;
 
+	// Концепты ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T>
 	concept Is_string = is_strings<T>::value;
 
+	template<typename T>
+	concept Addable = requires (T a, T b) { a + b; };
+
+	template<typename T>
+	concept Multiplyable = requires (T a, T b) { a * b; };
+
+	// Константы для работы с битами ///////////////////////////////////////////////////////////////////////////////////////
 	namespace bit
 	{
 		template<std::size_t N>
