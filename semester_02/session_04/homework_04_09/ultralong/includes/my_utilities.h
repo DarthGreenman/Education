@@ -54,6 +54,15 @@ namespace my
 			return carry == 0 ? sum : add(sum, carry);
 		}
 
+
+		//   0000 1001 0010 1001  (929)
+		// + 0001 0101 0011 1000  (1538)
+		//   ___________________
+		//   0001 1110 0110 0001  (7777) - двоична€ сумма
+		// + 0110      0110  поправки(по правилу 1 и правилу 2)
+		//   ___________________
+		//   0010 0100 0110 0111  (2467) - сумма BCD
+		
 		// ѕравило 1 - к тетраде из которой был перенос нужно прибавить 0110.
 		// ѕравило 2 - к тетраде, котора€ больше 1001 нужно прибавить 0110.
 		template<std::size_t N>
@@ -66,7 +75,7 @@ namespace my
 			const auto mask = properties_numeric::lsb ^ properties_numeric::msb;
 			const decltype(number) numeric{ number >> offset & mask };
 			if (offset == N - properties_numeric::width && properties_numeric::is_adjust(numeric))
-				throw std::overflow_error{ "The calculation result is too large for the target type" };
+				throw std::overflow_error{ "The calculation result is too large for the target type." };
 			const auto adj = properties_numeric::adj << offset;
 
 			return adjusted(properties_numeric::is_adjust(numeric) ? bit::add(number, adj) : number,

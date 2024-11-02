@@ -48,6 +48,7 @@ namespace my
 		using size_type = std::size_t;
 		using properties_numeric = bit::properties_numeric<Width>;
 
+		// Друзья //////////////////////////////////////////////////////////////////////////////////////////////////////////
 		template<std::size_t Width>
 		friend auto swap(ultralong<Width>& lhs, ultralong<Width>& rhs) noexcept;
 
@@ -58,12 +59,13 @@ namespace my
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		constexpr ultralong() = default;
 
+		// Универсальный контруктор числа из строк /////////////////////////////////////////////////////////////////////////
 		template<typename String_type = std::string,
 			typename = std::enable_if_t<my::is_strings_v<String_type>>>
 		explicit ultralong(const String_type& number_a_string) :
 			ultralong(std::crbegin(number_a_string), std::crend(number_a_string)) {}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Конструкторы числа из строк /////////////////////////////////////////////////////////////////////////////////////
 		template<std::size_t N>
 		explicit ultralong(const char(&number_a_string)[N]) :
 			ultralong(std::string{ number_a_string }) {}
@@ -84,16 +86,19 @@ namespace my
 		explicit ultralong(const char32_t(&number_a_string)[N]) :
 			ultralong(std::u32string{ number_a_string }) {}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		template<typename Type, typename = std::enable_if_t<std::is_integral_v<Type>>>
+		// Конструкторы числа из элементов std::vector<Type> и std::initializer_list<Type> /////////////////////////////////
+		template<typename Type, 
+			typename = std::enable_if_t<std::is_integral_v<Type> && !std::is_signed_v<Type>>>
 		explicit ultralong(const std::vector<Type>& number_a_vector) :
 			ultralong(std::crbegin(number_a_vector), std::crend(number_a_vector)) {}
 
-		template<typename Type, typename = std::enable_if_t<std::is_integral_v<Type>>>
+		template<typename Type, 
+			typename = std::enable_if_t<std::is_integral_v<Type>>>
 		explicit ultralong(std::initializer_list<Type> number_a_list) :
 			ultralong(std::crbegin(number_a_list), std::crend(number_a_list)) {}
 		
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	private:
+		// Универсальный контруктор ////////////////////////////////////////////////////////////////////////////////////////
 		template<typename Iterator>
 		ultralong(Iterator first, Iterator last) : ultralong()
 		{
@@ -107,7 +112,7 @@ namespace my
 			std::swap(number_, number);
 		}
 
-		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	public:
 		explicit ultralong(const ultralong& number) : ultralong()
 		{
 			bit::copy(number.number_, number_);
@@ -152,12 +157,15 @@ namespace my
 			return *this;
 		}
 
+		// Используем алгоритм умножения в столбик.
+		// 1. Упаковываем слагаемые столбика, полученные умножением на 1 или 0 по правилам двоичной
+		//    арифметики, в std::vector<std::bitset<Width>>.
+		// 2. Складываем элементы столбика по правилам сложения BCD.
 		ultralong& operator*=(const ultralong& number)
 		{
 			using namespace std;
 			vector<std::bitset<Width>> sums{};
 			sums.reserve(Width);
-
 			for (auto offset = 0ull; offset < Width; ++offset)
 			{
 				const auto sum = number.number_.test(offset) ? number_ & ~properties_numeric::none :
@@ -170,8 +178,8 @@ namespace my
 				auto operator()(const std::bitset<Width>& elem) { mul_= bit::add_bcd(mul_, elem); }
 				std::bitset<Width> mul_{};
 			};
-
 			multi mul = for_each(cbegin(sums), cend(sums), multi());
+			
 			std::swap(mul.mul_, number_);
 			return *this;
 		}
