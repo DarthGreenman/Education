@@ -62,7 +62,6 @@ int main()
 		//const ultralong<16> a{ {9,9} };
 		//ultralong<16> b{ "1" };
 		//b += a;
-
 	}
 	catch (const std::exception& err)
 	{

@@ -1,4 +1,4 @@
-// my_ultralong_ext.h
+﻿// my_ultralong_ext.h
 
 #ifndef MY_ULTRALONG_EXT_H
 #define MY_ULTRALONG_EXT_H
