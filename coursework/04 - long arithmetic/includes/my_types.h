@@ -51,7 +51,7 @@ namespace my
 
 	// Концепты ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T>
-	concept Is_string = is_strings<T>::value;
+	concept Strings = is_strings<T>::value;
 
 	template<typename T>
 	concept Addable = requires (T a, T b) { a + b; };

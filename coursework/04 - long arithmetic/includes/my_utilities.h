@@ -38,23 +38,25 @@ namespace my
 			target &= sourсe;
 		}
 
+		// Add with Carry
 		// В любой позиционной системе счисления операции сложения и вычитания двух чисел осуществляются поразрядно,
 		// начиная с младших разрядов. При сложении переполнение из младшего разряда переносится в старший разряд.
 		// Сумма каждого i-ого разряда получается в результате сложения ai + bi + 1, где 1 соответствует переносу из 
 		// младшего разряда в текущий. Перенос происходит в том случае, если в младшем разряде сумма больше или равна
 		// основанию системы счисления.
 		template<std::size_t N>
-		auto add(const std::bitset<N>& lhs, const std::bitset<N>& rhs) -> std::decay_t<decltype(lhs)>
+		auto adc(const std::bitset<N>& lhs, const std::bitset<N>& rhs) -> std::decay_t<decltype(lhs)>
 		{
 			const auto carry = (lhs & rhs) << 1;
 			// Оператор ^ осуществляет операцию логического исключающего ИЛИ между соответствующими битами
 			// двух операндов. Результатом операции логического исключающего ИЛИ будет 0 в случае равенства битов.
 			// Во всех остальных случаях результат будет 1.
 			const auto sum = lhs ^ rhs;
-			return carry == 0 ? sum : add(sum, carry);
+			return carry == 0 ? sum : adc(sum, carry);
 		}
 
 
+		// Adjust for Addition
 		//   0000 1001 0010 1001  (929)
 		// + 0001 0101 0011 1000  (1538)
 		//   ___________________
@@ -66,7 +68,7 @@ namespace my
 		// Правило 1 - к тетраде из которой был перенос нужно прибавить 0110.
 		// Правило 2 - к тетраде, которая больше 1001 нужно прибавить 0110.
 		template<std::size_t N>
-		auto adjusted(const std::bitset<N>& number, std::size_t offset = 0ull)
+		auto aaa(const std::bitset<N>& number, std::size_t offset = 0ull)
 		{
 			if (offset == N)
 				return number;
@@ -78,15 +80,15 @@ namespace my
 				throw std::overflow_error{ "The calculation result is too large for the target type." };
 			const auto adj = properties_numeric::adj << offset;
 
-			return adjusted(properties_numeric::is_adjust(numeric) ? bit::add(number, adj) : number,
+			return aaa(properties_numeric::is_adjust(numeric) ? bit::adc(number, adj) : number,
 				offset += properties_numeric::width);
 		}
 
 		template<std::size_t N>
-		auto add_bcd(const std::bitset<N>& lhs, const std::bitset<N>& rhs)
+		auto add(const std::bitset<N>& lhs, const std::bitset<N>& rhs)
 		{
-			const auto sum = bit::add(lhs, rhs);
-			return bit::adjusted(sum);
+			const auto sum = bit::adc(lhs, rhs);
+			return bit::aaa(sum);
 		}
 		
 		template<std::size_t N>

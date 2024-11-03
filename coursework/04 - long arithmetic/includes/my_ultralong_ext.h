@@ -33,8 +33,13 @@ namespace my
 		}
 	}
 
+	// 1. Создаем пустую строку.
+	// 2. Резервируем память для необходимого числа разрядов и знака.
+	// 3. Устанавливаем знак числа, если отрицательное, то '-'.
+	// 4. Получаем строку, если необходимо, то удаляем лидирующие нули.
+
 	template<typename String_type = std::string, std::size_t N>
-		requires Is_string<String_type>
+		requires Strings<String_type>
 	auto to_string(const ultralong<N>& number)
 	{
 		using namespace std;

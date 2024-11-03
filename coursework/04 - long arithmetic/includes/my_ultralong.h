@@ -46,6 +46,7 @@ namespace my
 		static_assert(!(Width % bit::properties_numeric<Width>::width), "The bit field width must be a multiple of 8.");
 	public:
 		using size_type = std::size_t;
+		using value_type = std::bitset<Width>;
 		using properties_numeric = bit::properties_numeric<Width>;
 
 		// Друзья //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ namespace my
 		friend auto swap(ultralong<Width>& lhs, ultralong<Width>& rhs) noexcept;
 
 		template<typename String_type, std::size_t Width>
-			requires Is_string<String_type>
+			requires Strings<String_type>
 		friend auto to_string(const ultralong<Width>& number);
 		
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +157,7 @@ namespace my
 			if (number.number_.none())
 				return *this;
 
-			auto sum = bit::add_bcd(number_, number.number_);			
+			auto sum = bit::add(number_, number.number_);			
 			std::swap(sum, number_);
 			
 			return *this;
@@ -169,7 +170,7 @@ namespace my
 		ultralong& operator*=(const ultralong& number)
 		{
 			using namespace std;
-			vector<std::bitset<Width>> sums{};
+			vector<value_type> sums{};
 			sums.reserve(Width);
 			for (auto offset = 0ull; offset < Width; ++offset)
 			{
@@ -180,8 +181,8 @@ namespace my
 
 			struct multi
 			{
-				auto operator()(const std::bitset<Width>& elem) { mul_= bit::add_bcd(mul_, elem); }
-				std::bitset<Width> mul_{};
+				auto operator()(const value_type& elem) { mul_= bit::add(mul_, elem); }
+				value_type mul_{};
 			};
 			multi mul = for_each(cbegin(sums), cend(sums), multi());
 			
