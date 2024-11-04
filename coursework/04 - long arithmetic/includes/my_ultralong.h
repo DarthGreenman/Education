@@ -44,6 +44,7 @@ namespace my
 	class ultralong
 	{
 		static_assert(!(Width % bit::properties_numeric<Width>::width), "The bit field width must be a multiple of 8.");
+		enum class sign : bool { positive = false, negative = true };
 	public:
 		using size_type = std::size_t;
 		using value_type = std::bitset<Width>;
@@ -113,7 +114,7 @@ namespace my
 
 			auto number = construct(first, sign_pos);
 			if (sign_pos != last)
-				number.set(Width - properties_numeric::width);
+				set_sign(number, sign::negative);
 
 			std::swap(number_, number);
 		}
@@ -146,6 +147,8 @@ namespace my
 
 		~ultralong() = default;
 
+		// Операции +, *, -, / /////////////////////////////////////////////////////////////////////////////////////////////
+
 		// Складываем числа BCD по правилам сложения двоичных чисел, и корректируем
 		// результат, дополняя тетрады из которых был перенос бита в старшую тетраду
 		// и тетрады которые предсталяют цифру большую 9-ти.
@@ -158,7 +161,7 @@ namespace my
 				return *this;
 
 			auto sum = bit::add(number_, number.number_);			
-			std::swap(sum, number_);
+			std::swap(number_, sum);
 			
 			return *this;
 		}
@@ -184,10 +187,29 @@ namespace my
 				auto operator()(const value_type& elem) { mul_= bit::add(mul_, elem); }
 				value_type mul_{};
 			};
+
 			multi mul = for_each(cbegin(sums), cend(sums), multi());
+			std::swap(number_, mul.mul_);
 			
-			std::swap(mul.mul_, number_);
 			return *this;
+		}
+
+		// Операции ++, -- /////////////////////////////////////////////////////////////////////////////////////////////////
+		ultralong& operator++()
+		{
+			constexpr value_type one{ 0b0000'0001 };
+			auto inc = bit::add(number_, one);
+			std::swap(number_, inc);
+
+			return *this;
+		}
+
+		ultralong operator++(int)
+		{
+			ultralong tmp{ *this };
+			++(*this);
+			
+			return tmp;
 		}
 
 	private:
@@ -224,22 +246,34 @@ namespace my
 			{
 				void operator()(const typename iterator_traits<Iterator>::value_type& elem)
 				{
-					const decltype(number_) numeric{ static_cast<size_type>(is_chars_v<decay_t<decltype(elem)>> ? 
+					const value_type numeric{ static_cast<size_type>(is_chars_v<decay_t<decltype(elem)>> ? 
 						my::to_numeric(elem) : elem) };
 					const auto offset = properties_numeric::width * view.second++;
 					view.first ^= numeric << offset;
 				}
-				pair<decltype(number_), size_type> view{}; // {{ big-endian },  {Индекс самого младшего байта }}
+				pair<value_type, size_type> view{}; // {{ big-endian },  {Индекс самого младшего байта }}
 			};
 
 			const auto number = for_each(first, last, number_view{});
 			return number.view.first;
 		}
-		auto is_negative() const { return number_.test(Width - properties_numeric::width); }
-		auto get() const { return number_; }
+		auto get() const
+		{
+			return number_;
+		}
+	
+		auto is_negative() const 
+		{
+			return number_.test(Width - properties_numeric::width);
+		}
+		
+		static auto set_sign(value_type& number, sign value) 
+		{
+			number.set(Width - properties_numeric::width, static_cast<bool>(value));
+		}
 
 	private:
-		std::bitset<Width> number_{};
+		value_type number_{};
 	};
 
 	template<std::size_t N>

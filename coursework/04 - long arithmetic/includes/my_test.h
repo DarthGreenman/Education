@@ -30,7 +30,7 @@ namespace my
 	template<typename T>
 	concept Is_reference = Addable<std::size_t> || Multiplyable<std::size_t>;
 
-	template<typename T, std::size_t N = 2048ull>
+	template<typename T, std::size_t N = 2048>
 	concept Is_sample = Addable<ultralong<N>> || Multiplyable<ultralong<N>>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
