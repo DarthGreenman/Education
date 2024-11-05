@@ -160,7 +160,10 @@ namespace my
 			if (number.number_.none())
 				return *this;
 
-			auto sum = bit::add(number_, number.number_);			
+			const auto lhs = is_negative() ? get_add_code(get()) : get();
+			const auto rhs = number.is_negative() ? get_add_code(number.get()) : get();
+
+			auto sum = bit::add(lhs, rhs);
 			std::swap(number_, sum);
 			
 			return *this;
@@ -270,6 +273,11 @@ namespace my
 		static auto set_sign(value_type& number, sign value) 
 		{
 			number.set(Width - properties_numeric::width, static_cast<bool>(value));
+		}
+
+		static auto get_add_code(const value_type& number)
+		{
+			return ~number;
 		}
 
 	private:

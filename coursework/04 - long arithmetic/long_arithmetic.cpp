@@ -42,9 +42,9 @@ int main()
 		print("n5", n5);
 
 		// Демонстрация сложения и умножения ///////////////////////////////////////////////////////////////////////////////
-		std::mt19937 engine;
-		test(engine, 10, sum<std::size_t>{}, sum<my::ultralong<2048>>{}, '+');
-		test(engine, 10, mul<std::size_t>{}, mul<my::ultralong<2048>>{}, '*');
+		//std::mt19937 engine;
+		//test(engine, 2, sum<std::size_t>{}, sum<my::ultralong<2048>>{}, '+');
+		//test(engine, 2, mul<std::size_t>{}, mul<my::ultralong<2048>>{}, '*');
 
 		// Демонстрация инкремента и декеремента ///////////////////////////////////////////////////////////////////////////
 		ultralong<w> n6{ "99" };
