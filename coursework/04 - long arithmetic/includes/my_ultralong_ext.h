@@ -47,13 +47,13 @@ namespace my
 
 		String_type number_as_string{};
 		number_as_string.reserve(N / properties_numeric::width);
-		if (number.is_negative())
+		if (ultralong<N>::is_negative(number.get()))
 			number_as_string.push_back('-');
 
 		helper::to_string_raw(number.get(), back_insert_iterator<decltype(number_as_string)>(number_as_string), 
 			N - properties_numeric::width * 2ull);
 
-		if (const auto not_zero = find_if_not(number.is_negative() ? next(cbegin(number_as_string)) :
+		if (const auto not_zero = find_if_not(ultralong<N>::is_negative(number.get()) ? next(cbegin(number_as_string)) :
 			cbegin(number_as_string), cend(number_as_string),
 			[](typename iterator_traits<decltype(cbegin(number_as_string))>::value_type elem)
 			{
@@ -61,7 +61,7 @@ namespace my
 			}
 		); not_zero != cend(number_as_string))
 		{
-			number_as_string.erase(number.is_negative() ? next(cbegin(number_as_string)) :
+			number_as_string.erase(ultralong<N>::is_negative(number.get()) ? next(cbegin(number_as_string)) :
 				cbegin(number_as_string), not_zero);
 			number_as_string.shrink_to_fit();
 		}

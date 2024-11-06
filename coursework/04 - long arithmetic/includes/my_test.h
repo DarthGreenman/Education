@@ -9,6 +9,7 @@
 #include <ctime>
 #include <iostream>
 #include <random>
+#include <type_traits>
 
 namespace my
 {
@@ -27,15 +28,16 @@ namespace my
 	};
 
 	// Концепты ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<typename T>
-	concept Is_reference = Addable<std::size_t> || Multiplyable<std::size_t>;
+	template<typename T = std::size_t>
+	concept Reference_type = Addable<std::size_t> || Multiplyable<std::size_t>;
 
 	template<typename T, std::size_t N = 2048>
-	concept Is_sample = Addable<ultralong<N>> || Multiplyable<ultralong<N>>;
+	concept Sample_type = Addable<ultralong<N>> || Multiplyable<ultralong<N>>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	template<Is_reference Reference, Is_sample Sample>
-	auto test(std::mt19937 engine, std::size_t count, Reference reference, Sample sample, char sign)
+	template<typename Engine, Reference_type Reference, Sample_type Sample,
+		typename = std::enable_if_t<std::is_same_v<Engine, std::mt19937> || std::is_same_v<Engine, std::mt19937_64>>>
+	auto test(Engine engine, std::size_t count, Reference reference, Sample sample, char sign)
 	{
 		engine.seed(std::time(nullptr));
 		for (decltype(count) i{}; i < count; ++i)

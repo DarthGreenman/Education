@@ -61,7 +61,7 @@ namespace my
 		// + 0001 0101 0011 1000  (1538)
 		//   ___________________
 		//   0001 1110 0110 0001  (7777) - двоичная сумма
-		// + 0110      0110  поправки(по правилу 1 и правилу 2)
+		// + 0110      0110              - поправки (правило 1 и правило 2)
 		//   ___________________
 		//   0010 0100 0110 0111  (2467) - сумма BCD
 		
@@ -89,6 +89,13 @@ namespace my
 		{
 			const auto sum = bit::adc(lhs, rhs);
 			return bit::aaa(sum);
+		}
+
+		template<std::size_t N>
+		auto add(const std::bitset<N>& lhs, std::size_t rhs)
+		{
+			const std::decay_t<decltype(lhs)> number{ rhs };
+			return bit::add(lhs, number);
 		}
 		
 		template<std::size_t N>

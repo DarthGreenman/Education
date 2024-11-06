@@ -41,19 +41,25 @@ int main()
 		print("n4", n4);
 		print("n5", n5);
 
+		const ultralong<w> n6{ "1234567890987654321" };
+		const ultralong<w> n7{ "-9234567890987654321" };
+		print(to_string(n6) + " + " + to_string(n7), n6 + n7);
+
+
 		// Демонстрация сложения и умножения ///////////////////////////////////////////////////////////////////////////////
-		//std::mt19937 engine;
-		//test(engine, 2, sum<std::size_t>{}, sum<my::ultralong<2048>>{}, '+');
-		//test(engine, 2, mul<std::size_t>{}, mul<my::ultralong<2048>>{}, '*');
+		std::mt19937 engine;
+		test(engine, 20, sum<std::size_t>{}, sum<my::ultralong<1024>>{}, '+');
+		test(engine, 20, mul<std::size_t>{}, mul<my::ultralong<1024>>{}, '*');
 
 		// Демонстрация инкремента и декеремента ///////////////////////////////////////////////////////////////////////////
-		ultralong<w> n6{ "99" };
+		
+		ultralong<w> n8{ "99" };
 		for (auto i = 0ull; i < 5; ++i)
-			std::cout << n6++ << '\t';
+			std::cout << n8++ << '\t';
 
 		for (auto i = 0ull; i < 5; ++i)
-			std::cout << ++n6 << '\t';
-
+			std::cout << ++n8 << '\t';
+		
 		// Демонстрация конвертирования ////////////////////////////////////////////////////////////////////////////////////
 		//const auto s1 = to_string(n1);
 		//const auto s2 = to_string<std::wstring>(n2);

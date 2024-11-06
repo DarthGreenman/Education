@@ -114,7 +114,7 @@ namespace my
 
 			auto number = construct(first, sign_pos);
 			if (sign_pos != last)
-				set_sign(number, sign::negative);
+				number = make_signed(number, sign::negative);
 
 			std::swap(number_, number);
 		}
@@ -160,10 +160,14 @@ namespace my
 			if (number.number_.none())
 				return *this;
 
-			const auto lhs = is_negative() ? get_add_code(get()) : get();
-			const auto rhs = number.is_negative() ? get_add_code(number.get()) : get();
+			const auto lhs = is_negative(get()) ? get_add_code(get()) : get();
+			const auto rhs = is_negative(number.get()) ? get_add_code(number.get()) : number.get();
 
-			auto sum = bit::add(lhs, rhs);
+			auto sum = bit::adc(lhs, rhs);
+			if (is_negative(sum))
+				sum = get_dir_code(sum);
+
+			sum = bit::aaa(sum);
 			std::swap(number_, sum);
 			
 			return *this;
@@ -200,8 +204,7 @@ namespace my
 		// Операции ++, -- /////////////////////////////////////////////////////////////////////////////////////////////////
 		ultralong& operator++()
 		{
-			constexpr value_type one{ 0b0000'0001 };
-			auto inc = bit::add(number_, one);
+			auto inc = bit::add(number_, 1ull);
 			std::swap(number_, inc);
 
 			return *this;
@@ -209,10 +212,10 @@ namespace my
 
 		ultralong operator++(int)
 		{
-			ultralong tmp{ *this };
+			ultralong inc{ *this };
 			++(*this);
 			
-			return tmp;
+			return inc;
 		}
 
 	private:
@@ -265,19 +268,26 @@ namespace my
 			return number_;
 		}
 	
-		auto is_negative() const 
+		static auto is_negative(const value_type& number)
 		{
-			return number_.test(Width - properties_numeric::width);
+			return number.test(Width - properties_numeric::width);
 		}
 		
-		static auto set_sign(value_type& number, sign value) 
+		static auto make_signed(const value_type& number, sign value)
 		{
-			number.set(Width - properties_numeric::width, static_cast<bool>(value));
+			value_type signed_number{ number };
+			return signed_number.set(Width - properties_numeric::width, static_cast<bool>(value));
 		}
 
 		static auto get_add_code(const value_type& number)
 		{
-			return ~number;
+			const auto signed_number = make_signed(~number, sign::negative);			
+			return bit::adc(signed_number, value_type{ 0b0000'0001 });
+		}
+
+		static auto get_dir_code(const value_type& number)
+		{
+			return get_add_code(number);
 		}
 
 	private:
