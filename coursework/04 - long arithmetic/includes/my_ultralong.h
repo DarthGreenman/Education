@@ -119,6 +119,9 @@ namespace my
 			std::swap(number_, number);
 		}
 
+		explicit ultralong(const value_type& number) :
+			number_{ number } {}
+
 	public:
 		explicit ultralong(const ultralong& number) : ultralong()
 		{
@@ -160,16 +163,41 @@ namespace my
 			if (number.number_.none())
 				return *this;
 
-			const auto lhs = is_negative(get()) ? get_add_code(get()) : get();
-			const auto rhs = is_negative(number.get()) ? get_add_code(number.get()) : number.get();
+			const auto lhs = is_negative(get()) ? twos_complement(get()) : get();
+			const auto rhs = is_negative(number.get()) ? twos_complement(number.get()) : number.get();
 
 			auto sum = bit::adc(lhs, rhs);
 			if (is_negative(sum))
-				sum = get_dir_code(sum);
+				sum = twos_complement(sum);
 
 			sum = bit::aaa(sum);
 			std::swap(number_, sum);
 			
+			return *this;
+		}
+
+		template<typename Type,
+			typename = std::enable_if_t<std::is_integral_v<Type>>>
+		ultralong& operator+=(Type number)
+		{
+			const ultralong rhs{ number };
+			*this += rhs;
+			return *this;
+		}
+
+		ultralong& operator-=(const ultralong& number)
+		{
+			const ultralong rhs{ reverse_sign(number.get()) };
+			*this += rhs;
+			return *this;
+		}
+
+		template<typename Type,
+			typename = std::enable_if_t<std::is_integral_v<Type>>>
+		ultralong& operator-=(Type number)
+		{
+			const ultralong rhs{ number };
+			*this -= rhs;
 			return *this;
 		}
 
@@ -204,9 +232,7 @@ namespace my
 		// Операции ++, -- /////////////////////////////////////////////////////////////////////////////////////////////////
 		ultralong& operator++()
 		{
-			auto inc = bit::add(number_, 1ull);
-			std::swap(number_, inc);
-
+			*this += 1ull;
 			return *this;
 		}
 
@@ -214,8 +240,20 @@ namespace my
 		{
 			ultralong inc{ *this };
 			++(*this);
-			
 			return inc;
+		}
+
+		ultralong& operator--()
+		{
+			*this -= 1ull;
+			return *this;
+		}
+
+		ultralong operator--(int)
+		{
+			ultralong dec{ *this };
+			--(*this);
+			return dec;
 		}
 
 	private:
@@ -263,6 +301,7 @@ namespace my
 			const auto number = for_each(first, last, number_view{});
 			return number.view.first;
 		}
+
 		auto get() const
 		{
 			return number_;
@@ -279,15 +318,16 @@ namespace my
 			return signed_number.set(Width - properties_numeric::width, static_cast<bool>(value));
 		}
 
-		static auto get_add_code(const value_type& number)
+		static auto reverse_sign(const value_type& number)
+		{
+			return is_negative(number) ? make_signed(number, sign::positive) :
+				make_signed(number, sign::negative);
+		}
+
+		static auto twos_complement(const value_type& number)
 		{
 			const auto signed_number = make_signed(~number, sign::negative);			
 			return bit::adc(signed_number, value_type{ 0b0000'0001 });
-		}
-
-		static auto get_dir_code(const value_type& number)
-		{
-			return get_add_code(number);
 		}
 
 	private:
@@ -306,6 +346,14 @@ namespace my
 		std::decay_t<decltype(lhs)> sum{ lhs };
 		sum += rhs;
 		return sum;
+	}
+
+	template<std::size_t N>
+	auto operator-(const ultralong<N>& lhs, const ultralong<N>& rhs)
+	{
+		std::decay_t<decltype(lhs)> sub{ lhs };
+		sub -= rhs;
+		return sub;
 	}
 
 	template<std::size_t N>

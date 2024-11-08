@@ -20,6 +20,12 @@ namespace my
 		auto operator()(const T& lhs, const T& rhs) { return lhs + rhs; }
 	};
 
+	template<Subtraction T>
+	struct sub	{
+		using value_type = T;
+		auto operator()(const T& lhs, const T& rhs) { return lhs - rhs; }
+	};
+
 	template<Multiplyable T>
 	struct mul
 	{
@@ -29,10 +35,10 @@ namespace my
 
 	// Концепты ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename T = std::size_t>
-	concept Reference_type = Addable<std::size_t> || Multiplyable<std::size_t>;
+	concept Reference_type = Addable<std::size_t> || Subtraction<std::size_t> || Multiplyable<std::size_t>;
 
 	template<typename T, std::size_t N = 2048>
-	concept Sample_type = Addable<ultralong<N>> || Multiplyable<ultralong<N>>;
+	concept Sample_type = Addable<ultralong<N>> || Subtraction<ultralong<N>> || Multiplyable<ultralong<N>>;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	template<typename Engine, Reference_type Reference, Sample_type Sample,

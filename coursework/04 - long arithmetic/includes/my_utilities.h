@@ -90,13 +90,6 @@ namespace my
 			const auto sum = bit::adc(lhs, rhs);
 			return bit::aaa(sum);
 		}
-
-		template<std::size_t N>
-		auto add(const std::bitset<N>& lhs, std::size_t rhs)
-		{
-			const std::decay_t<decltype(lhs)> number{ rhs };
-			return bit::add(lhs, number);
-		}
 		
 		template<std::size_t N>
 		auto to_numeric(const std::bitset<N>& bit)

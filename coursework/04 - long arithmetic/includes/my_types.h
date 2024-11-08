@@ -57,6 +57,9 @@ namespace my
 	concept Addable = requires (T a, T b) { a + b; };
 
 	template<typename T>
+	concept Subtraction = requires (T a, T b) { a - b; };
+
+	template<typename T>
 	concept Multiplyable = requires (T a, T b) { a * b; };
 
 	// Константы для работы с битами ///////////////////////////////////////////////////////////////////////////////////////
