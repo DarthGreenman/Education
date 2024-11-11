@@ -10,15 +10,15 @@
 #include <vector>
 
 template<typename T>
-std::vector<T> move_vector(std::vector<T>& Vector) {
-	return 
-		static_cast<std::vector<T>&&>(Vector);
+std::vector<T> move_vector(std::vector<T>& vector) 
+{
+	return static_cast<std::vector<T>&&>(vector);
 }
 
 int main()
 {
 	std::vector<std::string> one_s{ "test_string1", "test_string2" };
-	std::vector<std::string> two_S{ move_vector(one_s) };
+	auto two_s{ move_vector(one_s) };
 
 	std::vector<int> one_i{ -234,0,1,-34,6789 };
 	auto two_i{ move_vector(one_i) };
