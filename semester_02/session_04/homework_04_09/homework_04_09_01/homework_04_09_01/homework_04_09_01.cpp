@@ -8,20 +8,38 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include <algorithm>
 
 template<typename T>
-std::vector<T> move_vector(std::vector<T>& vector) 
+auto move_vector(std::vector<T>& vector) 
 {
-	return static_cast<std::vector<T>&&>(vector);
+	return std::vector<T>{std::move(vector)};
+}
+
+template<typename T>
+auto print(const std::vector<T>& one, const std::vector<T>& two)
+{
+	using namespace std;
+	auto pr = [](const std::string& elem) { cout << "value = " << elem << " address = " << &elem << '\n';	};
+
+	cout << "\nElements of vector 1:\n";
+	for_each(std::cbegin(one), std::cend(one), pr);
+	cout << "\nElements of vector 2:\n";
+	for_each(std::cbegin(two), std::cend(two), pr);
 }
 
 int main()
 {
-	std::vector<std::string> one_s{ "test_string1", "test_string2" };
-	auto two_s{ move_vector(one_s) };
 
-	std::vector<int> one_i{ -234,0,1,-34,6789 };
-	auto two_i{ move_vector(one_i) };
+	std::vector<std::string> one{ "test_string1", "test_string2" };
+	std::vector<std::string> two{};
+
+	std::cout << "Before moving.";
+	print(one, two);
 	
+	two = move_vector(one);
+	std::cout << "\n\nAfter moving.";
+	print(one, two);
+
 	return 0;
 }
