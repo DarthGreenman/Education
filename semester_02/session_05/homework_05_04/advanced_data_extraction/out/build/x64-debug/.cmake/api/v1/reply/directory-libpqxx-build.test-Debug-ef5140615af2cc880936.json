@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "libpqxx-build/test",
+		"source" : "D:/Users/Darth Greenman/Documents/Visual Studio 2022/source/repos/lib/libpqxx-7.9.2/test"
+	}
+}

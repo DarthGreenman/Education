@@ -1,0 +1,10 @@
+prefix=d:/Users/Darth Greenman/Documents/Visual Studio 2022/source/repos/sessions/semester_02/session_05/homework_05_04/advanced_data_extraction/out/install/x64-debug
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: libpqxx
+Description: C++ client API for the PostgreSQL database management system.
+Version: 7.9.2
+Libs: -L${prefix}/lib -lpqxx
+Cflags: -I${prefix}/include

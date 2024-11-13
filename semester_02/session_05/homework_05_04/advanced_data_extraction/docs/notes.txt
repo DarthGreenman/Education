@@ -1,0 +1,24 @@
+	struct connection_parameters
+	{
+		std::string host{};
+		std::string port{};
+		std::string dbname{};
+		std::string user{};
+		std::string password{};
+	};
+
+			"CREATE TABLE IF NOT EXISTS phone_numbers "
+		"("
+			"id serial, "
+			"subscriber_id integer, "
+			"numbers varchar(12), "
+			"UNIQUE (number), "
+			"PRIMARY KEY (id), "
+			"FOREIGN KEY (subscriber_id) REFERENCES subscriber (id)"
+		");"
+
+Inbal Levi feedback@cppcast.com
+Nina Ranns
+Bjarne Stroustrup bjarne@stroustrup.com +1 979 219 50 04
+Herb Sutter herb.sutter@gmail.com 
+Michael Wong 214-263-1853 (310) 656-0400USA
