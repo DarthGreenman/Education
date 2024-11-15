@@ -15,7 +15,7 @@ project ("advanced_data_extraction")
 # Добавьте источник в исполняемый файл этого проекта.
 
 add_subdirectory("d:\\Users\\Darth Greenman\\Documents\\Visual Studio 2022\\source\\repos\\lib\\libpqxx-7.9.2" libpqxx-build)
-add_executable (advanced_data_extraction "advanced_data_extraction.cpp" "includes/phone_book.h" "src/phone_book.cpp")
+add_executable (advanced_data_extraction "advanced_data_extraction.cpp" "includes/phone_book.h" "src/phone_book.cpp" "includes/contact.h" "src/contact.cpp")
 target_compile_features(advanced_data_extraction PRIVATE cxx_std_20)
 target_link_libraries(advanced_data_extraction PRIVATE pqxx)
 
