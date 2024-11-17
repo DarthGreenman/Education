@@ -16,9 +16,11 @@ namespace phone
 	class phone_book
 	{
 	public:
-		using pair_type = std::pair<std::string, std::string>;
-		using string_type = std::string;
-		using size_type = std::size_t;
+
+
+		using name_type = phone::contact::name_type;
+		using email_address_type = phone::contact::email_address_type;
+		using phone_number_type = phone::contact::phone_number_type;
 		
 		phone_book() = delete;
 		phone_book(pqxx::connection&& connection);
@@ -35,11 +37,11 @@ namespace phone
 	public:
 		pqxx::result add_contact(const contact& member);
 		pqxx::result add_number(const contact& member);
-		pqxx::result add_number(const pair_type& name, const string_type& number);
-		pqxx::internal::result_iteration<size_type, string_type, string_type, string_type> get();
+		pqxx::result add_number(const name_type& name, const phone_number_type& number);
+		pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string> get();
 
 	private:
-		void create_structure(const string_type& query);
+		void create_structure(const std::string& query);
 		bool record_exists(const contact& member);
 
 	private:

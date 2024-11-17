@@ -3,6 +3,8 @@
 #ifndef CONTACT_H
 #define CONTACT_H
 
+#include "types.h"
+
 #include <string>
 #include <utility>
 #include <vector>
@@ -12,12 +14,13 @@ namespace phone
 	class contact
 	{
 	public:
-		using pair_type = std::pair<std::string, std::string>;
-		using string_type = std::string;
-		using vector_type = std::vector<std::string>;
+		using name_type = my::person_name;
+		using email_address_type = my::email_address;
+		using phone_number_type = my::phone_number;
+		using number_list_type = std::vector<my::phone_number>;
 
 		contact() = delete;
-		contact(const pair_type& name, const string_type& email, const vector_type& numbers);
+		contact(const name_type& name, const email_address_type& email, const number_list_type& numbers);
 		contact(const contact&) = default;
 		contact(contact&&) = delete;
 		~contact() = default;
@@ -25,12 +28,12 @@ namespace phone
 		contact& operator=(const contact&) = delete;
 		contact& operator=(contact&&) = delete;
 
-		std::tuple<pair_type, string_type, vector_type> get() const;
+		std::tuple<name_type, email_address_type, number_list_type> get() const;
 
 	private:
-		pair_type name_{};
-		string_type email_{};
-		vector_type numbers_{};
+		name_type name_{};
+		email_address_type email_{};
+		number_list_type numbers_{};
 	};
 }
 

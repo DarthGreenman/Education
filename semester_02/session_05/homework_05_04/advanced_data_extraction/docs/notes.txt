@@ -45,4 +45,35 @@ Michael Wong 214-263-1853 (310) 656-0400USA
 			std::cout << id << " " << first_name << " " << last_name << " " << email << '\n';
 	}
 
+		for (auto width = begin(codes_width); width != cend(codes_width); pos += *width, ++width)
+		{
+			string code{};
+			copy_n(next(begin(normalized_number),pos), *width,	back_inserter(code));
+			codes_.push_back(code);
+		}
+
+
+
+		/*
+		// Проверить на допустимые символы: цифры, '+', '-', '(', ')', ' '
+		if (const auto pos = find_if_not(cbegin(number), cend(number), [](char ch) { return my::is_digit(ch) ||
+			ch == plus || ch == minus || ch == left_parenthesis || ch == right_parenthesis || ch == space; });
+			pos != cend(number))
+		{
+			throw invalid_argument{ "\nUnresolved symbol - value must be a numeric character.\nline: " +
+				to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
+		}
+
+		std::string raw_number{ number };
+		// Удалить символы, кроме цифр и '+', т. е. разделительные символы: '-', '(', ')', ' '		
+		erase_if(raw_number, [](char ch) { return !(my::is_digit(ch) || ch == plus); });
+
+		// Проверить длину уже нормализованного номера, должен быть 12 символов: +19792195004
+		if (const auto number_size = code_sizes::country + code_sizes::zone + code_sizes::node + code_sizes::number;
+			raw_number.size() != number_size)
+		{
+			throw length_error{ "\nInsufficient number of digits of the number.\nline: " +
+				to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
+		}
+		*/
 
