@@ -9,22 +9,10 @@
 
 namespace my
 {
-	class person_name
+	struct person_name
 	{
-	public:
-		person_name() = default;
-		person_name(const std::string& forename, const std::string& surname);
-		person_name(const person_name&) = default;
-		person_name(person_name&&) = delete;
-		~person_name() = default;
-
-		person_name& operator=(const person_name&) = default;
-		person_name& operator=(person_name&&) = delete;
-
-		std::pair<std::string, std::string> get() const;
-
-	private:
-		std::string forename_{}, surname_{};
+		std::string forename_{};
+		std::string surname_{};
 	};
 
 	// буквы, цифры, точки, подчеркивания, дефисы, апострофы и плюсы
@@ -48,8 +36,10 @@ namespace my
 		// mailbox - является пользовательским аккаунтом, приложением или аккаунтом системной роли,
 		// может содержать информацию для дальнейшей маршрутизации или идентификаторы используемые
 		// для сортировки, автоматизации или отслеживания
+		// максимвльное количество символов - 64
 		std::string mailbox_{};
 		// hostname — доменн, субдоменн, сервер, сервис, ip - адрес, хост
+		// максимвльное количество символов - 253 с учетом 2-х точек
 		std::string hostname_{};
 	};
 
@@ -69,6 +59,7 @@ namespace my
 
 	private:
 		void normalization(const std::string& number);
+		void check() const;
 	
 	public:
 		// Североамериканский план нумерации

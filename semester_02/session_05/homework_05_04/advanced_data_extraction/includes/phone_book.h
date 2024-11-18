@@ -16,8 +16,6 @@ namespace phone
 	class phone_book
 	{
 	public:
-
-
 		using name_type = phone::contact::name_type;
 		using email_address_type = phone::contact::email_address_type;
 		using phone_number_type = phone::contact::phone_number_type;

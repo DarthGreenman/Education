@@ -11,8 +11,9 @@
 #include <iostream>
 #include <string>
 #include <type_traits>
-#include <utility>
 #include <vector>
+#include <pqxx/connection.hxx>
+#include <pqxx/internal/result_iter.hxx>
 
 namespace phone
 {
@@ -64,7 +65,7 @@ namespace phone
 	pqxx::result phone_book::add_contact(const contact& member)
 	{
 		const auto& [name, email, numbers] = member.get();
-		const auto& [forename, surname] = name.get();
+		const auto& [forename, surname] = name;
 		
 		pqxx::work wk{ connection_ };
 		const std::string query{
@@ -89,7 +90,7 @@ namespace phone
 
 	pqxx::result phone_book::add_number(const name_type& name, const phone_number_type& number)
 	{
-		const auto& [forename, surname] = name.get();
+		const auto& [forename, surname] = name;
 
 		pqxx::work wk{ connection_ };
 		const std::string query{
@@ -119,10 +120,10 @@ namespace phone
 
 	bool phone_book::record_exists(const contact& member)
 	{
-		const auto& [full_name, email, numbers] = member.get();
-		const auto& [name, surname] = full_name.get();
+		const auto& [name, email, numbers] = member.get();
+		const auto& [forename, surname] = name;
 
-		const std::string query{ "SELECT id FROM subscriber WHERE first_name='" + name + "' AND "
+		const std::string query{ "SELECT id FROM subscriber WHERE first_name='" + forename + "' AND "
 				"last_name='" + surname + "';" };
 		pqxx::work wk{ connection_ };
 		const auto query_result = wk.query<std::size_t>(query);
@@ -132,11 +133,11 @@ namespace phone
 	void print(const pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string>& records)
 	{
 		using namespace std;
-		for (const auto& [id, name, surname, email] : records)
+		for (const auto& [id, forename, surname, email] : records)
 		{
 			cout << setw(5) << right << id;
 			cout << setw(3) << left << " |";
-			cout << setw(12) << left << name;
+			cout << setw(12) << left << forename;
 			cout << setw(2) << left << '|';
 			cout << setw(20) << left << surname;
 			cout << setw(2) << left << '|';
