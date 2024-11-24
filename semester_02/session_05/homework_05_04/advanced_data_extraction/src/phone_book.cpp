@@ -28,10 +28,12 @@ namespace phone
 			"CREATE TABLE IF NOT EXISTS subscriber "
 			"("
 			"id serial, "
-			"first_name varchar(128) NOT NULL, "
-			"last_name varchar(128) NOT NULL, "
-			"email varchar(128), "
-			"UNIQUE (first_name, last_name, email), "
+			"forename varchar(32) NOT NULL, "
+			"surname varchar(32) NOT NULL, "
+			"mailbox varchar(64), "
+			"hostname varchar(253), "
+			"UNIQUE (forename, surname, mailbox), "
+			"UNIQUE (mailbox, hostname), "
 			"PRIMARY KEY (id)"
 			");"
 		);
@@ -49,28 +51,30 @@ namespace phone
 		);
 	}
 
-	phone_book::phone_book(pqxx::connection&& connection, const std::vector<contact>& members) :
+	phone_book::phone_book(pqxx::connection&& connection, const std::vector<contact>& persons) :
 		phone_book(std::move(connection))
 	{
-		for (const auto& member : members)
+		for (const auto& person : persons)
 		{
-			if (!record_exists(member))
+			if (!record_exists(person))
 			{
-				add_contact(member);
-				add_number(member);
+				add_contact(person);
+				if (const auto& [name, email, phone_numbers] = person.get(); !phone_numbers.empty())
+					add_number(person);
 			}
 		}
 	}
 
-	pqxx::result phone_book::add_contact(const contact& member)
+	pqxx::result phone_book::add_contact(const contact& person)
 	{
-		const auto& [name, email, numbers] = member.get();
+		const auto& [name, email, phone_numbers] = person.get();
 		const auto& [forename, surname] = name;
+		const auto& [mailbox, hostmail] = email.get();
 		
 		pqxx::work wk{ connection_ };
 		const std::string query{
-			"INSERT INTO subscriber(first_name, last_name, email) "
-			"VALUES('" + forename + "', '" + surname + "', '" + email.get() + "');"
+			"INSERT INTO subscriber(forename, surname, mailbox, hostname) "
+			"VALUES('" + forename + "', '" + surname + "', '" + mailbox + "', '" + hostmail + "');"
 		};
 		const pqxx::result query_result{ wk.exec(query) };
 		wk.commit();
@@ -78,12 +82,13 @@ namespace phone
 		return query_result;
 	}
 
-	pqxx::result phone_book::add_number(const contact& member)
+	pqxx::result phone_book::add_number(const contact& person)
 	{
-		const auto& [name, email, numbers] = member.get();
+		const auto& [name, email, phone_numbers] = person.get();
 		pqxx::result query_result{};
-		for (const auto& number : numbers)
-			query_result = add_number(name, number);
+		
+		for (const auto& phone_number : phone_numbers)
+			query_result = add_number(name, phone_number);
 
 		return query_result;
 	}
@@ -91,13 +96,16 @@ namespace phone
 	pqxx::result phone_book::add_number(const name_type& name, const phone_number_type& number)
 	{
 		const auto& [forename, surname] = name;
+		// В данном коде формат записи номера +19792195004, так воспользовались методом класса,
+		// но пользователь может записать номер в базу м в другом формате, предварительно
+		// получив доступ через метод класса get() к кодам номера: страны, зоны, узла и перс. номеру. 
 
 		pqxx::work wk{ connection_ };
 		const std::string query{
 			"INSERT INTO phone_numbers(subscriber_id, number) "
 			"VALUES("
-				"(SELECT id FROM subscriber WHERE first_name='" + forename + "' AND "
-				"last_name='" + surname + "'), '" + number.get() + "');"
+				"(SELECT id FROM subscriber WHERE forename='" + forename + "' AND "
+				"surname='" + surname + "'), '" + number.normalization() + "');"
 		};
 		const pqxx::result query_result{ wk.exec(query) };
 		wk.commit();
@@ -118,13 +126,13 @@ namespace phone
 		wk.commit();
 	}
 
-	bool phone_book::record_exists(const contact& member)
+	bool phone_book::record_exists(const contact& person)
 	{
-		const auto& [name, email, numbers] = member.get();
+		const auto& [name, email, phone_numbers] = person.get();
 		const auto& [forename, surname] = name;
 
-		const std::string query{ "SELECT id FROM subscriber WHERE first_name='" + forename + "' AND "
-				"last_name='" + surname + "';" };
+		const std::string query{ "SELECT id FROM subscriber WHERE forename='" + forename + "' AND "
+				"surname='" + surname + "';" };
 		pqxx::work wk{ connection_ };
 		const auto query_result = wk.query<std::size_t>(query);
 		return query_result.begin() == query_result.end() ? false : true;
