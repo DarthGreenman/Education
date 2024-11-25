@@ -1,4 +1,4 @@
-// contact.h
+﻿// contact.h
 
 #ifndef CONTACT_H
 #define CONTACT_H

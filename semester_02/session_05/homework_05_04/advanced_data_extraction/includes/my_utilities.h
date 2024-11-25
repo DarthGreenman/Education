@@ -1,4 +1,4 @@
-// my_utilities.h
+﻿// my_utilities.h
 
 #ifndef MY_UTILITIES_H
 #define MY_UTILITIES_H

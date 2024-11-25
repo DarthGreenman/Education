@@ -1,4 +1,4 @@
-//phone_book.h
+п»ї//phone_book.h
 
 #include "../includes/contact.h"
 #include "../includes/phone_book.h"
@@ -59,8 +59,11 @@ namespace phone
 			if (!record_exists(person))
 			{
 				add_contact(person);
-				if (const auto& [name, email, phone_numbers] = person.get(); !phone_numbers.empty())
+				if (const auto& [name, email, phone_numbers] = person.get(); 
+					!phone_numbers.empty())
+				{
 					add_phone_number(person);
+				}
 			}
 		}
 	}
@@ -69,7 +72,10 @@ namespace phone
 	{
 		pqxx::result query_result{};
 		if (record_exists(person))
+		{
+			// Р—Р°РїРёСЃСЊ СЃСѓС‰РµСЃС‚РІСѓРµС‚ - РёРЅС„РѕСЂРјРёСЂРѕРІР°С‚СЊ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
 			return query_result;
+		}
 
 		const auto& [name, email, phone_numbers] = person.get();
 		const auto& [forename, surname] = name;
@@ -100,9 +106,9 @@ namespace phone
 	pqxx::result phone_book::add_phone_number(const name_type& name, const phone_number_type& number)
 	{
 		const auto& [forename, surname] = name;
-		// В данном коде формат записи номера +19792195004, так воспользовались методом класса,
-		// но пользователь может записать номер в базу м в другом формате, предварительно
-		// получив доступ через метод класса get() к кодам номера: страны, зоны, узла и перс. номеру. 
+		// Р’ РґР°РЅРЅРѕРј РєРѕРґРµ С„РѕСЂРјР°С‚ Р·Р°РїРёСЃРё РЅРѕРјРµСЂР° +19792195004, С‚Р°Рє РІРѕСЃРїРѕР»СЊР·РѕРІР°Р»РёСЃСЊ РјРµС‚РѕРґРѕРј РєР»Р°СЃСЃР°,
+		// РЅРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РјРѕР¶РµС‚ Р·Р°РїРёСЃР°С‚СЊ РЅРѕРјРµСЂ РІ Р±Р°Р·Сѓ Рј РІ РґСЂСѓРіРѕРј С„РѕСЂРјР°С‚Рµ, РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ
+		// РїРѕР»СѓС‡РёРІ РґРѕСЃС‚СѓРї С‡РµСЂРµР· РјРµС‚РѕРґ РєР»Р°СЃСЃР° get() Рє РєРѕРґР°Рј РЅРѕРјРµСЂР°: СЃС‚СЂР°РЅС‹, Р·РѕРЅС‹, СѓР·Р»Р° Рё РїРµСЂСЃ. РЅРѕРјРµСЂСѓ. 
 
 		pqxx::work wk{ connection_ };
 		const std::string query{
@@ -158,7 +164,7 @@ namespace phone
 			cout << setw(3) << left << " |";
 			cout << setw(24) << left << name;
 			cout << setw(2) << left << " |";
-			cout << setw(30) << left << (email == "@" ? " " : email);
+			cout << setw(35) << left << (email == "@" ? " " : email);
 			cout << setw(2) << left << "|\n";
 		}
 	} 

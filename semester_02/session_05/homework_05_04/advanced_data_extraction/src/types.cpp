@@ -1,4 +1,4 @@
-// types.h
+п»ї// types.h
 
 #include "../includes/my_ascii.h"
 #include "../includes/my_utilities.h"
@@ -85,7 +85,7 @@ namespace my
 		switch (param)
 		{
 		case mailbox:
-			// Например: проверка имени на уникальность в пределах доступных адресов
+			// РќР°РїСЂРёРјРµСЂ: РїСЂРѕРІРµСЂРєР° РёРјРµРЅРё РЅР° СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚СЊ РІ РїСЂРµРґРµР»Р°С… РґРѕСЃС‚СѓРїРЅС‹С… Р°РґСЂРµСЃРѕРІ
 			break;
 		case hostname:
 			{
@@ -104,10 +104,10 @@ namespace my
 	// class phone_number //////////////////////////////////////////////////////////////////////////////////////////////////
 	phone_number::phone_number(const std::string& number)
 	{
-		const auto normalized_number = normalization(number); // Приводим к нормализованному виду
+		const auto normalized_number = normalization(number); // РџСЂРёРІРѕРґРёРј Рє РЅРѕСЂРјР°Р»РёР·РѕРІР°РЅРЅРѕРјСѓ РІРёРґСѓ
 		
 		try	{
-			check(normalized_number); // Проверяем длину номера, должен быть 12 символов: +19792195004
+			check(normalized_number); // РџСЂРѕРІРµСЂСЏРµРј РґР»РёРЅСѓ РЅРѕРјРµСЂР°, РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ 12 СЃРёРјРІРѕР»РѕРІ: +19792195004
 		}
 		catch (const std::exception& err) {
 			throw err;
@@ -146,7 +146,7 @@ namespace my
 		string normalized_number{};
 		normalized_number.reserve(number.size());
 		
-		// Копируем только цифры и '+'
+		// РљРѕРїРёСЂСѓРµРј С‚РѕР»СЊРєРѕ С†РёС„СЂС‹ Рё '+'
 		copy_if(cbegin(number), cend(number), back_inserter(normalized_number), [](char ch)
 			{ return my::is_digit(ch) || ch == plus; });
 		
@@ -154,7 +154,7 @@ namespace my
 	}
 	void phone_number::check(const std::string& normalized_number) const
 	{
-		// Проверяем длину номера, должен быть 12 символов: +19792195004
+		// РџСЂРѕРІРµСЂСЏРµРј РґР»РёРЅСѓ РЅРѕРјРµСЂР°, РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ 12 СЃРёРјРІРѕР»РѕРІ: +19792195004
 		using namespace std;
 		
 		if (const auto number_size = size_codes::country + size_codes::zone + size_codes::node + size_codes::number;
