@@ -40,12 +40,17 @@ namespace my
 		return ++last;
 	}
 
-
 	// class email_address //////////////////////////////////////////////////////////////////////////////////////////////////
 	email_address::email_address(const std::string& address)
 	{
-		std::istringstream raw_address{ address };
-		const auto parts = my::split(raw_address, ascii::at_sign);
+		const auto parts = my::split(address, ascii::at_sign);
+		if (parts.size() != 2ull)
+		{
+			using namespace std;
+			throw invalid_argument{ "\nIncorrect address format.\nline: " +
+				to_string(__LINE__) + ", file:\n" + string{ __FILE__ } + '\n' };
+		}
+
 		try {
 			check(parts);
 		}
@@ -83,23 +88,16 @@ namespace my
 			// Например: проверка имени на уникальность в пределах доступных адресов
 			break;
 		case hostname:
-		{
-			auto rule = [](char ch) { return isalpha(ch) || ch != comma; };
-			if (const auto pos = find_if_not(begin(parts[hostname]), end(parts[hostname]), rule); 
-				pos != end(parts[hostname]))
 			{
-				throw invalid_argument{ "\nInvalid character in hostname.\nline: " +
-					to_string(__LINE__) + ", file:\n" + string{ __FILE__ } + '\n' };
+				auto rule = [](char ch) { return isalpha(ch) || ch != comma; };
+				if (const auto pos = find_if_not(begin(parts[hostname]), end(parts[hostname]), rule);
+					pos != end(parts[hostname]))
+				{
+					throw invalid_argument{ "\nInvalid character in hostname.\nline: " +
+						to_string(__LINE__) + ", file:\n" + string{ __FILE__ } + '\n' };
+				}
+				break;
 			}
-			break;
-		}
-		case count:
-			if(parts.size() != count)
-			{
-				throw invalid_argument{ "\nIncorrect address format.\nline: " +
-					to_string(__LINE__) + ", file:\n" + string{ __FILE__ } + '\n' };
-			}
-			break;
 		}
 	}
 

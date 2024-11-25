@@ -9,11 +9,11 @@
 #include <iomanip>
 #include <ios>
 #include <iostream>
+#include <pqxx/connection.hxx>
+#include <pqxx/internal/result_iter.hxx>
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <pqxx/connection.hxx>
-#include <pqxx/internal/result_iter.hxx>
 
 namespace phone
 {
@@ -33,7 +33,7 @@ namespace phone
 			"mailbox varchar(64), "
 			"hostname varchar(253), "
 			"UNIQUE (forename, surname, mailbox), "
-			"UNIQUE (mailbox, hostname), "
+			"UNIQUE (forename, surname, hostname), "
 			"PRIMARY KEY (id)"
 			");"
 		);
@@ -60,13 +60,17 @@ namespace phone
 			{
 				add_contact(person);
 				if (const auto& [name, email, phone_numbers] = person.get(); !phone_numbers.empty())
-					add_number(person);
+					add_phone_number(person);
 			}
 		}
 	}
 
 	pqxx::result phone_book::add_contact(const contact& person)
 	{
+		pqxx::result query_result{};
+		if (record_exists(person))
+			return query_result;
+
 		const auto& [name, email, phone_numbers] = person.get();
 		const auto& [forename, surname] = name;
 		const auto& [mailbox, hostmail] = email.get();
@@ -76,24 +80,24 @@ namespace phone
 			"INSERT INTO subscriber(forename, surname, mailbox, hostname) "
 			"VALUES('" + forename + "', '" + surname + "', '" + mailbox + "', '" + hostmail + "');"
 		};
-		const pqxx::result query_result{ wk.exec(query) };
+		query_result = wk.exec(query);
 		wk.commit();
 
 		return query_result;
 	}
 
-	pqxx::result phone_book::add_number(const contact& person)
+	pqxx::result phone_book::add_phone_number(const contact& person)
 	{
 		const auto& [name, email, phone_numbers] = person.get();
 		pqxx::result query_result{};
 		
 		for (const auto& phone_number : phone_numbers)
-			query_result = add_number(name, phone_number);
+			query_result = add_phone_number(name, phone_number);
 
 		return query_result;
 	}
 
-	pqxx::result phone_book::add_number(const name_type& name, const phone_number_type& number)
+	pqxx::result phone_book::add_phone_number(const name_type& name, const phone_number_type& number)
 	{
 		const auto& [forename, surname] = name;
 		// В данном коде формат записи номера +19792195004, так воспользовались методом класса,
@@ -113,10 +117,17 @@ namespace phone
 		return query_result;
 	}
 
-	pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string> phone_book::get()
+	pqxx::internal::result_iteration<std::size_t, std::string, std::string> phone_book::get()
 	{
 		pqxx::work wk{ connection_ };
-		return wk.query<std::size_t, std::string, std::string, std::string>("SELECT * FROM subscriber");
+		const std::string query{
+			"SELECT id, "
+			"CONCAT(surname, ' ', forename) AS name, "
+			"CONCAT(mailbox, '@', hostname) AS email "
+			"FROM subscriber "
+			"ORDER BY name;"
+		};
+		return wk.query<std::size_t, std::string, std::string>(query);
 	}
 
 	void phone_book::create_structure(const std::string& query)
@@ -138,18 +149,16 @@ namespace phone
 		return query_result.begin() == query_result.end() ? false : true;
 	}
 
-	void print(const pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string>& records)
+	void print(const pqxx::internal::result_iteration<std::size_t, std::string, std::string>& records)
 	{
 		using namespace std;
-		for (const auto& [id, forename, surname, email] : records)
+		for (const auto& [id, name, email] : records)
 		{
 			cout << setw(5) << right << id;
 			cout << setw(3) << left << " |";
-			cout << setw(12) << left << forename;
-			cout << setw(2) << left << '|';
-			cout << setw(20) << left << surname;
-			cout << setw(2) << left << '|';
-			cout << setw(30) << left << email;
+			cout << setw(24) << left << name;
+			cout << setw(2) << left << " |";
+			cout << setw(30) << left << (email == "@" ? " " : email);
 			cout << setw(2) << left << "|\n";
 		}
 	} 

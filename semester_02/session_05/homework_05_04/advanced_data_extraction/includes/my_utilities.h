@@ -10,7 +10,7 @@
 
 namespace my
 {
-    auto split(std::istringstream& stream, char delim) -> std::vector<std::string>;
+    auto split(const std::string& line, char delim) -> std::vector<std::string>;
 }
 
 #endif // !MY_UTILITIES_H

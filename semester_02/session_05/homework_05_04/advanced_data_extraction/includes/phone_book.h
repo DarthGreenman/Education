@@ -34,19 +34,19 @@ namespace phone
 	
 	public:
 		pqxx::result add_contact(const contact& member);
-		pqxx::result add_number(const contact& member);
-		pqxx::result add_number(const name_type& name, const phone_number_type& number);
-		pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string> get();
+		pqxx::result add_phone_number(const contact& member);
+		pqxx::result add_phone_number(const name_type& name, const phone_number_type& number);
+		pqxx::internal::result_iteration<std::size_t, std::string, std::string> get();
 
 	private:
 		void create_structure(const std::string& query);
-		bool record_exists(const contact& member);
+		bool record_exists(const contact& person);
 
 	private:
 		pqxx::connection connection_{};
 	};
 
-	void print(const pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string>& records);
+	void print(const pqxx::internal::result_iteration<std::size_t, std::string, std::string>& records);
 }
 
 #endif // !PHONE_BOOK_H

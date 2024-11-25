@@ -22,7 +22,7 @@ namespace my
 	// максимвльное количество символов - 64
 	// hostname Ч доменн, субдоменн, сервер, сервис, ip - адрес, хост
 	// максимвльное количество символов - 253 с учетом 2-х точек
-	enum params { mailbox = 0, hostname, count, first_param = params::mailbox, last_param = params::hostname };
+	enum params { mailbox = 0, hostname, first_param = params::mailbox, last_param = params::hostname };
 	params& operator++(params& param);
 	params operator++(params& param, int);
 	params beg_params();
