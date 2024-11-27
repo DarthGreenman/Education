@@ -21,8 +21,8 @@ namespace phone
 		using phone_number_type = phone::contact::phone_number_type;
 		
 		phone_book() = delete;
-		phone_book(pqxx::connection&& connection);
-		phone_book(pqxx::connection&& connection, const std::vector<contact>& members);
+		phone_book(const std::string& connection_string);
+		phone_book(const std::string& connection_string, const std::vector<contact>& persons);
 
 		phone_book(const phone_book&) = delete;
 		phone_book(phone_book&&) = delete;
@@ -33,13 +33,14 @@ namespace phone
 		~phone_book() = default;
 	
 	public:
-		pqxx::result add_contact(const contact& member);
-		pqxx::result add_phone_number(const contact& member);
-		pqxx::result add_phone_number(const name_type& name, const phone_number_type& number);
+		bool add_contact(const contact& person);
+		bool add_phone_number(const contact& person);
+		bool add_phone_number(const name_type& name, const phone_number_type& number);
 		pqxx::internal::result_iteration<std::size_t, std::string, std::string> get();
 
 	private:
 		void create_structure(const std::string& query);
+		void create_structure();
 		bool record_exists(const contact& person);
 
 	private:

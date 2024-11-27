@@ -7,7 +7,6 @@
 
 #include <exception>
 #include <iostream>
-#include <pqxx/connection.hxx>
 #include <string>
 #include <vector>
 
@@ -32,14 +31,6 @@ int main()
 	
 	try
 	{
-		/*
-		const contact Lorenzo{ name_type{"Lorenzo", "Montanelli"}, address_type{},
-			number_list_type{ number_type{"+19792195004"}, number_type{"+19792195005"}, number_type{"+19792195006"}} };
-
-		const contact Bjarne{ name_type{"Bjarne", "Stroustrup"}, address_type{"bjarne@stroustrup.com"},
-			number_list_type{ number_type{"+19792195004"}, number_type{"+19792195005"}, number_type{"+19792195006"}} };
-		*/
-
 	/**/
 		const std::vector<contact> initial_data
 		{
@@ -62,15 +53,15 @@ int main()
 			number_list_type{number_type{"+19257546470"}}}
 		};
 	/**/
-		//phone::phone_book contacts{ pqxx::connection{connection_string} };
-		phone::phone_book contacts{ pqxx::connection{connection_string}, initial_data };
+		//phone::phone_book contacts{ connection_string };
+		phone::phone_book contacts{ connection_string, initial_data };
 				
-		const contact Lorenzo{ name_type{"Lorenzo", "Montanelli"}, address_type{}, number_list_type{number_type{"+19257546470"}} };
-		contacts.add_contact(Lorenzo);
+		//const contact Lorenzo{ name_type{"Lorenzo", "Montanelli"}, address_type{}, number_list_type{number_type{"+19257546470"}} };
+		//contacts.add_contact(Lorenzo);
 				
-		const contact Dmitry{ name_type{"Dmitry", "Kostyuchenko"}, address_type{"dima.kostyuchenko@gmail.com"},
-			number_list_type{number_type{"+79257546474"}} };
-		contacts.add_contact(Dmitry);
+		//const contact Pavel{ name_type{"Pavel", "Kostyuchenko"}, address_type{"pavel.kostyuchenko@gmail.com"},
+		//	number_list_type{number_type{"+79257546473"}} };
+		//const auto result = contacts.add_contact(Pavel);
 				
 		phone::print(contacts.get());
 	}
