@@ -5,6 +5,7 @@
 
 #include "contact.h"
 
+#include <limits>
 #include <pqxx/pqxx>
 #include <pqxx/result.hxx>
 #include <string>
@@ -31,12 +32,15 @@ namespace phone
 		phone_book& operator=(phone_book&&) = delete;
 
 		~phone_book() = default;
-	
+		
 	public:
-		bool add_contact(const contact& person);
-		bool add_phone_number(const contact& person);
-		bool add_phone_number(const name_type& name, const phone_number_type& number);
-		pqxx::internal::result_iteration<std::size_t, std::string, std::string> get();
+		bool add(const contact& person);
+		bool add(const name_type& name, const phone_number_type& phone_number);
+		bool add(std::size_t person_id, const phone_number_type& phone_number);
+		pqxx::internal::result_iteration<std::size_t, std::string, std::string> get_contact(
+			std::size_t id = (std::numeric_limits<std::size_t>::max)()
+		);
+		pqxx::internal::result_iteration<std::size_t, std::string> get_number(std::size_t id);
 
 	private:
 		void create_structure(const std::string& query);
@@ -47,7 +51,8 @@ namespace phone
 		pqxx::connection connection_{};
 	};
 
-	void print(const pqxx::internal::result_iteration<std::size_t, std::string, std::string>& records);
+	void print(phone_book& contacts);
+	void print(phone_book& contacts, std::size_t id);
 }
 
 #endif // !PHONE_BOOK_H

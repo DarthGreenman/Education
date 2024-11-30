@@ -29,6 +29,7 @@ add_executable (${PROJECT_NAME} "advanced_data_extraction.cpp" #${HEADER_INC} ${
 	"includes/types.h"
 	"includes/my_utilities.h"
 	"includes/my_ascii.h"
+	"includes/my_input.h"
 	"src/phone_book.cpp"
 	"src/contact.cpp"
 	"src/types.cpp"

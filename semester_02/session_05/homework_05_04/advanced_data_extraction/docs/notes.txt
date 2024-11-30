@@ -1,79 +1,34 @@
-	struct connection_parameters
-	{
-		std::string host{};
-		std::string port{};
-		std::string dbname{};
-		std::string user{};
-		std::string password{};
-	};
-
-			"CREATE TABLE IF NOT EXISTS phone_numbers "
-		"("
-			"id serial, "
-			"subscriber_id integer, "
-			"numbers varchar(12), "
-			"UNIQUE (number), "
-			"PRIMARY KEY (id), "
-			"FOREIGN KEY (subscriber_id) REFERENCES subscriber (id)"
-		");"
-
-Inbal Levi feedback@cppcast.com
-Nina Ranns
-Bjarne Stroustrup bjarne@stroustrup.com +1 979 219 50 04
-Herb Sutter herb.sutter@gmail.com 
-Michael Wong 214-263-1853 (310) 656-0400USA
-
-
+		const std::string query
 		{
-			// Здесь должна быть выполнена проверка формата данных
-			name_ = name;
-			email_ = email;
-			numbers_ = numbers;
-		}
-
-				//for (const auto [id, first_name, last_name, email] :
-		//	wk.query<std::size_t, string, string, string>(query))
-		//	std::cout << id << " " << first_name << " " << last_name << " " << email << '\n';
-
-				//auto result = customer.add_contact(phone::contact{std::make_pair("Bjarne", "Stroustrup"),
-		//	"bjarne@stroustrup.com", numbers{} });
-		//result = customer.add_number(phone::contact{ std::make_pair("Bjarne", "Stroustrup"), "bjarne@stroustrup.com",
-		//	std::vector<std::string>{"+19792195004", "+19792195005"} } );
-
-			{
-		for (const auto [id, first_name, last_name, email] : records)
-			std::cout << id << " " << first_name << " " << last_name << " " << email << '\n';
-	}
-
-		for (auto width = begin(codes_width); width != cend(codes_width); pos += *width, ++width)
-		{
-			string code{};
-			copy_n(next(begin(normalized_number),pos), *width,	back_inserter(code));
-			codes_.push_back(code);
-		}
-
-
+			"SELECT subscriber_id, number "
+			"FROM phone_numbers "
+			"WHERE subscriber_id='" + std::to_string(id) + "' "
+			"ORDER BY number;"
+		};
 
 		/*
-		// Проверить на допустимые символы: цифры, '+', '-', '(', ')', ' '
-		if (const auto pos = find_if_not(cbegin(number), cend(number), [](char ch) { return my::is_digit(ch) ||
-			ch == plus || ch == minus || ch == left_parenthesis || ch == right_parenthesis || ch == space; });
-			pos != cend(number))
+	pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string> phone_book::get()
+	{
+		const std::string query
 		{
-			throw invalid_argument{ "\nUnresolved symbol - value must be a numeric character.\nline: " +
-				to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
-		}
+			"SELECT subscriber.id, "
+			"CONCAT(subscriber.surname, ' ', subscriber.forename) AS name, "
+			"CONCAT(subscriber.mailbox, '@', subscriber.hostname) AS email, "
+			"phone_numbers.number "
+			"FROM subscriber INNER JOIN phone_numbers "
+			"ON subscriber.id = phone_numbers.subscriber_id "
+			"ORDER BY name;"
+		};
 
-		std::string raw_number{ number };
-		// Удалить символы, кроме цифр и '+', т. е. разделительные символы: '-', '(', ')', ' '		
-		erase_if(raw_number, [](char ch) { return !(my::is_digit(ch) || ch == plus); });
+		pqxx::work wk{ connection_ };
+		return wk.query<std::size_t, std::string, std::string, std::string>(query);
+	}
+	*/
 
-		// Проверить длину уже нормализованного номера, должен быть 12 символов: +19792195004
-		if (const auto number_size = code_sizes::country + code_sizes::zone + code_sizes::node + code_sizes::number;
-			raw_number.size() != number_size)
+	const std::string query
 		{
-			throw length_error{ "\nInsufficient number of digits of the number.\nline: " +
-				to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
-		}
-		*/
-
+			"INSERT INTO phone_numbers(subscriber_id, number) "
+			"VALUES("
+				"(SELECT id FROM subscriber WHERE forename='" + forename + "' AND "
+				"surname='" + surname + "'), '" + number.normalization() + "');"
+		};
