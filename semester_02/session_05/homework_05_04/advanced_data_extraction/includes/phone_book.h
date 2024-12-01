@@ -5,15 +5,18 @@
 
 #include "contact.h"
 
-#include <limits>
+#include <concepts>
 #include <pqxx/pqxx>
 #include <pqxx/result.hxx>
 #include <string>
-#include <utility>
+#include <type_traits>
 #include <vector>
 
 namespace phone
 {
+	template<typename T>
+	concept Is_field_data_types = std::is_same_v<T, std::size_t> || std::is_same_v<T, std::string>;
+
 	class phone_book
 	{
 	public:
@@ -37,10 +40,15 @@ namespace phone
 		bool add(const contact& person);
 		bool add(const name_type& name, const phone_number_type& phone_number);
 		bool add(std::size_t person_id, const phone_number_type& phone_number);
-		pqxx::internal::result_iteration<std::size_t, std::string, std::string> get_contact(
-			std::size_t id = (std::numeric_limits<std::size_t>::max)()
-		);
-		pqxx::internal::result_iteration<std::size_t, std::string> get_number(std::size_t id);
+
+		void del(std::size_t person_id);
+
+		template<Is_field_data_types ... Args>
+		pqxx::internal::result_iteration<Args ...> get(const std::string& query)
+		{
+			pqxx::work wk{ connection_ };
+			return wk.query<Args ...>(query);
+		}
 
 	private:
 		void create_structure(const std::string& query);

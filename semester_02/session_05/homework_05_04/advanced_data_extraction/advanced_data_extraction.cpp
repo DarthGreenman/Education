@@ -60,7 +60,6 @@ int main()
 		};
 
 		phone::phone_book contacts{ connection_string, initial_data };
-		phone::print(contacts);			
 		context::action(contacts);
 	}
 	catch (const std::exception& err)
@@ -74,6 +73,10 @@ int main()
 void context::action(phone::phone_book& contacts)
 {
 	using namespace std;
+	using contact = typename phone::contact;
+	
+	system("cls");
+	phone::print(contacts);
 	cout << "\n\nВЫБЕРЕТЕ ДЕЙСТВИЕ:";
 	cout << "\n1. Данные контакта";
 	cout << "\n2. Добавить контакт";
@@ -85,29 +88,49 @@ void context::action(phone::phone_book& contacts)
 	{
 	case 1:
 	{
-		const auto person_id = my::get_input_value<unsigned>("\nВВЕДИТЕ ID КОНТАКТА: ");
+		const auto person_id = my::get_input_value<unsigned>("Введите ID контакта: ");
 		phone::print(contacts, person_id);
+		system("pause");
 		action(contacts);
-	}
-	case 2:
-	{
-		using contact = typename phone::contact;
-		const contact person{
-			contact::name_type{"Lina", "Rannsun"}, 
-			contact::email_address_type{"lina.rannsun@gmail.com"},
-			contact::number_list_type{contact::phone_number_type{"+12222532859"}} 
-		};
-		contacts.add(person);
-		action(contacts);
-	}
-	case 3:
-	{
-		const auto person_id = my::get_input_value<unsigned>("\nВВЕДИТЕ ID КОНТАКТА: ");
-		contacts.add(person_id, phone::contact::phone_number_type{ "+12222432869" });
-		action(contacts);
-	}
-	default:
 		break;
+	}
+	case 2: // Добавить контакт
+	{
+		const contact::name_type name{
+			my::get_input_value<string>("Имя: "),
+			my::get_input_value<string>("Фамилия: ")
+		};
+		const contact::email_address_type email{ my::get_input_value<string>("Email: ") };
+		const contact::phone_number_type phone_number{ my::get_input_value<string>("Номер телефона: ") };
+		
+		contacts.add(contact{ name, email });
+		contacts.add(name, phone_number);
+		action(contacts);
+		break;
+	}
+	case 3: // Добавить номер
+	{
+		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
+		const contact::phone_number_type phone_number{ my::get_input_value<string>("Номер телефона: ") };
+		
+		contacts.add(person_id, phone_number);
+		action(contacts);
+		break;
+	}
+	case 4: // Удалить контакт
+	{
+		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
+
+		action(contacts);
+		break;
+	}
+	case 5: // Удалить номер
+	{
+		action(contacts);
+		break;
+	}
+	case 0:
+		return;
 	}
 }
 

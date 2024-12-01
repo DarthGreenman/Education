@@ -33,7 +33,7 @@ namespace my
     }
 
     template<typename Type,
-        typename = std::enable_if_t<std::is_integral_v<Type>>>
+        typename = std::enable_if_t<std::is_integral_v<Type> || std::is_same_v<Type, std::string>>>
     auto get_input_value(std::istream& in, Type& val, std::string invitation)
     {
         using namespace std;
@@ -43,7 +43,7 @@ namespace my
     }
 
     template<typename Type,
-        typename = std::enable_if_t<std::is_integral_v<Type>>>
+        typename = std::enable_if_t<std::is_integral_v<Type> || std::is_same_v<Type, std::string>>>
     auto get_input_value(std::string invitation)
     {
         using namespace std;

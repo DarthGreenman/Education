@@ -20,7 +20,8 @@ namespace phone
 		using number_list_type = std::vector<my::phone_number>;
 
 		contact() = delete;
-		contact(const name_type& name, const email_address_type& email, const number_list_type& phone_numbers);
+		contact(const name_type& name, const email_address_type& email, 
+			const number_list_type& phone_numbers = {});
 		contact(const contact&) = default;
 		contact(contact&&) = delete;
 		~contact() = default;

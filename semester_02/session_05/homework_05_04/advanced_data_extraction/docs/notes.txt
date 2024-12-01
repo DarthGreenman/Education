@@ -1,34 +1,76 @@
-		const std::string query
-		{
-			"SELECT subscriber_id, number "
-			"FROM phone_numbers "
-			"WHERE subscriber_id='" + std::to_string(id) + "' "
-			"ORDER BY number;"
-		};
+const std::string query
+{
+	"SELECT subscriber_id, number "
+	"FROM phone_numbers "
+	"WHERE subscriber_id='" + std::to_string(id) + "' "
+	"ORDER BY number;"
+};
 
-		/*
-	pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string> phone_book::get()
-	{
-		const std::string query
-		{
-			"SELECT subscriber.id, "
-			"CONCAT(subscriber.surname, ' ', subscriber.forename) AS name, "
-			"CONCAT(subscriber.mailbox, '@', subscriber.hostname) AS email, "
-			"phone_numbers.number "
-			"FROM subscriber INNER JOIN phone_numbers "
-			"ON subscriber.id = phone_numbers.subscriber_id "
-			"ORDER BY name;"
-		};
-
-		pqxx::work wk{ connection_ };
-		return wk.query<std::size_t, std::string, std::string, std::string>(query);
-	}
-	*/
-
+pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string> phone_book::get()
+{
 	const std::string query
-		{
-			"INSERT INTO phone_numbers(subscriber_id, number) "
-			"VALUES("
-				"(SELECT id FROM subscriber WHERE forename='" + forename + "' AND "
-				"surname='" + surname + "'), '" + number.normalization() + "');"
-		};
+	{
+		"SELECT subscriber.id, "
+		"CONCAT(subscriber.surname, ' ', subscriber.forename) AS name, "
+		"CONCAT(subscriber.mailbox, '@', subscriber.hostname) AS email, "
+		"phone_numbers.number "
+		"FROM subscriber INNER JOIN phone_numbers "
+		"ON subscriber.id = phone_numbers.subscriber_id "
+		"ORDER BY name;"
+	};
+
+	pqxx::work wk{ connection_ };
+	return wk.query<std::size_t, std::string, std::string, std::string>(query);
+}
+
+const std::string query
+{
+	"INSERT INTO phone_numbers(subscriber_id, number) "
+	"VALUES("
+		"(SELECT id FROM subscriber WHERE forename='" + forename + "' AND "
+		"surname='" + surname + "'), '" + number.normalization() + "');"
+};
+
+
+using recordset_person = typename pqxx::internal::result_iteration<std::size_t, std::string, std::string>;
+using recordset_phone_number = typename pqxx::internal::result_iteration<std::size_t, std::string>;
+
+recordset_person get_person(std::size_t person_id = (std::numeric_limits<std::size_t>::max)());
+phone_book::recordset_person phone_book::get_person(std::size_t person_id)
+{
+	const std::string query
+	{
+		person_id == (std::numeric_limits<std::size_t>::max)()
+		?
+		"SELECT id, "
+		"CONCAT(surname, ' ', forename) AS name, "
+		"CONCAT(mailbox, '@', hostname) AS email "
+		"FROM subscriber "
+		"ORDER BY name;" 
+		:
+		"SELECT id, "
+		"CONCAT(surname, ' ', forename) AS name, "
+		"CONCAT(mailbox, '@', hostname) AS email "
+		"FROM subscriber "
+		"WHERE id = '" + std::to_string(person_id) + "' "
+		"ORDER BY name;"
+	};
+
+	pqxx::work wk{ connection_ };
+	return wk.query<std::size_t, std::string, std::string>(query);
+}
+
+recordset_phone_number get_phone_number(std::size_t person_id);
+phone_book::recordset_phone_number phone_book::get_phone_number(std::size_t person_id)
+{
+	const std::string query
+	{
+		"SELECT subscriber_id, number "
+		"FROM phone_numbers "
+		"WHERE subscriber_id = '" + std::to_string(person_id) + "' "
+		"ORDER BY number;"
+	};
+
+	pqxx::work wk{ connection_ };
+	return wk.query<std::size_t, std::string>(query);
+}
