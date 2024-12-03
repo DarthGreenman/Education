@@ -20,9 +20,9 @@ namespace phone
 	class phone_book
 	{
 	public:
-		using name_type = phone::contact::name_type;
-		using email_address_type = phone::contact::email_address_type;
-		using phone_number_type = phone::contact::phone_number_type;
+		using name_type = contact::name_type;
+		using email_address_type = contact::email_address_type;
+		using phone_number_type = contact::phone_number_type;
 		
 		phone_book() = delete;
 		phone_book(const std::string& connection_string);

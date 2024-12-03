@@ -112,6 +112,18 @@ namespace phone
 
 		return query_result.affected_rows() == 0 ? false : true;
 	}
+
+	void phone_book::del(std::size_t person_id)
+	{
+		const std::string query
+		{
+			"DELETE FROM subscriber WHERE id = '" + std::to_string(person_id) + "';"
+		};
+
+		pqxx::work wk{ connection_ };
+		const pqxx::result query_result{ wk.exec(query) };
+		wk.commit();
+	}
 		
 	void phone_book::create_structure(const std::string& query)
 	{
@@ -173,8 +185,8 @@ namespace phone
 		using namespace std;
 		cout << '|'
 			<< setw(3) << right << "ID" << " | "
-			<< setw(20) << left << "NAME" << " | "
-			<< setw(30) << left << "MAIL" << " |\n";
+			<< setw(20) << left << "ИМЯ" << " | "
+			<< setw(30) << left << "EMAIL" << " |\n";
 		
 		const auto persons = contacts.get<size_t, string, string>(
 			"SELECT id, "
@@ -211,10 +223,10 @@ namespace phone
 		auto view = [](const typename decltype(begin(persons))::value_type& person)
 			{
 				const auto& [id, name, email] = person;
-				cout << setw(15) << left << "ID:" << setw(3) << left << id << '\n';
-				cout << setw(15) << left << "NAME:" << setw(20) << left << name << '\n';
-				cout << setw(15) << left << "MAIL:" << setw(30) << left << (email == "@" ? " " : email) << '\n';
-				cout << setw(15) << left << "PHONE NUMBERS:";
+				cout << setw(20) << left << "ID:" << setw(3) << left << id << '\n';
+				cout << setw(20) << left << "ИМЯ:" << setw(20) << left << name << '\n';
+				cout << setw(20) << left << "EMAIL:" << setw(30) << left << (email == "@" ? " " : email) << '\n';
+				cout << setw(20) << left << "НОМЕРА ТЕЛЕФОНОВ:   \n";
 			};
 		for_each(begin(persons), cend(persons), view);
 		
@@ -229,7 +241,7 @@ namespace phone
 			[](const typename decltype(begin(phone_numbers))::value_type& phone_number)
 			{
 				const auto& [id, number] = phone_number;
-				cout  << number << " ";
+				cout  << setw(32) << right << number << '\n';
 			}
 		);
 		cout << '\n';

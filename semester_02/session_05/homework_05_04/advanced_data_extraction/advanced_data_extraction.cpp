@@ -6,6 +6,7 @@
 #include "includes/my_localisation.h"
 #include "includes/phone_book.h"
 
+#include <cstdlib>
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -26,30 +27,29 @@ int main()
 	using address_type = typename phone::contact::email_address_type;
 	using number_type = typename phone::contact::phone_number_type;
 	using number_list_type = typename phone::contact::number_list_type;
-
-	const std::vector<contact> initial_data
-	{
-		contact{name_type{"Bjarne", "Stroustrup"}, address_type{"bjarne@stroustrup.com"},
-		number_list_type{ number_type{"+19792195004"}, number_type{"+19792195005"}, number_type{"+19792195006"}}},
-
-		contact{name_type{"Inbal", "Levi"}, address_type{"feedback@cppcast.com"},
-		number_list_type{}},
-
-		contact{name_type{"Nina", "Ranns"}, address_type{},
-		number_list_type{number_type{"+12222532851"}}},
-
-		contact{name_type{"Herb", "Sutter"}, address_type{"herb.sutter@gmail.com"},
-		number_list_type{number_type{"+14442681754"}}},
-
-		contact{name_type{"Michael", "Wong"}, address_type{},
-		number_list_type{number_type{"+12142631853"}, number_type{"+12144531855"}, number_type{"+12142781343"}} },
-
-		contact{ name_type{"Lorenzo", "Montanelli"}, address_type{"lorenzo_montanelli@gmail.com"},
-		number_list_type{number_type{"+19257546470"}}}
-	};
 	
 	try
 	{
+		const std::vector<contact> initial_data
+		{
+			contact{name_type{"Bjarne", "Stroustrup"}, address_type{"bjarne@stroustrup.com"},
+			number_list_type{ number_type{"+19792195004"}, number_type{"+19792195005"}, number_type{"+19792195006"}}},
+
+			contact{name_type{"Inbal", "Levi"}, address_type{"feedback@cppcast.com"}},
+
+			contact{name_type{"Nina", "Ranns"}, address_type{},
+			number_list_type{number_type{"+12222532851"}}},
+
+			contact{name_type{"Herb", "Sutter"}, address_type{"herb.sutter@gmail.com"},
+			number_list_type{number_type{"+14442681754"}}},
+
+			contact{name_type{"Michael", "Wong"}, address_type{},
+			number_list_type{number_type{"+12142631853"}, number_type{"+12144531855"}, number_type{"+12142781343"}} },
+
+			contact{ name_type{"Lorenzo", "Montanelli"}, address_type{"lorenzo_montanelli@gmail.com"},
+			number_list_type{number_type{"+19257546470"}}}
+		};
+
 		const std::string connection_string
 		{
 			"host=localhost "
@@ -78,17 +78,21 @@ void context::action(phone::phone_book& contacts)
 	system("cls");
 	phone::print(contacts);
 	cout << "\n\nВЫБЕРЕТЕ ДЕЙСТВИЕ:";
-	cout << "\n1. Данные контакта";
-	cout << "\n2. Добавить контакт";
-	cout << "\n3. Добавить номер";
-	cout << "\n4. Удалить контакт";
-	cout << "\n5. Удалить номер";
+	cout << setw(30) << "\nКОМАНДА" << "ID";
+	cout << setw(30) << "\nДанные контакта" << '1';
+	cout << setw(30) << "\nДобавить контакт" << '2';
+	cout << setw(30) << "\nДобавить номер телефона" << '3';
+	cout << setw(30) << "\nУдалить контакт" << '4';
+	cout << setw(30) << "\nУдалить номер телефона" << '5';
+	cout << setw(30) << "\nВыход" << '0';
 
-	switch (my::get_input_value<unsigned>("\n\nВВЕДИТЕ КОМАНДУ: "))
+	switch (my::get_input_value<size_t>("\n\nВведите ID команды: "))
 	{
 	case 1:
 	{
-		const auto person_id = my::get_input_value<unsigned>("Введите ID контакта: ");
+		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
+		
+		system("cls");
 		phone::print(contacts, person_id);
 		system("pause");
 		action(contacts);
@@ -111,8 +115,10 @@ void context::action(phone::phone_book& contacts)
 	case 3: // Добавить номер
 	{
 		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
+		system("cls");
+		phone::print(contacts, person_id);
+
 		const contact::phone_number_type phone_number{ my::get_input_value<string>("Номер телефона: ") };
-		
 		contacts.add(person_id, phone_number);
 		action(contacts);
 		break;
@@ -121,11 +127,19 @@ void context::action(phone::phone_book& contacts)
 	{
 		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
 
+		contacts.del(person_id);
 		action(contacts);
 		break;
 	}
 	case 5: // Удалить номер
 	{
+		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
+
+		system("cls");
+		phone::print(contacts, person_id);
+		
+		const auto phone_number_id = my::get_input_value<size_t>("Введите ID номера телефона: ");
+
 		action(contacts);
 		break;
 	}
