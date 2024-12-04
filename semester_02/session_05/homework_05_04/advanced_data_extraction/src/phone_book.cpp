@@ -3,16 +3,13 @@
 #include "../includes/contact.h"
 #include "../includes/phone_book.h"
 
+#include <pqxx/connection.hxx>
+#include <pqxx/internal/result_iter.hxx>
 #include <pqxx/result.hxx>
 #include <pqxx/transaction.hxx>
 
 #include <algorithm>
-#include <iomanip>
-#include <ios>
-#include <iostream>
 #include <iterator>
-#include <pqxx/connection.hxx>
-#include <pqxx/internal/result_iter.hxx>
 #include <string>
 #include <vector>
 
@@ -36,14 +33,13 @@ namespace phone
 		using namespace std;
 		auto add_person = [&](const contact& person)
 			{
-				if (add(person))
+				if (add_contact(person))
 				{
 					const auto& [name, email, phone_numbers] = person.get();
 					using Value_type = typename iterator_traits<decltype(begin(phone_numbers))>::value_type;
-					const decltype(phone_numbers) a{};
 					auto add_phone_number = [&](const Value_type& phone_number)
 						{
-							add(name, phone_number);
+							add_phone(name, phone_number);
 						};
 					for_each(cbegin(phone_numbers), cend(phone_numbers), add_phone_number);
 				}
@@ -51,7 +47,7 @@ namespace phone
 		for_each(cbegin(persons), cend(persons), add_person);
 	}
 
-	bool phone_book::add(const contact& person)
+	bool phone_book::add_contact(const contact& person)
 	{
 		if (record_exists(person))
 		{
@@ -62,67 +58,58 @@ namespace phone
 		const auto& [name, email, phone_numbers] = person.get();
 		const auto& [forename, surname] = name;
 		const auto& [mailbox, hostmail] = email.get();
-		const std::string query
-		{
+		const std::string query {
 			"INSERT INTO subscriber(forename, surname, mailbox, hostname) "
 			"VALUES('" + forename + "', '" + surname + "', '" + mailbox + "', '" + hostmail + "');"
 		};
 		
-		pqxx::work wk{ connection_ };
-		const pqxx::result query_result = wk.exec(query);
-		wk.commit();
-
-		return query_result.affected_rows() == 0 ? false : true;
+		return execute(query);
 	}
 
-	bool phone_book::add(const name_type& name, const phone_number_type& phone_number)
+	bool phone_book::add_phone(const name_type& name, const phone_number_type& phone_number)
 	{
 		const auto& [forename, surname] = name;
 		// В данном коде формат записи номера +19792195004, так воспользовались методом класса,
 		// но пользователь может записать номер в базу м в другом формате, предварительно
 		// получив доступ через метод класса get() к кодам номера: страны, зоны, узла и перс. номеру. 
-		const std::string query
-		{
+		const std::string query {
 			"INSERT INTO phone_numbers(subscriber_id, number) "
 			"VALUES("
 				"(SELECT id FROM subscriber WHERE forename = '" + forename + "' AND "
 				"surname = '" + surname + "'), '" + phone_number.normalization() + "');"
 		};
 
-		pqxx::work wk{ connection_ };
-		const pqxx::result query_result{ wk.exec(query) };
-		wk.commit();
-
-		return query_result.affected_rows() == 0 ? false : true;
+		return execute(query);
 	}
 
-	bool phone_book::add(std::size_t person_id, const phone_number_type& phone_number)
+	bool phone_book::add_phone(std::size_t person_id, const phone_number_type& phone_number)
 	{
-		const std::string query
-		{
+		const std::string query {
 			"INSERT INTO phone_numbers(subscriber_id, number) "
 			"VALUES("
 				"(SELECT id FROM subscriber WHERE id = '" + std::to_string(person_id) + "'), '"
 			+ phone_number.normalization() + "');"
 		};
 
-		pqxx::work wk{ connection_ };
-		const pqxx::result query_result{ wk.exec(query) };
-		wk.commit();
-
-		return query_result.affected_rows() == 0 ? false : true;
+		return execute(query);
 	}
 
-	void phone_book::del(std::size_t person_id)
+	bool phone_book::del_contact(std::size_t person_id)
 	{
-		const std::string query
-		{
+		const std::string query {
 			"DELETE FROM subscriber WHERE id = '" + std::to_string(person_id) + "';"
 		};
 
-		pqxx::work wk{ connection_ };
-		const pqxx::result query_result{ wk.exec(query) };
-		wk.commit();
+		return execute(query);
+	}
+
+	bool phone_book::del_phone(std::size_t phone_number_id)
+	{
+		const std::string query{
+			"DELETE FROM phone_numbers WHERE id = '" + std::to_string(phone_number_id) + "';"
+		};
+
+		return execute(query);
 	}
 		
 	void phone_book::create_structure(const std::string& query)
@@ -179,71 +166,12 @@ namespace phone
 		return query_result.begin() == query_result.end() ? false : true;
 	}
 
-	void print(phone_book& contacts)
+	bool phone_book::execute(const std::string& query)
 	{
-		// Напечатать данные всех персон
-		using namespace std;
-		cout << '|'
-			<< setw(3) << right << "ID" << " | "
-			<< setw(20) << left << "ИМЯ" << " | "
-			<< setw(30) << left << "EMAIL" << " |\n";
-		
-		const auto persons = contacts.get<size_t, string, string>(
-			"SELECT id, "
-			"CONCAT(surname, ' ', forename) AS name, "
-			"CONCAT(mailbox, '@', hostname) AS email "
-			"FROM subscriber "
-			"ORDER BY name;"
-		);
-				
-		auto view = [](const typename decltype(begin(persons))::value_type& person)
-			{
-				const auto& [id, name, email] = person;
-				cout << "|" 
-					<< setw(3) << right << id << " | " 
-					<< setw(20) << left << name << " | " 
-					<< setw(30) << left << (email == "@" ? " " : email) << " |\n";
-			};
-		for_each(begin(persons), cend(persons), view);
-	}
+		pqxx::work wk{ connection_ };
+		const pqxx::result query_result = wk.exec(query);
+		wk.commit();
 
-	void print(phone_book& contacts, std::size_t person_id)
-	{
-		// Напечатать данные персоны
-		using namespace std;
-		const auto persons = contacts.get<size_t, string, string>(
-			"SELECT id, "
-			"CONCAT(surname, ' ', forename) AS name, "
-			"CONCAT(mailbox, '@', hostname) AS email "
-			"FROM subscriber "
-			"WHERE id = '" + to_string(person_id) + "' "
-			"ORDER BY name;"
-		);
-		
-		auto view = [](const typename decltype(begin(persons))::value_type& person)
-			{
-				const auto& [id, name, email] = person;
-				cout << setw(20) << left << "ID:" << setw(3) << left << id << '\n';
-				cout << setw(20) << left << "ИМЯ:" << setw(20) << left << name << '\n';
-				cout << setw(20) << left << "EMAIL:" << setw(30) << left << (email == "@" ? " " : email) << '\n';
-				cout << setw(20) << left << "НОМЕРА ТЕЛЕФОНОВ:   \n";
-			};
-		for_each(begin(persons), cend(persons), view);
-		
-		const auto phone_numbers = contacts.get<size_t, string>(
-			"SELECT subscriber_id, number "
-			"FROM phone_numbers "
-			"WHERE subscriber_id = '" + to_string(person_id) + "' "
-			"ORDER BY number;"
-		);
-
-		for_each(begin(phone_numbers), cend(phone_numbers), 
-			[](const typename decltype(begin(phone_numbers))::value_type& phone_number)
-			{
-				const auto& [id, number] = phone_number;
-				cout  << setw(32) << right << number << '\n';
-			}
-		);
-		cout << '\n';
+		return query_result.affected_rows() == 0 ? false : true;
 	}
 } 

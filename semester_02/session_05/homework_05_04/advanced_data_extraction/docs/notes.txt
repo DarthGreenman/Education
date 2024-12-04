@@ -74,3 +74,74 @@ phone_book::recordset_phone_number phone_book::get_phone_number(std::size_t pers
 	pqxx::work wk{ connection_ };
 	return wk.query<std::size_t, std::string>(query);
 }
+
+
+/*
+	void print(phone_book& contacts)
+	{
+		// Напечатать данные всех персон
+		using namespace std;
+		cout << '|'
+			<< setw(3) << right << "ID" << " | "
+			<< setw(20) << left << "ИМЯ" << " | "
+			<< setw(30) << left << "EMAIL" << " |\n";
+		
+		const auto persons = contacts.get<size_t, string, string>(
+			"SELECT id, "
+			"CONCAT(surname, ' ', forename) AS name, "
+			"CONCAT(mailbox, '@', hostname) AS email "
+			"FROM subscriber "
+			"ORDER BY name;"
+		);
+				
+		auto view = [](const typename decltype(begin(persons))::value_type& person)
+			{
+				const auto& [id, name, email] = person;
+				cout << "|" 
+					<< setw(3) << right << id << " | " 
+					<< setw(20) << left << name << " | " 
+					<< setw(30) << left << (email == "@" ? " " : email) << " |\n";
+			};
+		for_each(begin(persons), cend(persons), view);
+	}
+
+	void print(phone_book& contacts, std::size_t person_id)
+	{
+		// Напечатать данные персоны
+		using namespace std;
+		const auto persons = contacts.get<size_t, string, string>(
+			"SELECT id, "
+			"CONCAT(surname, ' ', forename) AS name, "
+			"CONCAT(mailbox, '@', hostname) AS email "
+			"FROM subscriber "
+			"WHERE id = '" + to_string(person_id) + "' "
+			"ORDER BY name;"
+		);
+		
+		auto view = [](const typename decltype(begin(persons))::value_type& person)
+			{
+				const auto& [id, name, email] = person;
+				cout << setw(20) << left << "ID:" << setw(3) << left << id << '\n';
+				cout << setw(20) << left << "ИМЯ:" << setw(20) << left << name << '\n';
+				cout << setw(20) << left << "EMAIL:" << setw(30) << left << (email == "@" ? " " : email) << '\n';
+				cout << setw(20) << left << "НОМЕРА ТЕЛЕФОНОВ:   \n";
+			};
+		for_each(begin(persons), cend(persons), view);
+		
+		const auto phone_numbers = contacts.get<size_t, size_t, string>(
+			"SELECT id, subscriber_id, number "
+			"FROM phone_numbers "
+			"WHERE subscriber_id = '" + to_string(person_id) + "' "
+			"ORDER BY number;"
+		);
+
+		for_each(begin(phone_numbers), cend(phone_numbers), 
+			[](const typename decltype(begin(phone_numbers))::value_type& phone_number)
+			{
+				const auto& [id, subscriber_id, number] = phone_number;
+				cout  << setw(17)  << right << id << setw(15) << right << number << '\n';
+			}
+		);
+		cout << '\n';
+	}
+	*/

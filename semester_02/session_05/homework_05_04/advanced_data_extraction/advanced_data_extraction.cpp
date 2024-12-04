@@ -2,21 +2,15 @@
 //
 
 #include "includes/contact.h"
-#include "includes/my_input.h"
 #include "includes/my_localisation.h"
 #include "includes/phone_book.h"
+#include "includes/simple_db_viewer.h"
 
-#include <cstdlib>
 #include <exception>
-#include <iomanip>
 #include <iostream>
 #include <string>
+#include <type_traits>
 #include <vector>
-
-namespace context
-{
-	void action(phone::phone_book& contacts);
-}
 
 int main()
 {
@@ -60,7 +54,8 @@ int main()
 		};
 
 		phone::phone_book contacts{ connection_string, initial_data };
-		context::action(contacts);
+		phone::simple_db_viewer notebook{ std::move(contacts) };
+		notebook.action();
 	}
 	catch (const std::exception& err)
 	{
@@ -69,82 +64,3 @@ int main()
 	
 	return 0;
 }
-
-void context::action(phone::phone_book& contacts)
-{
-	using namespace std;
-	using contact = typename phone::contact;
-	
-	system("cls");
-	phone::print(contacts);
-	cout << "\n\nВЫБЕРЕТЕ ДЕЙСТВИЕ:";
-	cout << setw(30) << "\nКОМАНДА" << "ID";
-	cout << setw(30) << "\nДанные контакта" << '1';
-	cout << setw(30) << "\nДобавить контакт" << '2';
-	cout << setw(30) << "\nДобавить номер телефона" << '3';
-	cout << setw(30) << "\nУдалить контакт" << '4';
-	cout << setw(30) << "\nУдалить номер телефона" << '5';
-	cout << setw(30) << "\nВыход" << '0';
-
-	switch (my::get_input_value<size_t>("\n\nВведите ID команды: "))
-	{
-	case 1:
-	{
-		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
-		
-		system("cls");
-		phone::print(contacts, person_id);
-		system("pause");
-		action(contacts);
-		break;
-	}
-	case 2: // Добавить контакт
-	{
-		const contact::name_type name{
-			my::get_input_value<string>("Имя: "),
-			my::get_input_value<string>("Фамилия: ")
-		};
-		const contact::email_address_type email{ my::get_input_value<string>("Email: ") };
-		const contact::phone_number_type phone_number{ my::get_input_value<string>("Номер телефона: ") };
-		
-		contacts.add(contact{ name, email });
-		contacts.add(name, phone_number);
-		action(contacts);
-		break;
-	}
-	case 3: // Добавить номер
-	{
-		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
-		system("cls");
-		phone::print(contacts, person_id);
-
-		const contact::phone_number_type phone_number{ my::get_input_value<string>("Номер телефона: ") };
-		contacts.add(person_id, phone_number);
-		action(contacts);
-		break;
-	}
-	case 4: // Удалить контакт
-	{
-		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
-
-		contacts.del(person_id);
-		action(contacts);
-		break;
-	}
-	case 5: // Удалить номер
-	{
-		const auto person_id = my::get_input_value<size_t>("Введите ID контакта: ");
-
-		system("cls");
-		phone::print(contacts, person_id);
-		
-		const auto phone_number_id = my::get_input_value<size_t>("Введите ID номера телефона: ");
-
-		action(contacts);
-		break;
-	}
-	case 0:
-		return;
-	}
-}
-

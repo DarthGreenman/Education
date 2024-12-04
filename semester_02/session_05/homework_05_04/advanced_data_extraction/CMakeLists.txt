@@ -30,11 +30,13 @@ add_executable (${PROJECT_NAME} "advanced_data_extraction.cpp" #${HEADER_INC} ${
 	"includes/my_utilities.h"
 	"includes/my_ascii.h"
 	"includes/my_input.h"
+	"includes/simple_db_viewer.h"
 	"src/phone_book.cpp"
 	"src/contact.cpp"
 	"src/types.cpp"
 	"src/my_utilities.cpp"
-)
+	"src/simple_db_viewer.cpp"
+	)
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
 target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
