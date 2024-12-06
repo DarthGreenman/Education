@@ -1,15 +1,25 @@
-// simple_db_viewer.h
+﻿// simple_db_viewer.h
 
 #ifndef  SIMPLE_DB_VIEWER_H
 #define SIMPLE_DB_VIEWER_H
 
 #include "phone_book.h"
+#include <utility>
 
 namespace phone
 {
 	class simple_db_viewer
 	{
 	public:
+		enum user_message { 
+			UM_QUIT = 0, 
+			UM_EDIT = 1, 
+			UM_ADD_CONTACT = 2, 
+			UM_DEL_CONTACT = 3, 
+			UM_ADD_PHONE = 4, 
+			UM_DEL_PHONE = 5
+		};
+
 		simple_db_viewer() = default;
 		simple_db_viewer(phone_book&& contacts);
 		simple_db_viewer(const simple_db_viewer&) = delete;
@@ -19,11 +29,14 @@ namespace phone
 		simple_db_viewer& operator=(const simple_db_viewer&) = delete;
 		simple_db_viewer& operator=(simple_db_viewer&&) = delete;
 
-		void action();
+		void exec();
 
 	private:
+		std::pair<bool, user_message> work();
+		std::pair<bool, user_message> work(std::size_t person_id);
 		void view();
 		void view(std::size_t person_id);
+		user_message get_message(void(*show_menu)());
 
 	private:
 		phone_book contacts_;

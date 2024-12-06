@@ -1,4 +1,4 @@
-// simple_db_viewer.cpp
+п»ї// simple_db_viewer.cpp
 
 #include "../includes/contact.h"
 #include "../includes/my_input.h"
@@ -12,96 +12,129 @@
 #include <iostream>
 #include <pqxx/pqxx>
 #include <pqxx/result.hxx>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 
 namespace phone
 {
+	static void show_menu()
+	{
+		using namespace std;
+		cout << "\nРљРћРњРђРќР”Рђ                     " << "ID";
+		cout << "\nР РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РєРѕРЅС‚Р°РєС‚       " << '1';
+		cout << "\nР”РѕР±Р°РІРёС‚СЊ РєРѕРЅС‚Р°РєС‚            " << '2';
+		cout << "\nРЈРґР°Р»РёС‚СЊ РєРѕРЅС‚Р°РєС‚             " << '3';
+		cout << "\nР’С‹С…РѕРґ                       " << '0';
+	}
+
+	static void show_submenu()
+	{
+		using namespace std;
+		cout << "\nРљРћРњРђРќР”Рђ                     " << "ID";
+		cout << "\nР”РѕР±Р°РІРёС‚СЊ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°     " << '4';
+		cout << "\nРЈРґР°Р»РёС‚СЊ РЅРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°      " << '5';
+		cout << "\nР’С‹С…РѕРґ                       " << '0';
+	}
+
+	using user_message = typename simple_db_viewer::user_message;
+
 	simple_db_viewer::simple_db_viewer(phone_book&& contacts) :
 		contacts_{ std::move(contacts) } {}
 	
-	void simple_db_viewer::action()
+	void simple_db_viewer::exec()
 	{
-		using namespace std;
-		using namespace my;
-		using contact = typename phone::contact;
+		/*
+		* true false UM_ADD_CONTACT
+		* true false UM_ADD_PHONE
+		* true       UM_QUIT
+		*/
+		auto message = std::make_pair(true, static_cast<user_message>(!UM_QUIT));
+		while (message.first && message.second != UM_QUIT)
+			message = work();
+		
+		if (!message.first)
+		{
+			const auto um = message.second;
+			const std::string error_location{
+				um == UM_ADD_CONTACT ? "UM_ADD_CONTACT" :
+				um == UM_DEL_CONTACT ? "UM_DEL_CONTACT" :
+				um == UM_ADD_PHONE ? "UM_ADD_PHONE" :
+				um == UM_DEL_PHONE ? "UM_DEL_PHONE" :
+				"UNKNOWN_CAUSE"
+			};
 
+			throw std::invalid_argument{ "Error while executing the command: " + error_location };
+		}
+	}
+
+	std::pair<bool, user_message> simple_db_viewer::work()
+	{
 		system("cls");
 		view();
-		cout << "\n\nВЫБЕРЕТЕ ДЕЙСТВИЕ:";
-		cout << setw(30) << "\nКОМАНДА" << "ID";
-		cout << setw(30) << "\nДанные контакта" << '1';
-		cout << setw(30) << "\nДобавить контакт" << '2';
-		cout << setw(30) << "\nДобавить номер телефона" << '3';
-		cout << setw(30) << "\nУдалить контакт" << '4';
-		cout << setw(30) << "\nУдалить номер телефона" << '5';
-		cout << setw(30) << "\nВыход" << '0';
 
-		switch (my::get_input_value<size_t>("\n\nВведите ID команды: "))
+		using namespace std;
+		using namespace my;
+
+		switch (get_message(show_menu))
 		{
-		case 1:
+		case UM_EDIT:
 		{
-			const auto person_id = get_input_value<size_t>("Введите ID контакта: ");
-			system("cls");
-			view(person_id);
-			system("pause");
-			
-			action();
-			break;
+			auto message = std::make_pair(true, static_cast<user_message>(!UM_QUIT));
+			while (message.first && message.second != UM_QUIT)
+				message = work(get_input_value<size_t>("Р’РІРµРґРёС‚Рµ ID РєРѕРЅС‚Р°РєС‚Р°: "));
+			return message;
 		}
-		case 2: // Добавить контакт
+		case UM_ADD_CONTACT:
 		{
 			const contact::name_type name{
-				get_input_value<string>("Имя: "),
-				get_input_value<string>("Фамилия: ")
+				get_input_value<string>("РРјСЏ: "),
+				get_input_value<string>("Р¤Р°РјРёР»РёСЏ: ")
 			};
-			contacts_.add_contact(contact{ name, get_input_value<string>("Email: ") });
-			contacts_.add_phone(name, get_input_value<string>("Номер телефона: "));
+			if (contacts_.add_contact(contact{ name, get_input_value<string>("Р­Р»РµРєС‚СЂРѕРЅРЅР°СЏ РїРѕС‡С‚С‹: ") }))
+				return make_pair(contacts_.add_phone(name, get_input_value<string>("РќРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°: ")),
+					UM_ADD_PHONE);
+			return make_pair(false, UM_ADD_CONTACT);
+		}
+		case UM_DEL_CONTACT:
+			return make_pair(contacts_.del_contact(get_input_value<size_t>("Р’РІРµРґРёС‚Рµ ID РєРѕРЅС‚Р°РєС‚Р°: ")),
+				UM_DEL_CONTACT);
+		case UM_QUIT:
+			return make_pair(true, UM_QUIT);
+		}
+	}
 
-			action();
-			break;
-		}
-		case 3: // Добавить номер
-		{
-			const auto person_id = get_input_value<size_t>("Введите ID контакта: ");
-			system("cls");
-			view(person_id);
-			contacts_.add_phone(person_id, get_input_value<string>("Номер телефона: "));
-			
-			action();
-			break;
-		}
-		case 4: // Удалить контакт
-		{
-			contacts_.del_contact(get_input_value<size_t>("Введите ID контакта: "));
-			
-			action();
-			break;
-		}
-		case 5: // Удалить номер
-		{
-			const auto person_id = get_input_value<size_t>("Введите ID контакта: ");
-			system("cls");
-			view(person_id);
-			contacts_.del_phone(get_input_value<size_t>("Введите ID номера телефона: "));
+	std::pair<bool, user_message> simple_db_viewer::work(std::size_t person_id)
+	{
+		system("cls");
+		view(person_id);
 
-			action();
-			break;
-		}
-		case 0:
-			return;
+		using namespace std;
+		using namespace my;
+
+		switch (get_message(show_submenu))
+		{
+		case UM_ADD_PHONE:
+			return make_pair(contacts_.add_phone(person_id, get_input_value<string>("РќРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°: ")),
+				UM_ADD_PHONE);
+		case UM_DEL_PHONE:
+			return make_pair(contacts_.del_phone(get_input_value<size_t>("Р’РІРµРґРёС‚Рµ ID С‚РµР»РµС„РѕРЅР°: ")),
+				UM_DEL_PHONE);
+		case UM_QUIT:
+			return make_pair(true, UM_QUIT);
 		}
 	}
 
 	void simple_db_viewer::view()
 	{
-		// Напечатать данные всех персон
+		// РќР°РїРµС‡Р°С‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РІСЃРµС… РїРµСЂСЃРѕРЅ
 		using namespace std;
 		cout << '|'
 			<< setw(3) << right << "ID" << " | "
-			<< setw(20) << left << "ИМЯ" << " | "
-			<< setw(30) << left << "EMAIL" << " |\n";
+			<< setw(20) << left << "NAME" << " | "
+			<< setw(30) << left << "MAIL" << " |\n";
 
 		const auto persons = contacts_.get<size_t, string, string>(
 			"SELECT id, "
@@ -124,7 +157,7 @@ namespace phone
 
 	void simple_db_viewer::view(std::size_t person_id)
 	{
-		// Напечатать данные персоны
+		// РќР°РїРµС‡Р°С‚Р°С‚СЊ РґР°РЅРЅС‹Рµ РїРµСЂСЃРѕРЅС‹
 		using namespace std;
 		const auto persons = contacts_.get<size_t, string, string>(
 			"SELECT id, "
@@ -138,10 +171,10 @@ namespace phone
 		auto view = [](const typename decltype(begin(persons))::value_type& person)
 			{
 				const auto& [id, name, email] = person;
-				cout << setw(20) << left << "ID:" << setw(3) << left << id << '\n';
-				cout << setw(20) << left << "ИМЯ:" << setw(20) << left << name << '\n';
-				cout << setw(20) << left << "EMAIL:" << setw(30) << left << (email == "@" ? " " : email) << '\n';
-				cout << setw(20) << left << "НОМЕРА ТЕЛЕФОНОВ:   \n";
+				cout << "ID:       " << id << '\n';
+				cout << "Name:     " << name << '\n';
+				cout << "Mail:     " << (email == "@" ? " " : email) << '\n';
+				cout << "Phones\n";
 			};
 		for_each(begin(persons), cend(persons), view);
 
@@ -156,9 +189,17 @@ namespace phone
 			[](const typename decltype(begin(phone_numbers))::value_type& phone_number)
 			{
 				const auto& [id, subscriber_id, number] = phone_number;
-				cout << setw(17) << right << id << setw(15) << right << number << '\n';
+				cout << setw(10) << right << "ID: " << setw(2) << id << setw(15) << number << '\n';
 			}
 		);
 		cout << '\n';
+	}
+
+	user_message simple_db_viewer::get_message(void(*show_menu)())
+	{
+		show_menu();
+		return static_cast<user_message>(
+			my::get_input_value<size_t>("\n\nР’РІРµРґРёС‚Рµ ID РєРѕРјР°РЅРґС‹: ")
+			);
 	}
 }

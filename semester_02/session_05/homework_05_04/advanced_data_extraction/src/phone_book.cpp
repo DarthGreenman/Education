@@ -63,7 +63,7 @@ namespace phone
 			"VALUES('" + forename + "', '" + surname + "', '" + mailbox + "', '" + hostmail + "');"
 		};
 		
-		return execute(query);
+		return exec(query);
 	}
 
 	bool phone_book::add_phone(const name_type& name, const phone_number_type& phone_number)
@@ -79,7 +79,7 @@ namespace phone
 				"surname = '" + surname + "'), '" + phone_number.normalization() + "');"
 		};
 
-		return execute(query);
+		return exec(query);
 	}
 
 	bool phone_book::add_phone(std::size_t person_id, const phone_number_type& phone_number)
@@ -91,7 +91,7 @@ namespace phone
 			+ phone_number.normalization() + "');"
 		};
 
-		return execute(query);
+		return exec(query);
 	}
 
 	bool phone_book::del_contact(std::size_t person_id)
@@ -100,7 +100,7 @@ namespace phone
 			"DELETE FROM subscriber WHERE id = '" + std::to_string(person_id) + "';"
 		};
 
-		return execute(query);
+		return exec(query);
 	}
 
 	bool phone_book::del_phone(std::size_t phone_number_id)
@@ -109,7 +109,7 @@ namespace phone
 			"DELETE FROM phone_numbers WHERE id = '" + std::to_string(phone_number_id) + "';"
 		};
 
-		return execute(query);
+		return exec(query);
 	}
 		
 	void phone_book::create_structure(const std::string& query)
@@ -166,7 +166,7 @@ namespace phone
 		return query_result.begin() == query_result.end() ? false : true;
 	}
 
-	bool phone_book::execute(const std::string& query)
+	bool phone_book::exec(const std::string& query)
 	{
 		pqxx::work wk{ connection_ };
 		const pqxx::result query_result = wk.exec(query);

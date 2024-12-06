@@ -55,7 +55,7 @@ namespace phone
 		void create_structure(const std::string& query);
 		void create_structure();
 		bool record_exists(const contact& person);
-		bool execute(const std::string& query);
+		bool exec(const std::string& query);
 
 	private:
 		pqxx::connection connection_{};

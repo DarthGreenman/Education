@@ -145,3 +145,38 @@ phone_book::recordset_phone_number phone_book::get_phone_number(std::size_t pers
 		cout << '\n';
 	}
 	*/
+
+
+		case UM_ADD_PHONE:
+		{			
+			const auto& [person_id, phone_number] = get_answer<string>("Номер телефона: ");
+			if(!phone_number.empty())
+				contacts_.add_phone(person_id, phone_number);
+			
+			action();
+			break;
+		}
+				case UM_DEL_PHONE:
+		{			
+			const auto& [peson_id, phone_number_id] = get_answer<size_t>("Введите ID номера телефона: ");
+			if(phone_number_id)
+				contacts_.del_phone(phone_number_id);
+			
+			action();
+			break;
+		}
+
+			std::size_t simple_db_viewer::get_command()
+	{
+		using namespace std;
+		cout << "\n\nВЫБЕРЕТЕ ДЕЙСТВИЕ:";
+		cout << setw(30) << "\nКОМАНДА" << "ID";
+		cout << setw(30) << "\nДанные контакта" << '1';
+		cout << setw(30) << "\nДобавить контакт" << '2';
+		cout << setw(30) << "\nДобавить номер телефона" << '3';
+		cout << setw(30) << "\nУдалить контакт" << '4';
+		cout << setw(30) << "\nУдалить номер телефона" << '5';
+		cout << setw(30) << "\nВыход" << '0';
+
+		return my::get_input_value<size_t>("\n\nВведите ID команды: ");
+	}

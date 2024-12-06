@@ -55,7 +55,7 @@ int main()
 
 		phone::phone_book contacts{ connection_string, initial_data };
 		phone::simple_db_viewer notebook{ std::move(contacts) };
-		notebook.action();
+		notebook.exec();
 	}
 	catch (const std::exception& err)
 	{
