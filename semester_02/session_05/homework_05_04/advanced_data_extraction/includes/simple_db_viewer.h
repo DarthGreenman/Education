@@ -17,7 +17,8 @@ namespace phone
 			UM_ADD_CONTACT = 2, 
 			UM_DEL_CONTACT = 3, 
 			UM_ADD_PHONE = 4, 
-			UM_DEL_PHONE = 5
+			UM_DEL_PHONE = 5,
+			UM_REPEAT = 99
 		};
 
 		simple_db_viewer() = default;

@@ -51,7 +51,7 @@ namespace phone
 		* true false UM_ADD_PHONE
 		* true       UM_QUIT
 		*/
-		auto message = std::make_pair(true, static_cast<user_message>(!UM_QUIT));
+		auto message = std::make_pair(true, UM_REPEAT);
 		while (message.first && message.second != UM_QUIT)
 			message = work();
 		
@@ -82,10 +82,14 @@ namespace phone
 		{
 		case UM_EDIT:
 		{
-			auto message = std::make_pair(true, static_cast<user_message>(!UM_QUIT));
-			while (message.first && message.second != UM_QUIT)
-				message = work(get_input_value<size_t>("Введите ID контакта: "));
-			return message;
+			auto message = std::make_pair(true, UM_REPEAT);
+			for (const auto person_id = get_input_value<size_t>("Введите ID контакта: "); 
+				message.first && message.second != UM_QUIT;)
+			{
+				if (message = work(person_id); !message.first)
+					return make_pair(false, message.second);
+			}
+			return make_pair(true, UM_EDIT);
 		}
 		case UM_ADD_CONTACT:
 		{
@@ -117,11 +121,11 @@ namespace phone
 		switch (get_message(show_submenu))
 		{
 		case UM_ADD_PHONE:
-			return make_pair(contacts_.add_phone(person_id, get_input_value<string>("Номер телефона: ")),
-				UM_ADD_PHONE);
+			return !contacts_.add_phone(person_id, get_input_value<string>("Номер телефона: ")) ?
+				make_pair(false, UM_ADD_PHONE) : make_pair(true, UM_ADD_PHONE);
 		case UM_DEL_PHONE:
-			return make_pair(contacts_.del_phone(get_input_value<size_t>("Введите ID телефона: ")),
-				UM_DEL_PHONE);
+			return !contacts_.del_phone(get_input_value<size_t>("Введите ID телефона: ")) ?
+				make_pair(false, UM_DEL_PHONE) : make_pair(true, UM_DEL_PHONE);
 		case UM_QUIT:
 			return make_pair(true, UM_QUIT);
 		}
