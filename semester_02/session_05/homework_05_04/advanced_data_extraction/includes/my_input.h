@@ -13,7 +13,7 @@ namespace my
 {
     namespace helper
     {
-        auto stream_recovery(std::istream& in, std::string alarm =
+        static auto stream_recovery(std::istream& in, const std::string& alarm =
             "Введите корректное значение для данного типа.")
         {
             using namespace std;
@@ -32,24 +32,24 @@ namespace my
         }
     }
 
-    template<typename Type,
+    template<typename Type = std::string,
         typename = std::enable_if_t<std::is_integral_v<Type> || std::is_same_v<Type, std::string>>>
-    auto get_input_value(std::istream& in, Type& val, std::string invitation)
+    static auto get_input_value(std::istream& in, Type& value, const std::string& invitation)
     {
         using namespace std;
         for (; cout << invitation, true;)
-            if(in >> val; helper::stream_recovery(in))
+            if(in >> value; helper::stream_recovery(in))
                 return in;
     }
 
-    template<typename Type,
+    template<typename Type = std::string,
         typename = std::enable_if_t<std::is_integral_v<Type> || std::is_same_v<Type, std::string>>>
-    auto get_input_value(std::string invitation)
+    static auto get_input_value(const std::string& invitation)
     {
         using namespace std;
-        for (Type ret{}; cout << invitation, true;)
-            if (cin >> ret; helper::stream_recovery(cin))
-                return ret;
+        for (Type value{}; cout << invitation, true;)
+            if (cin >> value; helper::stream_recovery(cin))
+                return value;
     }   
 }
 

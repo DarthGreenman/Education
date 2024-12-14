@@ -97,9 +97,8 @@ namespace phone
 				get_input_value<string>("Имя: "),
 				get_input_value<string>("Фамилия: ")
 			};
-			if (contacts_.add_contact(contact{ name, get_input_value<string>("Электронная почты: ") }))
-				return make_pair(contacts_.add_phone(name, get_input_value<string>("Номер телефона: ")),
-					UM_ADD_PHONE);
+			if (contacts_.add_contact(contact{ name, get_email_address("Электронная почты: ") }))
+				return make_pair(get_phone_number(name, "Номер телефона: "), UM_ADD_PHONE);
 			return make_pair(false, UM_ADD_CONTACT);
 		}
 		case UM_DEL_CONTACT:
@@ -121,7 +120,7 @@ namespace phone
 		switch (get_message(show_submenu))
 		{
 		case UM_ADD_PHONE:
-			return !contacts_.add_phone(person_id, get_input_value<string>("Номер телефона: ")) ?
+			return !get_phone_number(person_id, "Номер телефона: ") ?
 				make_pair(false, UM_ADD_PHONE) : make_pair(true, UM_ADD_PHONE);
 		case UM_DEL_PHONE:
 			return !contacts_.del_phone(get_input_value<size_t>("Введите ID телефона: ")) ?
@@ -205,5 +204,11 @@ namespace phone
 		return static_cast<user_message>(
 			my::get_input_value<size_t>("\n\nВведите ID команды: ")
 			);
+	}
+
+	std::string simple_db_viewer::get_email_address(const std::string& invitation)
+	{
+		const auto value = my::get_input_value("Электронная почты: ");
+		return value;
 	}
 }
