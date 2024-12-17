@@ -21,7 +21,7 @@ BUILD_DOC:BOOL=OFF
 BUILD_TEST:BOOL=ON
 
 //Path to a program.
-CMAKE_AR:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64/lib.exe
+CMAKE_AR:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/bin/Hostx64/x64/lib.exe
 
 //No help, variable specified on the command line.
 CMAKE_BUILD_TYPE:STRING=Debug
@@ -141,7 +141,7 @@ CMAKE_INSTALL_SHAREDSTATEDIR:PATH=com
 CMAKE_INSTALL_SYSCONFDIR:PATH=etc
 
 //Path to a program.
-CMAKE_LINKER:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.41.34120/bin/Hostx64/x64/link.exe
+CMAKE_LINKER:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.42.34433/bin/Hostx64/x64/link.exe
 
 //make program
 CMAKE_MAKE_PROGRAM:FILEPATH=C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe
@@ -269,12 +269,6 @@ CPACK_SOURCE_7Z:BOOL=ON
 
 //Enable to build ZIP source packages
 CPACK_SOURCE_ZIP:BOOL=ON
-
-//Arguments to supply to pkg-config
-PKG_CONFIG_ARGN:STRING=
-
-//pkg-config executable
-PKG_CONFIG_EXECUTABLE:FILEPATH=PKG_CONFIG_EXECUTABLE-NOTFOUND
 
 //The Set the PostgreSQL_INCLUDE_DIR cmake cache entry to the top-level
 // directory containing the PostgreSQL include directories. E.g
@@ -490,10 +484,6 @@ CPACK_SOURCE_7Z-ADVANCED:INTERNAL=1
 CPACK_SOURCE_ZIP-ADVANCED:INTERNAL=1
 //Details about finding PostgreSQL
 FIND_PACKAGE_MESSAGE_DETAILS_PostgreSQL:INTERNAL=[C:/Program Files/PostgreSQL/17/lib/libpq.lib][C:/Program Files/PostgreSQL/17/include][c ][v17.0()]
-//ADVANCED property for variable: PKG_CONFIG_ARGN
-PKG_CONFIG_ARGN-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
-PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 //Result of TRY_COMPILE
 PQXX_HAVE_CHARCONV_FLOAT:INTERNAL=FALSE
 //Result of TRY_COMPILE

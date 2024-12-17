@@ -1,182 +1,52 @@
-const std::string query
-{
-	"SELECT subscriber_id, number "
-	"FROM phone_numbers "
-	"WHERE subscriber_id='" + std::to_string(id) + "' "
-	"ORDER BY number;"
-};
-
-pqxx::internal::result_iteration<std::size_t, std::string, std::string, std::string> phone_book::get()
-{
-	const std::string query
-	{
-		"SELECT subscriber.id, "
-		"CONCAT(subscriber.surname, ' ', subscriber.forename) AS name, "
-		"CONCAT(subscriber.mailbox, '@', subscriber.hostname) AS email, "
-		"phone_numbers.number "
-		"FROM subscriber INNER JOIN phone_numbers "
-		"ON subscriber.id = phone_numbers.subscriber_id "
-		"ORDER BY name;"
-	};
-
-	pqxx::work wk{ connection_ };
-	return wk.query<std::size_t, std::string, std::string, std::string>(query);
-}
-
-const std::string query
-{
-	"INSERT INTO phone_numbers(subscriber_id, number) "
-	"VALUES("
-		"(SELECT id FROM subscriber WHERE forename='" + forename + "' AND "
-		"surname='" + surname + "'), '" + number.normalization() + "');"
-};
-
-
-using recordset_person = typename pqxx::internal::result_iteration<std::size_t, std::string, std::string>;
-using recordset_phone_number = typename pqxx::internal::result_iteration<std::size_t, std::string>;
-
-recordset_person get_person(std::size_t person_id = (std::numeric_limits<std::size_t>::max)());
-phone_book::recordset_person phone_book::get_person(std::size_t person_id)
-{
-	const std::string query
-	{
-		person_id == (std::numeric_limits<std::size_t>::max)()
-		?
-		"SELECT id, "
-		"CONCAT(surname, ' ', forename) AS name, "
-		"CONCAT(mailbox, '@', hostname) AS email "
-		"FROM subscriber "
-		"ORDER BY name;" 
-		:
-		"SELECT id, "
-		"CONCAT(surname, ' ', forename) AS name, "
-		"CONCAT(mailbox, '@', hostname) AS email "
-		"FROM subscriber "
-		"WHERE id = '" + std::to_string(person_id) + "' "
-		"ORDER BY name;"
-	};
-
-	pqxx::work wk{ connection_ };
-	return wk.query<std::size_t, std::string, std::string>(query);
-}
-
-recordset_phone_number get_phone_number(std::size_t person_id);
-phone_book::recordset_phone_number phone_book::get_phone_number(std::size_t person_id)
-{
-	const std::string query
-	{
-		"SELECT subscriber_id, number "
-		"FROM phone_numbers "
-		"WHERE subscriber_id = '" + std::to_string(person_id) + "' "
-		"ORDER BY number;"
-	};
-
-	pqxx::work wk{ connection_ };
-	return wk.query<std::size_t, std::string>(query);
-}
-
-
-/*
-	void print(phone_book& contacts)
-	{
-		// Напечатать данные всех персон
-		using namespace std;
-		cout << '|'
-			<< setw(3) << right << "ID" << " | "
-			<< setw(20) << left << "ИМЯ" << " | "
-			<< setw(30) << left << "EMAIL" << " |\n";
-		
-		const auto persons = contacts.get<size_t, string, string>(
-			"SELECT id, "
-			"CONCAT(surname, ' ', forename) AS name, "
-			"CONCAT(mailbox, '@', hostname) AS email "
-			"FROM subscriber "
-			"ORDER BY name;"
-		);
-				
+		const auto& [mailbox, hostmail] = email.get();
+					"CONCAT(mailbox, '@', hostname) AS email "
 		auto view = [](const typename decltype(begin(persons))::value_type& person)
 			{
 				const auto& [id, name, email] = person;
-				cout << "|" 
-					<< setw(3) << right << id << " | " 
-					<< setw(20) << left << name << " | " 
+				cout << "|"
+					<< setw(3) << right << id << " | "
+					<< setw(20) << left << name << " | "
 					<< setw(30) << left << (email == "@" ? " " : email) << " |\n";
 			};
 		for_each(begin(persons), cend(persons), view);
-	}
 
-	void print(phone_book& contacts, std::size_t person_id)
+
+		void simple_db_viewer::view(std::size_t person_id)
 	{
 		// Напечатать данные персоны
 		using namespace std;
-		const auto persons = contacts.get<size_t, string, string>(
+		const auto persons = contacts_.get<size_t, string, string>(
 			"SELECT id, "
-			"CONCAT(surname, ' ', forename) AS name, "
-			"CONCAT(mailbox, '@', hostname) AS email "
+			"CONCAT(surname, ' ', forename) AS name "
 			"FROM subscriber "
 			"WHERE id = '" + to_string(person_id) + "' "
 			"ORDER BY name;"
 		);
-		
+
 		auto view = [](const typename decltype(begin(persons))::value_type& person)
 			{
 				const auto& [id, name, email] = person;
-				cout << setw(20) << left << "ID:" << setw(3) << left << id << '\n';
-				cout << setw(20) << left << "ИМЯ:" << setw(20) << left << name << '\n';
-				cout << setw(20) << left << "EMAIL:" << setw(30) << left << (email == "@" ? " " : email) << '\n';
-				cout << setw(20) << left << "НОМЕРА ТЕЛЕФОНОВ:   \n";
+				cout << "ID:       " << id << '\n';
+				cout << "Name:     " << name << '\n';
+				cout << "Mail:     " << (email == "@" ? " " : email) << '\n';
+				cout << "Phones\n";
 			};
 		for_each(begin(persons), cend(persons), view);
-		
-		const auto phone_numbers = contacts.get<size_t, size_t, string>(
+
+		const auto phone_numbers = contacts_.get<size_t, size_t, string>(
 			"SELECT id, subscriber_id, number "
 			"FROM phone_numbers "
 			"WHERE subscriber_id = '" + to_string(person_id) + "' "
 			"ORDER BY number;"
 		);
 
-		for_each(begin(phone_numbers), cend(phone_numbers), 
+		for_each(begin(phone_numbers), cend(phone_numbers),
 			[](const typename decltype(begin(phone_numbers))::value_type& phone_number)
 			{
 				const auto& [id, subscriber_id, number] = phone_number;
-				cout  << setw(17)  << right << id << setw(15) << right << number << '\n';
+				cout << setw(10) << right << "ID: " << setw(2) << id << setw(15) << number << '\n';
 			}
 		);
 		cout << '\n';
 	}
-	*/
 
-
-		case UM_ADD_PHONE:
-		{			
-			const auto& [person_id, phone_number] = get_answer<string>("Номер телефона: ");
-			if(!phone_number.empty())
-				contacts_.add_phone(person_id, phone_number);
-			
-			action();
-			break;
-		}
-				case UM_DEL_PHONE:
-		{			
-			const auto& [peson_id, phone_number_id] = get_answer<size_t>("Введите ID номера телефона: ");
-			if(phone_number_id)
-				contacts_.del_phone(phone_number_id);
-			
-			action();
-			break;
-		}
-
-			std::size_t simple_db_viewer::get_command()
-	{
-		using namespace std;
-		cout << "\n\nВЫБЕРЕТЕ ДЕЙСТВИЕ:";
-		cout << setw(30) << "\nКОМАНДА" << "ID";
-		cout << setw(30) << "\nДанные контакта" << '1';
-		cout << setw(30) << "\nДобавить контакт" << '2';
-		cout << setw(30) << "\nДобавить номер телефона" << '3';
-		cout << setw(30) << "\nУдалить контакт" << '4';
-		cout << setw(30) << "\nУдалить номер телефона" << '5';
-		cout << setw(30) << "\nВыход" << '0';
-
-		return my::get_input_value<size_t>("\n\nВведите ID команды: ");
-	}

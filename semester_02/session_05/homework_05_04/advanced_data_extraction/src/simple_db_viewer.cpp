@@ -36,6 +36,8 @@ namespace phone
 		cout << "\nКОМАНДА                     " << "ID";
 		cout << "\nДобавить номер телефона     " << '4';
 		cout << "\nУдалить номер телефона      " << '5';
+		cout << "\nДобавить email              " << '6';
+		cout << "\nУдалить email               " << '7';
 		cout << "\nВыход                       " << '0';
 	}
 
@@ -46,11 +48,6 @@ namespace phone
 	
 	void simple_db_viewer::exec()
 	{
-		/*
-		* true false UM_ADD_CONTACT
-		* true false UM_ADD_PHONE
-		* true       UM_QUIT
-		*/
 		auto message = std::make_pair(true, UM_REPEAT);
 		while (message.first && message.second != UM_QUIT)
 			message = work();
@@ -63,6 +60,8 @@ namespace phone
 				um == UM_DEL_CONTACT ? "UM_DEL_CONTACT" :
 				um == UM_ADD_PHONE ? "UM_ADD_PHONE" :
 				um == UM_DEL_PHONE ? "UM_DEL_PHONE" :
+				um == UM_ADD_EMAIL ? "UM_ADD_EMAIL" :
+				um == UM_DEL_EMAIL ? "UM_DEL_EMAIL" :
 				"UNKNOWN_CAUSE"
 			};
 
@@ -97,8 +96,8 @@ namespace phone
 				get_input_value<string>("Имя: "),
 				get_input_value<string>("Фамилия: ")
 			};
-			if (contacts_.add_contact(contact{ name, get_email_address("Электронная почты: ") }))
-				return make_pair(get_phone_number(name, "Номер телефона: "), UM_ADD_PHONE);
+			if (contacts_.add_contact(name))
+				return make_pair(true, UM_ADD_CONTACT);
 			return make_pair(false, UM_ADD_CONTACT);
 		}
 		case UM_DEL_CONTACT:
@@ -106,6 +105,8 @@ namespace phone
 				UM_DEL_CONTACT);
 		case UM_QUIT:
 			return make_pair(true, UM_QUIT);
+		default:
+			work();
 		}
 	}
 
@@ -120,13 +121,21 @@ namespace phone
 		switch (get_message(show_submenu))
 		{
 		case UM_ADD_PHONE:
-			return !get_phone_number(person_id, "Номер телефона: ") ?
-				make_pair(false, UM_ADD_PHONE) : make_pair(true, UM_ADD_PHONE);
+			return get_phone_number(person_id, "Номер телефона: ") ?
+				make_pair(true, UM_ADD_PHONE) : make_pair(false, UM_ADD_PHONE);
 		case UM_DEL_PHONE:
-			return !contacts_.del_phone(get_input_value<size_t>("Введите ID телефона: ")) ?
-				make_pair(false, UM_DEL_PHONE) : make_pair(true, UM_DEL_PHONE);
+			return contacts_.del_phone(get_input_value<size_t>("Введите ID телефона: ")) ?
+				make_pair(true, UM_DEL_PHONE) : make_pair(false, UM_DEL_PHONE);
+		case UM_ADD_EMAIL:
+			return get_email_address(person_id, "Email: ") ?
+				make_pair(true, UM_ADD_EMAIL) : make_pair(false, UM_ADD_EMAIL);
+		case UM_DEL_EMAIL:
+			return contacts_.del_email(get_input_value<size_t>("Введите ID email: ")) ?
+				make_pair(true, UM_DEL_EMAIL) : make_pair(false, UM_DEL_EMAIL);
 		case UM_QUIT:
 			return make_pair(true, UM_QUIT);
+		default:
+			work(person_id);
 		}
 	}
 
@@ -136,60 +145,75 @@ namespace phone
 		using namespace std;
 		cout << '|'
 			<< setw(3) << right << "ID" << " | "
-			<< setw(20) << left << "NAME" << " | "
-			<< setw(30) << left << "MAIL" << " |\n";
+			<< setw(20) << left << "NAME" << " |\n";
 
-		const auto persons = contacts_.get<size_t, string, string>(
+		const auto persons = contacts_.get<size_t, string>(
 			"SELECT id, "
-			"CONCAT(surname, ' ', forename) AS name, "
-			"CONCAT(mailbox, '@', hostname) AS email "
+			"CONCAT(surname, ' ', forename) AS name "
 			"FROM subscriber "
 			"ORDER BY name;"
 		);
 		
-		auto view = [](const typename decltype(begin(persons))::value_type& person)
+		auto view = [](const typename decltype(cbegin(persons))::value_type& person)
 			{
-				const auto& [id, name, email] = person;
+				const auto& [id, name] = person;
 				cout << "|"
 					<< setw(3) << right << id << " | "
-					<< setw(20) << left << name << " | "
-					<< setw(30) << left << (email == "@" ? " " : email) << " |\n";
+					<< setw(20) << left << name << " |\n";
 			};
-		for_each(begin(persons), cend(persons), view);
+		for_each(cbegin(persons), cend(persons), view);
 	}
 
 	void simple_db_viewer::view(std::size_t person_id)
 	{
 		// Напечатать данные персоны
 		using namespace std;
-		const auto persons = contacts_.get<size_t, string, string>(
+		const auto persons = contacts_.get<size_t, string>(
 			"SELECT id, "
-			"CONCAT(surname, ' ', forename) AS name, "
-			"CONCAT(mailbox, '@', hostname) AS email "
+			"CONCAT(surname, ' ', forename) AS name "
 			"FROM subscriber "
 			"WHERE id = '" + to_string(person_id) + "' "
 			"ORDER BY name;"
 		);
 
-		auto view = [](const typename decltype(begin(persons))::value_type& person)
+		// ID, Name ////////////////////////////////////////////////////////////////////////////////////////////////////////
+		auto view = [](const typename decltype(cbegin(persons))::value_type& person)
 			{
-				const auto& [id, name, email] = person;
+				const auto& [id, name] = person;
 				cout << "ID:       " << id << '\n';
 				cout << "Name:     " << name << '\n';
-				cout << "Mail:     " << (email == "@" ? " " : email) << '\n';
-				cout << "Phones\n";
 			};
-		for_each(begin(persons), cend(persons), view);
+		for_each(cbegin(persons), cend(persons), view);
 
+		// Email address ///////////////////////////////////////////////////////////////////////////////////////////////////
+		const auto email_addresses = contacts_.get<size_t, size_t, string>(
+			"SELECT id, subscriber_id, "
+			"CONCAT(mailbox, '@', hostname) AS email "
+			"FROM email_address "
+			"WHERE subscriber_id = '" + to_string(person_id) + "' "
+			"ORDER BY id;"
+		);
+		
+		cout << "Email address\n";
+		for_each(cbegin(email_addresses), cend(email_addresses),
+			[](const typename decltype(cbegin(email_addresses))::value_type& email_address)
+			{
+				const auto& [id, subscriber_id, email] = email_address;
+				cout << setw(10) << right << "ID: " << setw(2) << id << "   " << email << '\n';
+			}
+		);
+
+		// Phone numbers ///////////////////////////////////////////////////////////////////////////////////////////////////
 		const auto phone_numbers = contacts_.get<size_t, size_t, string>(
 			"SELECT id, subscriber_id, number "
 			"FROM phone_numbers "
 			"WHERE subscriber_id = '" + to_string(person_id) + "' "
-			"ORDER BY number;"
+			"ORDER BY id;"
 		);
-
-		for_each(begin(phone_numbers), cend(phone_numbers),
-			[](const typename decltype(begin(phone_numbers))::value_type& phone_number)
+		
+		cout << "Phone numbers\n";
+		for_each(cbegin(phone_numbers), cend(phone_numbers),
+			[](const typename decltype(cbegin(phone_numbers))::value_type& phone_number)
 			{
 				const auto& [id, subscriber_id, number] = phone_number;
 				cout << setw(10) << right << "ID: " << setw(2) << id << setw(15) << number << '\n';
@@ -206,9 +230,25 @@ namespace phone
 			);
 	}
 
-	std::string simple_db_viewer::get_email_address(const std::string& invitation)
+	bool simple_db_viewer::get_phone_number(std::size_t person_id, const std::string& invitation) 
+		try
 	{
-		const auto value = my::get_input_value("Электронная почты: ");
-		return value;
+		return contacts_.add_phone(person_id, my::get_input_value(invitation));
+	}
+	catch (...)
+	{
+		std::cout << "Введите одиннадцатизначный номер в формате +ХХХХХХХХХХХ";
+		return get_phone_number(person_id, ": ");
+	}
+
+	bool simple_db_viewer::get_email_address(std::size_t person_id, const std::string& invitation)
+		try
+	{
+		return contacts_.add_email(person_id, my::get_input_value(invitation));
+	}
+	catch (...)
+	{
+		std::cout << "Введите адрес эл. почты в формате mailbox@hostname";
+		return get_email_address(person_id, ": ");
 	}
 }

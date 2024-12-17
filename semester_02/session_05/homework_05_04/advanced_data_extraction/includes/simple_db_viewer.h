@@ -3,11 +3,8 @@
 #ifndef  SIMPLE_DB_VIEWER_H
 #define SIMPLE_DB_VIEWER_H
 
-#include "my_input.h"
 #include "phone_book.h"
 
-
-#include <iostream>
 #include <string>
 #include <utility>
 
@@ -23,6 +20,8 @@ namespace phone
 			UM_DEL_CONTACT = 3, 
 			UM_ADD_PHONE = 4, 
 			UM_DEL_PHONE = 5,
+			UM_ADD_EMAIL = 6,
+			UM_DEL_EMAIL = 7,
 			UM_REPEAT = 99
 		};
 
@@ -44,18 +43,8 @@ namespace phone
 		void view(std::size_t person_id);
 		user_message get_message(void(*show_menu)());		
 		
-		template<typename T>
-		bool get_phone_number(const T& value, const std::string& invitation) try
-		{
-			return contacts_.add_phone(value, my::get_input_value(invitation));
-		}
-		catch (...)
-		{
-			std::cout << "Введите одиннадцатизначный номер в формате +ХХХХХХХХХХХ";
-			return get_phone_number(value, ": ");
-		}
-
-		std::string get_email_address(const std::string& invitation);
+		bool get_phone_number(std::size_t person_id, const std::string& invitation);
+		bool get_email_address(std::size_t person_id, const std::string& invitation);
 
 	private:
 		phone_book contacts_;

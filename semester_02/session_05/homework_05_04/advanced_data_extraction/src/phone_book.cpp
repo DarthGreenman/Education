@@ -15,101 +15,67 @@
 
 namespace phone
 {
-	using name_type = phone_book::name_type;
-	using email_address_type = phone_book::email_address_type;
-	using phone_number_type = phone_book::phone_number_type;
+	using name_type = typename phone_book::name_type;
+	using email_address_type = typename phone_book::email_address_type;
+	using phone_number_type = typename phone_book::phone_number_type;
 
 	phone_book::phone_book(const std::string& connection_string) :
 		connection_{ pqxx::connection{connection_string} }
 	{
-		// Создать таблицы, если их не существует
-		create_structure();
+		create_structure(); // Создать таблицы, если их не существует
 	}
 
-	phone_book::phone_book(const std::string& connection_string, const std::vector<contact>& persons) :
-		phone_book(connection_string)
+	void phone_book::loading_data(const std::vector<contact>& persons)
 	{
-		// Заполнить новыми данными
 		using namespace std;
 		auto add_person = [&](const contact& person)
 			{
-				if (add_contact(person))
+				const auto& [name, email_addresses, phone_numbers] = person.get();
+				if (add_contact(name))
 				{
-					const auto& [name, email, phone_numbers] = person.get();
-					using Value_type = typename iterator_traits<decltype(begin(phone_numbers))>::value_type;
-					auto add_phone_number = [&](const Value_type& phone_number)
+					using Email_address_type = typename iterator_traits<decltype(cbegin(email_addresses))>::value_type;
+					auto add_email_address = [&](const Email_address_type& email)
+						{
+							add_email(name, email);
+						};
+					for_each(cbegin(email_addresses), cend(email_addresses), add_email_address);
+
+					using Phone_number_type = typename iterator_traits<decltype(cbegin(phone_numbers))>::value_type;
+					auto add_phone_number = [&](const Phone_number_type& phone_number)
 						{
 							add_phone(name, phone_number);
 						};
 					for_each(cbegin(phone_numbers), cend(phone_numbers), add_phone_number);
 				}
 			};
-		for_each(cbegin(persons), cend(persons), add_person);
+		for_each(cbegin(persons), cend(persons), add_person); // Заполнить новыми данными
 	}
 
-	bool phone_book::add_contact(const contact& person)
+	bool phone_book::add_contact(const name_type& name)
 	{
-		if (record_exists(person))
-		{
-			// Если запись существует - информировать пользователя
-			return false;
-		}
-
-		const auto& [name, email, phone_numbers] = person.get();
-		const auto& [forename, surname] = name;
-		const auto& [mailbox, hostmail] = email.get();
-		const std::string query {
-			"INSERT INTO subscriber(forename, surname, mailbox, hostname) "
-			"VALUES('" + forename + "', '" + surname + "', '" + mailbox + "', '" + hostmail + "');"
-		};
+		if (contact_already_exists(name))			
+			return false; // Если запись существует - информировать пользователя
 		
-		return exec(query);
-	}
-
-	bool phone_book::add_phone(const name_type& name, const phone_number_type& phone_number)
-	{
-		const auto& [forename, surname] = name;
-		// В данном коде формат записи номера +19792195004, так воспользовались методом класса,
-		// но пользователь может записать номер в базу м в другом формате, предварительно
-		// получив доступ через метод класса get() к кодам номера: страны, зоны, узла и перс. номеру. 
-		const std::string query {
-			"INSERT INTO phone_numbers(subscriber_id, number) "
-			"VALUES("
-				"(SELECT id FROM subscriber WHERE forename = '" + forename + "' AND "
-				"surname = '" + surname + "'), '" + phone_number.normalization() + "');"
-		};
-
-		return exec(query);
-	}
-
-	bool phone_book::add_phone(std::size_t person_id, const phone_number_type& phone_number)
-	{
-		const std::string query {
-			"INSERT INTO phone_numbers(subscriber_id, number) "
-			"VALUES("
-				"(SELECT id FROM subscriber WHERE id = '" + std::to_string(person_id) + "'), '"
-			+ phone_number.normalization() + "');"
-		};
-
-		return exec(query);
+		return exec("INSERT INTO subscriber(forename, surname) "
+			"VALUES('" + name.forename + "', '" + name.surname + "');");
 	}
 
 	bool phone_book::del_contact(std::size_t person_id)
 	{
-		const std::string query {
-			"DELETE FROM subscriber WHERE id = '" + std::to_string(person_id) + "';"
-		};
-
-		return exec(query);
+		return exec("DELETE FROM subscriber WHERE id = '" 
+			+ std::to_string(person_id) + "';");
 	}
 
 	bool phone_book::del_phone(std::size_t phone_number_id)
 	{
-		const std::string query{
-			"DELETE FROM phone_numbers WHERE id = '" + std::to_string(phone_number_id) + "';"
-		};
+		return exec("DELETE FROM phone_numbers WHERE id = '"
+			+ std::to_string(phone_number_id) + "';");
+	}
 
-		return exec(query);
+	bool phone_book::del_email(std::size_t email_id)
+	{
+		return exec("DELETE FROM email_address WHERE id = '" 
+			+ std::to_string(email_id) + "';");
 	}
 		
 	void phone_book::create_structure(const std::string& query)
@@ -128,11 +94,21 @@ namespace phone
 			"id serial, "
 			"forename varchar(32) NOT NULL, "
 			"surname varchar(32) NOT NULL, "
+			"PRIMARY KEY (id)"
+			");"
+		);
+
+		create_structure
+		(
+			"CREATE TABLE IF NOT EXISTS email_address "
+			"("
+			"id serial, "
+			"subscriber_id integer, "
 			"mailbox varchar(64), "
 			"hostname varchar(253), "
-			"UNIQUE (forename, surname, mailbox), "
-			"UNIQUE (forename, surname, hostname), "
-			"PRIMARY KEY (id)"
+			"UNIQUE(subscriber_id, mailbox, hostname), "
+			"PRIMARY KEY (id), "
+			"FOREIGN KEY (subscriber_id) REFERENCES subscriber (id) ON DELETE CASCADE"
 			");"
 		);
 
@@ -143,25 +119,18 @@ namespace phone
 			"id serial, "
 			"subscriber_id integer, "
 			"number varchar(12), "
-			"UNIQUE (number), "
+			"UNIQUE (subscriber_id, number), "
 			"PRIMARY KEY (id), "
 			"FOREIGN KEY (subscriber_id) REFERENCES subscriber (id) ON DELETE CASCADE"
 			");"
 		);
 	}
 
-	bool phone_book::record_exists(const contact& person)
+	bool phone_book::contact_already_exists(const name_type& name)
 	{
-		const auto& [name, email, phone_numbers] = person.get();
-		const auto& [forename, surname] = name;
-		const std::string query
-		{
-			"SELECT id FROM subscriber WHERE forename='" + forename + "' AND "
-				"surname='" + surname + "';" 
-		};
-
 		pqxx::work wk{ connection_ };
-		const auto query_result = wk.query<std::size_t>(query);
+		const auto query_result = wk.query<std::size_t>("SELECT id FROM subscriber WHERE forename='" 
+			+ name.forename + "' AND surname='" + name.surname + "';");
 
 		return query_result.begin() == query_result.end() ? false : true;
 	}

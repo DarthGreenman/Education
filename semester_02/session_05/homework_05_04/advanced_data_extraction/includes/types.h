@@ -12,8 +12,8 @@ namespace my
 {
 	struct person_name
 	{
-		std::string forename_{};
-		std::string surname_{};
+		std::string forename{};
+		std::string surname{};
 	};
 
 	// mailbox - является пользовательским аккаунтом, приложением или аккаунтом системной роли,

@@ -26,7 +26,6 @@ namespace phone
 		
 		phone_book() = delete;
 		phone_book(const std::string& connection_string);
-		phone_book(const std::string& connection_string, const std::vector<contact>& persons);
 
 		phone_book(const phone_book&) = delete;
 		phone_book(phone_book&&) = default;
@@ -37,12 +36,51 @@ namespace phone
 		~phone_book() = default;
 		
 	public:
-		bool add_contact(const contact& person);
-		bool add_phone(const name_type& name, const phone_number_type& phone_number);
-		bool add_phone(std::size_t person_id, const phone_number_type& phone_number);
+		void loading_data(const std::vector<contact>& persons);
+		bool add_contact(const name_type& name);
+
+		// В данном коде формат записи номера +19792195004, так воспользовались методом класса,
+		// но пользователь может записать номер в базу м в другом формате, предварительно
+		// получив доступ через метод класса get() к кодам номера: страны, зоны, узла и перс. номеру. 
+		template<typename T, 
+			typename = std::enable_if_t<std::is_same_v<T, name_type> || std::is_same_v<T, std::size_t>>>
+		bool add_phone(const T& value, const phone_number_type& phone_number)
+		{
+			const auto number = phone_number.normalization();
+			if (number.empty())
+				return false;
+
+			if constexpr (std::is_same_v<T, name_type>)
+				return exec("INSERT INTO phone_numbers(subscriber_id, number) "
+					"VALUES((SELECT id FROM subscriber WHERE forename = '" + value.forename + "' AND "
+					"surname = '" + value.surname + "'), '" + number + "');");
+			else
+				return exec("INSERT INTO phone_numbers(subscriber_id, number) "
+					"VALUES((SELECT id FROM subscriber WHERE id = '" + std::to_string(value) + "'), '"
+					+ number + "');");
+		}
+
+		template<typename T,
+			typename = std::enable_if_t<std::is_same_v<T, name_type> || std::is_same_v<T, std::size_t>>>
+		bool add_email(const T& value, const email_address_type& email_address)
+		{
+			const auto& [mailbox, hostmail] = email_address.get();
+			if (mailbox.empty() || hostmail.empty())
+				return false;
+
+			if constexpr (std::is_same_v<T, name_type>)
+				return exec("INSERT INTO email_address(subscriber_id, mailbox, hostname) "
+					"VALUES((SELECT id FROM subscriber WHERE forename = '" + value.forename + "' AND "
+					"surname = '" + value.surname + "'), '" + mailbox + "', '" + hostmail + "');");
+			else
+				return exec("INSERT INTO email_address(subscriber_id, mailbox, hostname) "
+					"VALUES((SELECT id FROM subscriber WHERE id = '" + std::to_string(value) + "'), '"
+					+ mailbox + "', '" + hostmail + "');");
+		}
 
 		bool del_contact(std::size_t person_id);
 		bool del_phone(std::size_t phone_number_id);
+		bool del_email(std::size_t email_id);
 
 		template<Is_field_data_types ... Args>
 		pqxx::internal::result_iteration<Args ...> get(const std::string& query)
@@ -54,7 +92,7 @@ namespace phone
 	private:
 		void create_structure(const std::string& query);
 		void create_structure();
-		bool record_exists(const contact& person);
+		bool contact_already_exists(const name_type& name);
 		bool exec(const std::string& query);
 
 	private:
