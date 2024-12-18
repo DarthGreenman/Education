@@ -14,9 +14,9 @@ set(PROJECT_NAME advanced_data_extraction)
 project (${PROJECT_NAME} VERSION 1.0)
 
 set(PostgreSQL_ADDITIONAL_VERSIONS 17)
-#set(INCLUDES_PATH "${PROJECT_SOURCE_DIR}./includes/")
-#set(SOURCE_PATH "${PROJECT_SOURCE_DIR}./src/")
-set(LIBPQXX_PATH "d:\\Users\\Darth Greenman\\Documents\\Visual Studio 2022\\source\\repos\\lib\\libpqxx-7.9.2")
+#set(INCLUDES_PATH "${CMAKE_SOURCE_DIR}/includes/")
+#set(SOURCE_PATH "${CMAKE_SOURCE_DIR}/src/")
+set(LIBPQXX_PATH "../../../../../lib/libpqxx-7.9.2")
 
 #file(GLOB HEADER_INC ${INCLUDES_PATH} "*.h")
 #file(GLOB SOURCE_INC ${SOURCE_PATH} "*.cpp")

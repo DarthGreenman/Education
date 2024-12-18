@@ -185,6 +185,7 @@ namespace phone
 		for_each(cbegin(persons), cend(persons), view);
 
 		// Email address ///////////////////////////////////////////////////////////////////////////////////////////////////
+		cout << "Email address\n";
 		const auto email_addresses = contacts_.get<size_t, size_t, string>(
 			"SELECT id, subscriber_id, "
 			"CONCAT(mailbox, '@', hostname) AS email "
@@ -192,33 +193,31 @@ namespace phone
 			"WHERE subscriber_id = '" + to_string(person_id) + "' "
 			"ORDER BY id"
 		);
-		
-		cout << "Email address\n";
-		for_each(cbegin(email_addresses), cend(email_addresses),
-			[](const typename decltype(cbegin(email_addresses))::value_type& email_address)
-			{
-				const auto& [id, subscriber_id, email] = email_address;
-				cout << setw(10) << right << "ID: " << setw(2) << id << "   " << email << '\n';
-			}
-		);
+		this->view(email_addresses);
 
 		// Phone numbers ///////////////////////////////////////////////////////////////////////////////////////////////////
+		cout << "Phone numbers\n";
 		const auto phone_numbers = contacts_.get<size_t, size_t, string>(
 			"SELECT id, subscriber_id, number "
 			"FROM phone_numbers "
 			"WHERE subscriber_id = '" + to_string(person_id) + "' "
 			"ORDER BY id"
 		);
-		
-		cout << "Phone numbers\n";
-		for_each(cbegin(phone_numbers), cend(phone_numbers),
-			[](const typename decltype(cbegin(phone_numbers))::value_type& phone_number)
+		this->view(phone_numbers);
+
+		cout << '\n';
+	}
+
+	void simple_db_viewer::view(const auto& recordset)
+	{
+		using namespace std;
+		for_each(cbegin(recordset), cend(recordset),
+			[](const typename decltype(cbegin(recordset))::value_type& elem)
 			{
-				const auto& [id, subscriber_id, number] = phone_number;
-				cout << setw(10) << right << "ID: " << setw(2) << id << setw(15) << number << '\n';
+				const auto& [id, subscriber_id, value] = elem;
+				cout << setw(10) << right << "ID: " << setw(5) << left << id <<  value << '\n';
 			}
 		);
-		cout << '\n';
 	}
 
 	user_message simple_db_viewer::get_message(void(*show_menu)())

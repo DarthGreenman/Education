@@ -39,8 +39,11 @@ namespace phone
 	private:
 		std::pair<bool, user_message> work();
 		std::pair<bool, user_message> work(std::size_t person_id);
+		
 		void view();
 		void view(std::size_t person_id);
+		void view(const auto& recordset);
+		
 		user_message get_message(void(*show_menu)());		
 		
 		bool get_phone_number(std::size_t person_id, const std::string& invitation);

@@ -52,19 +52,12 @@ namespace phone
 				return false;
 
 			if constexpr (std::is_same_v<T, name_type>)
-			{
-				connection_.prepare("add_new_phone_by_name", "INSERT INTO phone_numbers(subscriber_id, number) "
-					"VALUES((SELECT id FROM subscriber WHERE forename = $1 AND surname = $2), $3)");
-				return exec("add_new_phone_by_name", value.forename, value.surname, number);
-			}
+				return exec("add_phone_by_name", value.forename, value.surname, number);
 			else
-			{
-				connection_.prepare("add_new_phone_by_id", "INSERT INTO phone_numbers(subscriber_id, number) "
-					"VALUES((SELECT id FROM subscriber WHERE id = $1), $2)");
-				return exec("add_new_phone_by_id", std::to_string(value), number);
-			}
+				return exec("add_phone_by_id", std::to_string(value), number);
 		}
 
+		// Формат mailbox@hostname, где hostname, например: mail.ru, google.com ...
 		template<typename T,
 			typename = std::enable_if_t<std::is_same_v<T, name_type> || std::is_same_v<T, std::size_t>>>
 		bool add_email(const T& value, const email_address_type& email_address)
@@ -74,17 +67,9 @@ namespace phone
 				return false;
 
 			if constexpr (std::is_same_v<T, name_type>)
-			{
-				connection_.prepare("add_new_email_by_name", "INSERT INTO email_address(subscriber_id, mailbox, hostname) "
-					"VALUES((SELECT id FROM subscriber WHERE forename = 1$ AND surname = $2), $3, $4)");
-				return exec("add_new_email_by_name", value.forename, value.surname, mailbox, hostname);
-			}
+				return exec("add_email_by_name", value.forename, value.surname, mailbox, hostname);
 			else
-			{
-				connection_.prepare("add_new_email_by_id", "INSERT INTO email_address(subscriber_id, mailbox, hostname) "
-					"VALUES((SELECT id FROM subscriber WHERE id = $1), $2, $3)");
-				return exec("add_new_email_by_id", std::to_string(value), mailbox, hostname);
-			}
+				return exec("add_email_by_id", std::to_string(value), mailbox, hostname);
 		}
 
 		bool del_contact(std::size_t person_id);
