@@ -8,6 +8,7 @@
 #include <concepts>
 #include <pqxx/pqxx>
 #include <pqxx/result.hxx>
+#include <pqxx/transaction_base.hxx>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -51,31 +52,39 @@ namespace phone
 				return false;
 
 			if constexpr (std::is_same_v<T, name_type>)
-				return exec("INSERT INTO phone_numbers(subscriber_id, number) "
-					"VALUES((SELECT id FROM subscriber WHERE forename = '" + value.forename + "' AND "
-					"surname = '" + value.surname + "'), '" + number + "');");
+			{
+				connection_.prepare("add_new_phone_by_name", "INSERT INTO phone_numbers(subscriber_id, number) "
+					"VALUES((SELECT id FROM subscriber WHERE forename = $1 AND surname = $2), $3)");
+				return exec("add_new_phone_by_name", value.forename, value.surname, number);
+			}
 			else
-				return exec("INSERT INTO phone_numbers(subscriber_id, number) "
-					"VALUES((SELECT id FROM subscriber WHERE id = '" + std::to_string(value) + "'), '"
-					+ number + "');");
+			{
+				connection_.prepare("add_new_phone_by_id", "INSERT INTO phone_numbers(subscriber_id, number) "
+					"VALUES((SELECT id FROM subscriber WHERE id = $1), $2)");
+				return exec("add_new_phone_by_id", std::to_string(value), number);
+			}
 		}
 
 		template<typename T,
 			typename = std::enable_if_t<std::is_same_v<T, name_type> || std::is_same_v<T, std::size_t>>>
 		bool add_email(const T& value, const email_address_type& email_address)
 		{
-			const auto& [mailbox, hostmail] = email_address.get();
-			if (mailbox.empty() || hostmail.empty())
+			const auto& [mailbox, hostname] = email_address.get();
+			if (mailbox.empty() || hostname.empty())
 				return false;
 
 			if constexpr (std::is_same_v<T, name_type>)
-				return exec("INSERT INTO email_address(subscriber_id, mailbox, hostname) "
-					"VALUES((SELECT id FROM subscriber WHERE forename = '" + value.forename + "' AND "
-					"surname = '" + value.surname + "'), '" + mailbox + "', '" + hostmail + "');");
+			{
+				connection_.prepare("add_new_email_by_name", "INSERT INTO email_address(subscriber_id, mailbox, hostname) "
+					"VALUES((SELECT id FROM subscriber WHERE forename = 1$ AND surname = $2), $3, $4)");
+				return exec("add_new_email_by_name", value.forename, value.surname, mailbox, hostname);
+			}
 			else
-				return exec("INSERT INTO email_address(subscriber_id, mailbox, hostname) "
-					"VALUES((SELECT id FROM subscriber WHERE id = '" + std::to_string(value) + "'), '"
-					+ mailbox + "', '" + hostmail + "');");
+			{
+				connection_.prepare("add_new_email_by_id", "INSERT INTO email_address(subscriber_id, mailbox, hostname) "
+					"VALUES((SELECT id FROM subscriber WHERE id = $1), $2, $3)");
+				return exec("add_new_email_by_id", std::to_string(value), mailbox, hostname);
+			}
 		}
 
 		bool del_contact(std::size_t person_id);
@@ -92,8 +101,16 @@ namespace phone
 	private:
 		void create_structure(const std::string& query);
 		void create_structure();
-		bool contact_already_exists(const name_type& name);
-		bool exec(const std::string& query);
+
+		template<Is_field_data_types ... Args>
+		bool exec(const std::string& query_name, const Args& ... values)
+		{
+			pqxx::work wk{ connection_ };
+			const pqxx::result query_result = wk.exec_prepared(query_name, values ...);
+			wk.commit();
+
+			return query_result.affected_rows() == 0 ? false : true;
+		}
 
 	private:
 		pqxx::connection connection_{};

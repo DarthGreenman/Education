@@ -96,9 +96,8 @@ namespace phone
 				get_input_value<string>("Имя: "),
 				get_input_value<string>("Фамилия: ")
 			};
-			if (contacts_.add_contact(name))
-				return make_pair(true, UM_ADD_CONTACT);
-			return make_pair(false, UM_ADD_CONTACT);
+			
+			return make_pair(contacts_.add_contact(name), UM_ADD_CONTACT);
 		}
 		case UM_DEL_CONTACT:
 			return make_pair(contacts_.del_contact(get_input_value<size_t>("Введите ID контакта: ")),
@@ -106,7 +105,7 @@ namespace phone
 		case UM_QUIT:
 			return make_pair(true, UM_QUIT);
 		default:
-			work();
+			return make_pair(true, UM_REPEAT);
 		}
 	}
 
@@ -121,21 +120,21 @@ namespace phone
 		switch (get_message(show_submenu))
 		{
 		case UM_ADD_PHONE:
-			return get_phone_number(person_id, "Номер телефона: ") ?
-				make_pair(true, UM_ADD_PHONE) : make_pair(false, UM_ADD_PHONE);
+			return make_pair(get_phone_number(person_id, "Номер телефона: "), 
+				UM_ADD_PHONE);
 		case UM_DEL_PHONE:
-			return contacts_.del_phone(get_input_value<size_t>("Введите ID телефона: ")) ?
-				make_pair(true, UM_DEL_PHONE) : make_pair(false, UM_DEL_PHONE);
+			return make_pair(contacts_.del_phone(get_input_value<size_t>("Введите ID телефона: ")), 
+				UM_DEL_PHONE);
 		case UM_ADD_EMAIL:
-			return get_email_address(person_id, "Email: ") ?
-				make_pair(true, UM_ADD_EMAIL) : make_pair(false, UM_ADD_EMAIL);
+			return make_pair(get_email_address(person_id, "Email: "), 
+				UM_ADD_EMAIL);
 		case UM_DEL_EMAIL:
-			return contacts_.del_email(get_input_value<size_t>("Введите ID email: ")) ?
-				make_pair(true, UM_DEL_EMAIL) : make_pair(false, UM_DEL_EMAIL);
+			return make_pair(contacts_.del_email(get_input_value<size_t>("Введите ID email: ")),
+				UM_DEL_EMAIL);
 		case UM_QUIT:
 			return make_pair(true, UM_QUIT);
 		default:
-			work(person_id);
+			return make_pair(true, UM_REPEAT);
 		}
 	}
 
@@ -151,7 +150,7 @@ namespace phone
 			"SELECT id, "
 			"CONCAT(surname, ' ', forename) AS name "
 			"FROM subscriber "
-			"ORDER BY name;"
+			"ORDER BY name"
 		);
 		
 		auto view = [](const typename decltype(cbegin(persons))::value_type& person)
@@ -173,7 +172,7 @@ namespace phone
 			"CONCAT(surname, ' ', forename) AS name "
 			"FROM subscriber "
 			"WHERE id = '" + to_string(person_id) + "' "
-			"ORDER BY name;"
+			"ORDER BY name"
 		);
 
 		// ID, Name ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +190,7 @@ namespace phone
 			"CONCAT(mailbox, '@', hostname) AS email "
 			"FROM email_address "
 			"WHERE subscriber_id = '" + to_string(person_id) + "' "
-			"ORDER BY id;"
+			"ORDER BY id"
 		);
 		
 		cout << "Email address\n";
@@ -208,7 +207,7 @@ namespace phone
 			"SELECT id, subscriber_id, number "
 			"FROM phone_numbers "
 			"WHERE subscriber_id = '" + to_string(person_id) + "' "
-			"ORDER BY id;"
+			"ORDER BY id"
 		);
 		
 		cout << "Phone numbers\n";

@@ -1,52 +1,17 @@
-		const auto& [mailbox, hostmail] = email.get();
-					"CONCAT(mailbox, '@', hostname) AS email "
-		auto view = [](const typename decltype(begin(persons))::value_type& person)
-			{
-				const auto& [id, name, email] = person;
-				cout << "|"
-					<< setw(3) << right << id << " | "
-					<< setw(20) << left << name << " | "
-					<< setw(30) << left << (email == "@" ? " " : email) << " |\n";
-			};
-		for_each(begin(persons), cend(persons), view);
-
-
-		void simple_db_viewer::view(std::size_t person_id)
+	bool phone_book::contact_already_exists(const name_type& name)
 	{
-		// Напечатать данные персоны
-		using namespace std;
-		const auto persons = contacts_.get<size_t, string, string>(
-			"SELECT id, "
-			"CONCAT(surname, ' ', forename) AS name "
-			"FROM subscriber "
-			"WHERE id = '" + to_string(person_id) + "' "
-			"ORDER BY name;"
-		);
+		pqxx::work wk{ connection_ };
+		const auto query_result = wk.query<std::size_t>("SELECT id FROM subscriber WHERE forename='" 
+			+ name.forename + "' AND surname='" + name.surname + "';");
 
-		auto view = [](const typename decltype(begin(persons))::value_type& person)
-			{
-				const auto& [id, name, email] = person;
-				cout << "ID:       " << id << '\n';
-				cout << "Name:     " << name << '\n';
-				cout << "Mail:     " << (email == "@" ? " " : email) << '\n';
-				cout << "Phones\n";
-			};
-		for_each(begin(persons), cend(persons), view);
-
-		const auto phone_numbers = contacts_.get<size_t, size_t, string>(
-			"SELECT id, subscriber_id, number "
-			"FROM phone_numbers "
-			"WHERE subscriber_id = '" + to_string(person_id) + "' "
-			"ORDER BY number;"
-		);
-
-		for_each(begin(phone_numbers), cend(phone_numbers),
-			[](const typename decltype(begin(phone_numbers))::value_type& phone_number)
-			{
-				const auto& [id, subscriber_id, number] = phone_number;
-				cout << setw(10) << right << "ID: " << setw(2) << id << setw(15) << number << '\n';
-			}
-		);
-		cout << '\n';
+		return query_result.begin() == query_result.end() ? false : true;
 	}
 
+
+	return exec("INSERT INTO email_address(subscriber_id, mailbox, hostname) "
+		"VALUES((SELECT id FROM subscriber WHERE forename = '" + value.forename + "' AND "
+		"surname = '" + value.surname + "'), '" + mailbox + "', '" + hostmail + "');");
+				
+	return exec("INSERT INTO email_address(subscriber_id, mailbox, hostname) "
+		"VALUES((SELECT id FROM subscriber WHERE id = '" + std::to_string(value) + "'), '"
+		+ mailbox + "', '" + hostmail + "');");

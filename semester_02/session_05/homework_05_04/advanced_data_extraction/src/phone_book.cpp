@@ -52,30 +52,27 @@ namespace phone
 	}
 
 	bool phone_book::add_contact(const name_type& name)
-	{
-		if (contact_already_exists(name))			
-			return false; // Если запись существует - информировать пользователя
-		
-		return exec("INSERT INTO subscriber(forename, surname) "
-			"VALUES('" + name.forename + "', '" + name.surname + "');");
+	{		
+		connection_.prepare("add_new_contact", "INSERT INTO subscriber(forename, surname) VALUES($1, $2)");
+		return exec("add_new_contact", name.forename, name.surname);
 	}
 
 	bool phone_book::del_contact(std::size_t person_id)
 	{
-		return exec("DELETE FROM subscriber WHERE id = '" 
-			+ std::to_string(person_id) + "';");
+		connection_.prepare("del_contact_by_id", "DELETE FROM subscriber WHERE id = $1");
+		return exec("del_contact_by_id", std::to_string(person_id));
 	}
 
 	bool phone_book::del_phone(std::size_t phone_number_id)
 	{
-		return exec("DELETE FROM phone_numbers WHERE id = '"
-			+ std::to_string(phone_number_id) + "';");
+		connection_.prepare("del_phone_by_id", "DELETE FROM phone_numbers WHERE id = $1");
+		return exec("del_phone_by_id", std::to_string(phone_number_id));
 	}
 
 	bool phone_book::del_email(std::size_t email_id)
 	{
-		return exec("DELETE FROM email_address WHERE id = '" 
-			+ std::to_string(email_id) + "';");
+		connection_.prepare("del_email_by_id", "DELETE FROM email_address WHERE id = $1");
+		return exec("del_email_by_id", std::to_string(email_id));
 	}
 		
 	void phone_book::create_structure(const std::string& query)
@@ -95,7 +92,7 @@ namespace phone
 			"forename varchar(32) NOT NULL, "
 			"surname varchar(32) NOT NULL, "
 			"PRIMARY KEY (id)"
-			");"
+			")"
 		);
 
 		create_structure
@@ -109,7 +106,7 @@ namespace phone
 			"UNIQUE(subscriber_id, mailbox, hostname), "
 			"PRIMARY KEY (id), "
 			"FOREIGN KEY (subscriber_id) REFERENCES subscriber (id) ON DELETE CASCADE"
-			");"
+			")"
 		);
 
 		create_structure
@@ -122,25 +119,7 @@ namespace phone
 			"UNIQUE (subscriber_id, number), "
 			"PRIMARY KEY (id), "
 			"FOREIGN KEY (subscriber_id) REFERENCES subscriber (id) ON DELETE CASCADE"
-			");"
+			")"
 		);
-	}
-
-	bool phone_book::contact_already_exists(const name_type& name)
-	{
-		pqxx::work wk{ connection_ };
-		const auto query_result = wk.query<std::size_t>("SELECT id FROM subscriber WHERE forename='" 
-			+ name.forename + "' AND surname='" + name.surname + "';");
-
-		return query_result.begin() == query_result.end() ? false : true;
-	}
-
-	bool phone_book::exec(const std::string& query)
-	{
-		pqxx::work wk{ connection_ };
-		const pqxx::result query_result = wk.exec(query);
-		wk.commit();
-
-		return query_result.affected_rows() == 0 ? false : true;
 	}
 } 
