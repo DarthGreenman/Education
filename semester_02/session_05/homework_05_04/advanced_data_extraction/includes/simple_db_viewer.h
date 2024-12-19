@@ -13,6 +13,7 @@ namespace phone
 	class simple_db_viewer
 	{
 	public:
+
 		enum user_message { 
 			UM_QUIT = 0, 
 			UM_EDIT = 1, 
@@ -42,7 +43,7 @@ namespace phone
 		
 		void view();
 		void view(std::size_t person_id);
-		void view(const auto& recordset);
+		void view(const pqxx::internal::result_iteration<std::size_t, std::size_t, std::string>& recordset);
 		
 		user_message get_message(void(*show_menu)());		
 		

@@ -153,14 +153,14 @@ namespace phone
 			"ORDER BY name"
 		);
 		
-		auto view = [](const typename decltype(cbegin(persons))::value_type& person)
+		auto print = [](const typename decltype(cbegin(persons))::value_type& person)
 			{
 				const auto& [id, name] = person;
 				cout << "|"
 					<< setw(3) << right << id << " | "
 					<< setw(20) << left << name << " |\n";
 			};
-		for_each(cbegin(persons), cend(persons), view);
+		for_each(cbegin(persons), cend(persons), print);
 	}
 
 	void simple_db_viewer::view(std::size_t person_id)
@@ -176,13 +176,13 @@ namespace phone
 		);
 
 		// ID, Name ////////////////////////////////////////////////////////////////////////////////////////////////////////
-		auto view = [](const typename decltype(cbegin(persons))::value_type& person)
+		auto print = [](const typename decltype(cbegin(persons))::value_type& person)
 			{
 				const auto& [id, name] = person;
 				cout << "ID:       " << id << '\n';
 				cout << "Name:     " << name << '\n';
 			};
-		for_each(cbegin(persons), cend(persons), view);
+		for_each(cbegin(persons), cend(persons), print);
 
 		// Email address ///////////////////////////////////////////////////////////////////////////////////////////////////
 		cout << "Email address\n";
@@ -193,7 +193,7 @@ namespace phone
 			"WHERE subscriber_id = '" + to_string(person_id) + "' "
 			"ORDER BY id"
 		);
-		this->view(email_addresses);
+		view(email_addresses);
 
 		// Phone numbers ///////////////////////////////////////////////////////////////////////////////////////////////////
 		cout << "Phone numbers\n";
@@ -203,12 +203,12 @@ namespace phone
 			"WHERE subscriber_id = '" + to_string(person_id) + "' "
 			"ORDER BY id"
 		);
-		this->view(phone_numbers);
+		view(phone_numbers);
 
 		cout << '\n';
 	}
 
-	void simple_db_viewer::view(const auto& recordset)
+	void simple_db_viewer::view(const const pqxx::internal::result_iteration<std::size_t, std::size_t, std::string>& recordset)
 	{
 		using namespace std;
 		for_each(cbegin(recordset), cend(recordset),
