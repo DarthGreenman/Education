@@ -15,6 +15,8 @@
 
 namespace phone
 {
+	using size_t = typename std::size_t;
+	using string = typename std::string;
 	using name_type = typename phone_book::name_type;
 	using email_address_type = typename phone_book::email_address_type;
 	using phone_number_type = typename phone_book::phone_number_type;
@@ -38,6 +40,11 @@ namespace phone
 		connection_.prepare("del_contact", "DELETE FROM subscriber WHERE id = $1");
 		connection_.prepare("del_phone", "DELETE FROM phone_numbers WHERE id = $1");
 		connection_.prepare("del_email", "DELETE FROM email_address WHERE id = $1");
+		// Подготовленные запросы на изменение /////////////////////////////////////////////////////////////////////////////
+		connection_.prepare("mod_forename", "UPDATE subscriber SET forename = $1 WHERE id = $2");
+		connection_.prepare("mod_surname", "UPDATE subscriber SET surname = $1 WHERE id = $2");
+		connection_.prepare("mod_phone", "UPDATE phone_numbers SET number = $1 WHERE id = $2");
+		connection_.prepare("mod_email", "UPDATE email_address SET mailbox = $1, hostname = $2 WHERE id = $3");
 	}
 
 	void phone_book::loading_data(const std::vector<contact>& persons)
@@ -68,25 +75,58 @@ namespace phone
 
 	bool phone_book::add_contact(const name_type& name)
 	{		
-		return exec("add_contact", name.forename, name.surname);
+		return exec("add_contact", 
+			name.forename, name.surname);
 	}
 
-	bool phone_book::del_contact(std::size_t person_id)
+	bool phone_book::del_contact(size_t person_id)
 	{
-		return exec("del_contact", std::to_string(person_id));
+		return exec("del_contact",
+			std::to_string(person_id));
 	}
 
-	bool phone_book::del_phone(std::size_t phone_number_id)
+	bool phone_book::del_phone(size_t phone_number_id)
 	{
-		return exec("del_phone", std::to_string(phone_number_id));
+		return exec("del_phone", 
+			std::to_string(phone_number_id));
 	}
 
-	bool phone_book::del_email(std::size_t email_id)
+	bool phone_book::del_email(size_t email_id)
 	{
-		return exec("del_email", std::to_string(email_id));
+		return exec("del_email", 
+			std::to_string(email_id));
+	}
+
+	bool phone_book::mod_forename(size_t person_id, 
+		const string& forename)
+	{
+		return exec("mod_forename", 
+			forename, person_id);
+	}
+
+	bool phone_book::mod_surname(size_t person_id, 
+		const string& surname)
+	{
+		return exec("mod_surname", 
+			surname, person_id);
+	}
+
+	bool phone_book::mod_phone(size_t phone_number_id, 
+		const phone_number_type& phone_number)
+	{
+		return exec("mod_phone", 
+			phone_number.normalization(), phone_number_id);
+	}
+
+	bool phone_book::mod_email(size_t email_id, 
+		const email_address_type& email_address)
+	{
+		const auto& [mailbox, hostname] = email_address.get();
+		return exec("mod_email",
+			mailbox, hostname, email_id);
 	}
 		
-	void phone_book::create_structure(const std::string& query)
+	void phone_book::create_structure(const string& query)
 	{
 		pqxx::work wk{ connection_ };
 		wk.exec(query);

@@ -21,12 +21,14 @@ namespace phone
 	class phone_book
 	{
 	public:
-		using name_type = contact::name_type;
-		using email_address_type = contact::email_address_type;
-		using phone_number_type = contact::phone_number_type;
+		using size_t = typename std::size_t;
+		using string = typename std::string;
+		using name_type = typename contact::name_type;
+		using email_address_type = typename contact::email_address_type;
+		using phone_number_type = typename contact::phone_number_type;
 		
 		phone_book() = delete;
-		phone_book(const std::string& connection_string);
+		phone_book(const string& connection_string);
 
 		phone_book(const phone_book&) = delete;
 		phone_book(phone_book&&) = default;
@@ -39,12 +41,13 @@ namespace phone
 	public:
 		void loading_data(const std::vector<contact>& persons);
 		bool add_contact(const name_type& name);
-
+		
+		// Добавление нового номера ////////////////////////////////////////////////////////////////////////////////////////
 		// В данном коде формат записи номера +19792195004, так воспользовались методом класса,
 		// но пользователь может записать номер в базу м в другом формате, предварительно
 		// получив доступ через метод класса get() к кодам номера: страны, зоны, узла и перс. номеру. 
 		template<typename T, 
-			typename = std::enable_if_t<std::is_same_v<T, name_type> || std::is_same_v<T, std::size_t>>>
+			typename = std::enable_if_t<std::is_same_v<T, name_type> || std::is_same_v<T, size_t>>>
 		bool add_phone(const T& value, const phone_number_type& phone_number)
 		{
 			const auto number = phone_number.normalization();
@@ -56,10 +59,11 @@ namespace phone
 			else
 				return exec("add_phone_by_id", std::to_string(value), number);
 		}
-
+		
+		// Добавление нового email /////////////////////////////////////////////////////////////////////////////////////////
 		// Формат mailbox@hostname, где hostname, например: mail.ru, google.com ...
 		template<typename T,
-			typename = std::enable_if_t<std::is_same_v<T, name_type> || std::is_same_v<T, std::size_t>>>
+			typename = std::enable_if_t<std::is_same_v<T, name_type> || std::is_same_v<T, size_t>>>
 		bool add_email(const T& value, const email_address_type& email_address)
 		{
 			const auto& [mailbox, hostname] = email_address.get();
@@ -71,10 +75,17 @@ namespace phone
 			else
 				return exec("add_email_by_id", std::to_string(value), mailbox, hostname);
 		}
-
-		bool del_contact(std::size_t person_id);
-		bool del_phone(std::size_t phone_number_id);
-		bool del_email(std::size_t email_id);
+		
+		// Удаление ////////////////////////////////////////////////////////////////////////////////////////////////////////
+		bool del_contact(size_t person_id);
+		bool del_phone(size_t phone_number_id);
+		bool del_email(size_t email_id);
+		
+		// Изменение ///////////////////////////////////////////////////////////////////////////////////////////////////////
+		bool mod_forename(size_t person_id, const string& forename);
+		bool mod_surname(size_t person_id, const string& surname);
+		bool mod_phone(size_t phone_number_id, const phone_number_type& phone_number);
+		bool mod_email(size_t email_id, const email_address_type& email_address);
 
 		template<Is_field_data_types ... Args>
 		pqxx::internal::result_iteration<Args ...> get(const std::string& query)
@@ -84,7 +95,7 @@ namespace phone
 		}
 
 	private:
-		void create_structure(const std::string& query);
+		void create_structure(const string& query);
 		void create_structure();
 
 		template<Is_field_data_types ... Args>

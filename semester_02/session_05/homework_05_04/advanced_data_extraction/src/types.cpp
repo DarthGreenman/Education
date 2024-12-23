@@ -41,7 +41,9 @@ namespace my
 	}
 
 	// class email_address //////////////////////////////////////////////////////////////////////////////////////////////////
-	email_address::email_address(const std::string& address)
+	using string = typename std::string;
+
+	email_address::email_address(const string& address)
 	{
 		const auto parts = my::split(address, ascii::at_sign);
 		if (parts.size() != 2ull)
@@ -60,12 +62,23 @@ namespace my
 		address_.first = parts[mailbox]; address_.second = parts[hostname];
 	}
 	
-	std::pair<std::string, std::string> email_address::get() const
+	std::pair<string, string> email_address::get() const
 	{
 		return address_;
 	}
 
-	void email_address::check(const std::vector<std::string>& parts) const
+	bool email_address::is_email_address(const string& address)
+	{
+		try {
+			email_address{ address };
+		}
+		catch (...) {
+			return false;
+		}
+		return true;
+	}
+
+	void email_address::check(const std::vector<string>& parts) const
 	{
 		for (auto param = beg_params(); param < end_params(); ++param)
 		{
@@ -78,7 +91,7 @@ namespace my
 		}
 	}
 
-	void email_address::check(const std::vector<std::string>& parts, params param) const
+	void email_address::check(const std::vector<string>& parts, params param) const
 	{
 		using namespace std;
 		using namespace my::ascii;
@@ -102,7 +115,9 @@ namespace my
 	}
 
 	// class phone_number //////////////////////////////////////////////////////////////////////////////////////////////////
-	phone_number::phone_number(const std::string& number)
+	using string = typename std::string;
+	
+	phone_number::phone_number(const string& number)
 	{
 		const auto normalized_number = normalization(number); // Приводим к нормализованному виду
 		
@@ -114,7 +129,7 @@ namespace my
 		}
 
 		using namespace std;
-		const vector<std::size_t> size_codes{ size_codes::country, size_codes::zone, size_codes::node, size_codes::number };
+		const vector<size_t> size_codes{ size_codes::country, size_codes::zone, size_codes::node, size_codes::number };
 		codes_.reserve(size_codes.size());
 
 		auto pos = 0ull;
@@ -133,12 +148,24 @@ namespace my
 		return std::string{ codes_[0] + codes_[1] + codes_[2] + codes_[3] };
 	}
 
-	std::tuple<std::string, std::string, std::string, std::string> phone_number::get() const
+	std::tuple<string, string, string, string> phone_number::get() const
 	{
 		return std::make_tuple(codes_[0], codes_[1], codes_[2], codes_[3]);
 	}
 
-	std::string phone_number::normalization(const std::string& number) const
+	bool phone_number::is_phone_number(const string& number)
+	{
+
+		try {
+			phone_number{ number };
+		}
+		catch (...) {
+			return false;
+		}
+		return true;;
+	}
+
+	std::string phone_number::normalization(const string& number) const
 	{
 		using namespace std;
 		using namespace ascii;
@@ -152,7 +179,7 @@ namespace my
 		
 		return normalized_number;
 	}
-	void phone_number::check(const std::string& normalized_number) const
+	void phone_number::check(const string& normalized_number) const
 	{
 		// Проверяем длину номера, должен быть 12 символов: +19792195004
 		using namespace std;

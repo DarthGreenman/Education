@@ -38,10 +38,18 @@ namespace phone
 		cout << "\nУдалить номер телефона      " << '5';
 		cout << "\nДобавить email              " << '6';
 		cout << "\nУдалить email               " << '7';
+		cout << "\nИзменить имя                " << '8';
+		cout << "\nИзменить фамилию            " << '9';
+		cout << "\nИзменить номер телефона     " << "10";
+		cout << "\nИзменить email              " << "11";
 		cout << "\nВыход                       " << '0';
 	}
 
+	using size_t = typename std::size_t;
+	using string = typename std::string;
 	using user_message = typename simple_db_viewer::user_message;
+	using phone_number_type = typename phone_book::phone_number_type;
+	using email_address_type = typename phone_book::email_address_type;
 
 	simple_db_viewer::simple_db_viewer(phone_book&& contacts) :
 		contacts_{ std::move(contacts) } {}
@@ -62,6 +70,10 @@ namespace phone
 				um == UM_DEL_PHONE ? "UM_DEL_PHONE" :
 				um == UM_ADD_EMAIL ? "UM_ADD_EMAIL" :
 				um == UM_DEL_EMAIL ? "UM_DEL_EMAIL" :
+				um == UM_MOD_FORENAME ? "UM_MOD_FORENAME" :
+				um == UM_MOD_SURNAME ? "UM_MOD_SURNAME" :
+				um == UM_MOD_PHONE ? "UM_MOD_PHONE" :
+				um == UM_MOD_EMAIL ? "UM_MOD_EMAIL" :
 				"UNKNOWN_CAUSE"
 			};
 
@@ -100,8 +112,10 @@ namespace phone
 			return make_pair(contacts_.add_contact(name), UM_ADD_CONTACT);
 		}
 		case UM_DEL_CONTACT:
-			return make_pair(contacts_.del_contact(get_input_value<size_t>("Введите ID контакта: ")),
-				UM_DEL_CONTACT);
+		{
+			const auto person_id = get_input_value<size_t>("Введите ID контакта: ");
+			return make_pair(contacts_.del_contact(person_id), UM_DEL_CONTACT);
+		}
 		case UM_QUIT:
 			return make_pair(true, UM_QUIT);
 		default:
@@ -120,17 +134,47 @@ namespace phone
 		switch (get_message(show_submenu))
 		{
 		case UM_ADD_PHONE:
-			return make_pair(get_phone_number(person_id, "Номер телефона: "), 
-				UM_ADD_PHONE);
+		{
+			const auto phone_number = get_phone("Номер телефона: ");
+			return make_pair(contacts_.add_phone(person_id, phone_number), UM_ADD_PHONE);
+		}
 		case UM_DEL_PHONE:
-			return make_pair(contacts_.del_phone(get_input_value<size_t>("Введите ID телефона: ")), 
-				UM_DEL_PHONE);
+		{
+			const auto phone_number_id = get_input_value<size_t>("Введите ID телефона: ");
+			return make_pair(contacts_.del_phone(phone_number_id), UM_DEL_PHONE);
+		}
 		case UM_ADD_EMAIL:
-			return make_pair(get_email_address(person_id, "Email: "), 
-				UM_ADD_EMAIL);
+		{
+			const auto email = get_email("Email: ");
+			return make_pair(contacts_.add_email(person_id, email), UM_ADD_EMAIL);
+		}
 		case UM_DEL_EMAIL:
-			return make_pair(contacts_.del_email(get_input_value<size_t>("Введите ID email: ")),
-				UM_DEL_EMAIL);
+		{
+			const auto email_id = get_input_value<size_t>("Введите ID email: ");
+			return make_pair(contacts_.del_email(email_id), UM_DEL_EMAIL);
+		}
+		case UM_MOD_FORENAME:
+		{
+			const auto new_forename = get_input_value("Новое имя: ");
+			return make_pair(contacts_.mod_forename(person_id, new_forename), UM_MOD_FORENAME);
+		}
+		case UM_MOD_SURNAME:
+		{
+			const auto new_surname = get_input_value("Новая фамилия: ");
+			return make_pair(contacts_.mod_surname(person_id, new_surname), UM_MOD_SURNAME);
+		}
+		case UM_MOD_PHONE:
+		{
+			const auto phone_number_id = get_input_value<size_t>("Введите ID телефона: ");
+			const auto new_phone_number = get_phone("Новый номер: ");
+			return make_pair(contacts_.mod_phone(phone_number_id, new_phone_number), UM_MOD_PHONE);
+		}
+		case UM_MOD_EMAIL:
+		{
+			const auto email_id = get_input_value<size_t>("Введите ID email: ");
+			const auto new_email = get_email("Новый email: ");
+			return make_pair(contacts_.mod_email(email_id, new_email), UM_MOD_EMAIL);
+		}
 		case UM_QUIT:
 			return make_pair(true, UM_QUIT);
 		default:
@@ -163,7 +207,7 @@ namespace phone
 		for_each(cbegin(persons), cend(persons), print);
 	}
 
-	void simple_db_viewer::view(std::size_t person_id)
+	void simple_db_viewer::view(size_t person_id)
 	{
 		// Напечатать данные персоны
 		using namespace std;
@@ -208,7 +252,7 @@ namespace phone
 		cout << '\n';
 	}
 
-	void simple_db_viewer::view(const const pqxx::internal::result_iteration<std::size_t, std::size_t, std::string>& recordset)
+	void simple_db_viewer::view(const pqxx::internal::result_iteration<size_t, size_t, string>& recordset)
 	{
 		using namespace std;
 		for_each(cbegin(recordset), cend(recordset),
@@ -228,25 +272,26 @@ namespace phone
 			);
 	}
 
-	bool simple_db_viewer::get_phone_number(std::size_t person_id, const std::string& invitation) 
+	phone_book::phone_number_type simple_db_viewer::get_phone(const string& invitation) const
 		try
 	{
-		return contacts_.add_phone(person_id, my::get_input_value(invitation));
+		return my::get_input_value(invitation);
 	}
 	catch (...)
 	{
 		std::cout << "Введите одиннадцатизначный номер в формате +ХХХХХХХХХХХ";
-		return get_phone_number(person_id, ": ");
+		return get_phone(": ");
 	}
 
-	bool simple_db_viewer::get_email_address(std::size_t person_id, const std::string& invitation)
+	phone_book::email_address_type simple_db_viewer::get_email(const string& invitation) const
 		try
 	{
-		return contacts_.add_email(person_id, my::get_input_value(invitation));
+		return my::get_input_value(invitation);
 	}
 	catch (...)
 	{
 		std::cout << "Введите адрес эл. почты в формате mailbox@hostname";
-		return get_email_address(person_id, ": ");
+		return get_email(": ");
 	}
+
 }

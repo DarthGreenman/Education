@@ -13,6 +13,10 @@ namespace phone
 	class simple_db_viewer
 	{
 	public:
+		using size_t = typename std::size_t;
+		using string = typename std::string;
+		using phone_number_type = typename phone_book::phone_number_type;
+		using email_address_type = typename phone_book::email_address_type;
 
 		enum user_message { 
 			UM_QUIT = 0, 
@@ -23,6 +27,10 @@ namespace phone
 			UM_DEL_PHONE = 5,
 			UM_ADD_EMAIL = 6,
 			UM_DEL_EMAIL = 7,
+			UM_MOD_FORENAME = 8,
+			UM_MOD_SURNAME = 9,
+			UM_MOD_PHONE = 10,
+			UM_MOD_EMAIL = 11,
 			UM_REPEAT = 99
 		};
 
@@ -42,13 +50,13 @@ namespace phone
 		std::pair<bool, user_message> work(std::size_t person_id);
 		
 		void view();
-		void view(std::size_t person_id);
-		void view(const pqxx::internal::result_iteration<std::size_t, std::size_t, std::string>& recordset);
+		void view(size_t person_id);
+		void view(const pqxx::internal::result_iteration<size_t, size_t, string>& recordset);
 		
 		user_message get_message(void(*show_menu)());		
 		
-		bool get_phone_number(std::size_t person_id, const std::string& invitation);
-		bool get_email_address(std::size_t person_id, const std::string& invitation);
+		phone_number_type get_phone(const string& invitation) const;
+		email_address_type get_email(const string& invitation) const;
 
 	private:
 		phone_book contacts_;
