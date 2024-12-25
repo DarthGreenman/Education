@@ -7,6 +7,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace phone
 {
@@ -35,7 +36,7 @@ namespace phone
 		};
 
 		simple_db_viewer() = default;
-		simple_db_viewer(phone_book&& contacts);
+		explicit simple_db_viewer(phone_book&& contacts);
 		simple_db_viewer(const simple_db_viewer&) = delete;
 		simple_db_viewer(simple_db_viewer&&) = delete;
 		~simple_db_viewer() = default;
@@ -53,8 +54,7 @@ namespace phone
 		void view(size_t person_id);
 		void view(const pqxx::internal::result_iteration<size_t, size_t, string>& recordset);
 		
-		user_message get_message(void(*show_menu)());		
-		
+		user_message get_message(void(*show_menu)()) const;		
 		phone_number_type get_phone(const string& invitation) const;
 		email_address_type get_email(const string& invitation) const;
 

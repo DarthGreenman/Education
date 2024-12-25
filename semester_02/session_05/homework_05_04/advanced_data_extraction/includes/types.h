@@ -34,7 +34,7 @@ namespace my
 		using string = typename std::string;
 
 		email_address() = default;
-		email_address(const string& address);
+		explicit email_address(const string& address);
 		email_address(const email_address&) = default;
 		email_address(email_address&&) = default;
 		~email_address() = default;
@@ -59,7 +59,7 @@ namespace my
 		using string = typename std::string;
 
 		phone_number() = default;
-		phone_number(const string& number);
+		explicit phone_number(const string& number);
 		phone_number(const phone_number&) = default;
 		phone_number(phone_number&&) = default;
 		~phone_number() = default;

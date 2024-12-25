@@ -45,6 +45,8 @@ namespace phone
 		connection_.prepare("mod_surname", "UPDATE subscriber SET surname = $1 WHERE id = $2");
 		connection_.prepare("mod_phone", "UPDATE phone_numbers SET number = $1 WHERE id = $2");
 		connection_.prepare("mod_email", "UPDATE email_address SET mailbox = $1, hostname = $2 WHERE id = $3");
+
+		connection_.prepare("show_all", "SELECT id, CONCAT(surname, ' ', forename) AS name FROM subscriber ORDER BY name");
 	}
 
 	void phone_book::loading_data(const std::vector<contact>& persons)

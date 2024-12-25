@@ -16,6 +16,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 
 namespace phone
@@ -264,7 +265,7 @@ namespace phone
 		);
 	}
 
-	user_message simple_db_viewer::get_message(void(*show_menu)())
+	user_message simple_db_viewer::get_message(void(*show_menu)()) const
 	{
 		show_menu();
 		return static_cast<user_message>(
@@ -275,7 +276,8 @@ namespace phone
 	phone_book::phone_number_type simple_db_viewer::get_phone(const string& invitation) const
 		try
 	{
-		return my::get_input_value(invitation);
+		const auto value = my::get_input_value(invitation);
+		return phone_number_type{ value };
 	}
 	catch (...)
 	{
@@ -286,12 +288,12 @@ namespace phone
 	phone_book::email_address_type simple_db_viewer::get_email(const string& invitation) const
 		try
 	{
-		return my::get_input_value(invitation);
+		const auto value = my::get_input_value(invitation);
+		return email_address_type{ value };
 	}
 	catch (...)
 	{
 		std::cout << "Введите адрес эл. почты в формате mailbox@hostname";
 		return get_email(": ");
 	}
-
 }

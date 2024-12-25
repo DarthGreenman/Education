@@ -28,7 +28,7 @@ namespace phone
 		using phone_number_type = typename contact::phone_number_type;
 		
 		phone_book() = delete;
-		phone_book(const string& connection_string);
+		explicit phone_book(const string& connection_string);
 
 		phone_book(const phone_book&) = delete;
 		phone_book(phone_book&&) = default;
