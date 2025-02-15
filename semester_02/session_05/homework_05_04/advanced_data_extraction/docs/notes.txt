@@ -1,0 +1,17 @@
+	bool phone_book::contact_already_exists(const name_type& name)
+	{
+		pqxx::work wk{ connection_ };
+		const auto query_result = wk.query<std::size_t>("SELECT id FROM subscriber WHERE forename='" 
+			+ name.forename + "' AND surname='" + name.surname + "';");
+
+		return query_result.begin() == query_result.end() ? false : true;
+	}
+
+
+	return exec("INSERT INTO email_address(subscriber_id, mailbox, hostname) "
+		"VALUES((SELECT id FROM subscriber WHERE forename = '" + value.forename + "' AND "
+		"surname = '" + value.surname + "'), '" + mailbox + "', '" + hostmail + "');");
+				
+	return exec("INSERT INTO email_address(subscriber_id, mailbox, hostname) "
+		"VALUES((SELECT id FROM subscriber WHERE id = '" + std::to_string(value) + "'), '"
+		+ mailbox + "', '" + hostmail + "');");

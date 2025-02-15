@@ -1,0 +1,240 @@
+/*
+			template<typename Command = com::command_mwnd>
+				requires Is_command<Command>
+			auto exec() -> void
+			{
+				for (WM_MESSAGE message{ WM_MESSAGE::M_REPEAT };
+					message != WM_MESSAGE::M_QUIT; )
+				{
+					command<Command>(message);
+					if (message == WM_MESSAGE::C_QUIT)
+						break;
+					dispatch<Command>(message);
+				}
+			}
+			*/
+			auto exec()
+			{
+				for (WM_MESSAGE message{ WM_MESSAGE::M_REPEAT };
+					message != WM_MESSAGE::M_QUIT; )
+				{
+					command<com::command_mwnd>(message);
+					if (message == WM_MESSAGE::M_QUIT)
+						break;
+					dispatch(message);
+				}
+			}
+
+			template<typename Table_type, typename... Tabular_types>
+				requires Is_tabulartypes<Table_type> && (Is_tabulartypes<Tabular_types> && ...)			
+			auto exec()
+			{
+				for (WM_MESSAGE message{ WM_MESSAGE::M_REPEAT };
+					message != WM_MESSAGE::M_QUIT; )
+				{
+					command<com::command_cwnd>(message);
+					if (message == WM_MESSAGE::C_QUIT)
+						break;
+					dispatch<Table_type, Tabular_types...>(message);
+				}
+			}
+
+			template<typename Command>
+				requires Is_command<Command>
+			auto command(WM_MESSAGE& message, const std::string& promt = "\nВведите ID команды: ")
+			{
+				Command::show(_heading);
+				std::cout << promt; std::cin >> message;
+				if (Command::is_correct(message))
+					return;
+				command<Command>(message, promt);
+			}
+
+			
+
+			template<typename Table_type, typename... Tabular_types>
+				requires Is_tabulartypes<Table_type> && (Is_tabulartypes<Tabular_types> && ...)
+			auto dispatch(WM_MESSAGE& message) -> void // Обработчик сообщение главного окна
+			{
+				update<Table_type, Tabular_types...>();
+				switch (message)
+				{
+				case WM_MESSAGE::C_EDIT:
+				{
+					std::cout << "WM_MESSAGE::C_EDIT\n";
+					std::system("pause");
+					break;
+				}
+				case WM_MESSAGE::C_ADD:
+				{
+					std::cout << "WM_MESSAGE::C_ADD\n";
+					std::system("pause");
+					break;
+				}
+				case WM_MESSAGE::C_DEL:
+				{
+					std::cout << "WM_MESSAGE::C_DEL\n";
+					std::system("pause");
+					break;
+				}
+				}
+			}
+
+namespace orm
+{
+	orm::tps::person_name make_person_name();
+	tpsg::date make_date();
+}
+
+			/*
+orm::tps::person_name make_person_name()
+{
+	using namespace std;
+	cout << "Имя:      "; string fn{}; cin >> fn;
+	cout << "Отчество: "; string mn{}; cin >> mn;
+	cout << "Фамилия:  "; string ln{}; cin >> ln;
+	return orm::tps::person_name{ fn, mn, ln };
+}
+
+tpsg::date make_date()
+{
+	using namespace std;
+	cout << "Число: "; tpsg::day d{}; cin >> d;
+	cout << "Месяц: "; tpsg::month m{}; cin >> m;
+	cout << "Год:   "; tpsg::year y{}; cin >> y;
+	return tpsg::date{ d, m, y };
+}
+*/
+
+
+				switch (message)
+				{
+				case EVENT_MESSAGE::MW_BOOKS:
+				{
+					pwnd.first = std::string{ "КНИГИ" };
+					pwnd.second = tps::book::hash();
+					break;
+				}
+				case EVENT_MESSAGE::MW_WRITERS:
+				{
+					pwnd.first = std::string{ "ПИСАТЕЛИ" };
+					pwnd.second = tps::writer::hash();
+					break;
+				}
+				case EVENT_MESSAGE::MW_PUBLISHERS:
+				{
+					pwnd.first = std::string{ "ИЗДАТЕЛЬСТВА" };
+					pwnd.second = tps::publisher::hash();
+					break;
+				}
+				case EVENT_MESSAGE::MW_STORES:
+				{
+					pwnd.first = std::string{ "МАГАЗИНЫ" };
+					pwnd.second = tps::store::hash();
+					break;
+				}
+				case EVENT_MESSAGE::MW_RESERVES:
+				{
+					pwnd.first = std::string{ "ЗАРЕЗЕРВИРОВАНО" };
+					pwnd.second = tps::reserve::hash();
+					break;
+				}
+				case EVENT_MESSAGE::MW_SALES:
+				{
+					pwnd.first = std::string{ "ПРОДАЖИ" };
+					pwnd.second = tps::sale::hash();
+					break;
+				}
+				}
+
+
+//Title of this code
+//g++  4.9.1
+ 
+#include <iostream>
+ 
+ 
+struct example
+{
+    void foo()const { std::cout<<"example::foo\n"; }
+};
+ 
+void free() { std::cout<<"free\n"; }
+ 
+// --- синтаксис объявления шаблоно-указателя-на-функцию-член-класса
+template<class T>
+    using pMethod = void (T::*)()const;
+ 
+// --- синтаксис объявления шаблоно-указателя-на-свободную-функцию
+template<class R>
+    using pFree = R(*)();
+    
+    
+// --- принимает объект
+// порождает указатель-на-функцию-член
+// и запускает его для этого объекта    
+template<class T> void launcher(T& obj )
+{
+    pMethod<T> method = &T::foo;
+    (obj.*method)();
+}
+ 
+int main()
+{
+    std::cout << "Hello, world!\n";
+    
+    example obj;
+ 
+    // --- принимает объект
+    // порождает указатель-на-функцию-член
+    // и запускает его для этого объекта    
+    launcher(obj);
+ 
+    // --- инстанцирование конкретного указателя-на-функцию-член-класса     
+    pMethod<example> method = &example::foo;
+    
+    // --- запуск метода класса по указателю
+    (obj.*method)();
+    
+    // --- тоже самое для свободной функции
+    // указываем тип возвращаемого значения
+    pFree<void> func = &free;
+    func();
+    
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			auto update_ex(handle hwnd) -> void
+			{
+				/*
+				{ tps::book::hash(),      0ull },
+				{ tps::publisher::hash(), 1ull },
+				{ tps::reserve::hash(),   2ull },
+				{ tps::sale::hash(),      3ull },
+				{ tps::store::hash(),     4ull },
+				{ tps::writer::hash(),    5ull }
+				*/
+				using namespace tps;
+				using T = typename driver::Tabulartypes;
+				const auto id = driver::idtype(hwnd);
+				id == 0 ? update<type_at_t<0, T>, type_at_t<5, T>, type_at_t<1, T>>() :
+					id == 1 ? update<type_at_t<1, T>>() :
+					id == 2 ? update<type_at_t<2, T>, type_at_t<0, T>, type_at_t<4, T>>() :
+					id == 3 ? update<type_at_t<3, T>>() :
+					id == 4 ? update<type_at_t<4, T>>() :
+					update<type_at_t<5, T>>();
+			}
+
+			
+			static inline std::unordered_map<handle, std::size_t> _idtype
+			{
+				{ tps::book::hash(),      0ull },
+				{ tps::publisher::hash(), 1ull },
+				{ tps::reserve::hash(),   2ull },
+				{ tps::sale::hash(),      3ull },
+				{ tps::store::hash(),     4ull },
+				{ tps::writer::hash(),    5ull }
+			};
+						////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			auto idtype(handle hwnd) const { return _idtype.at(hwnd); }
