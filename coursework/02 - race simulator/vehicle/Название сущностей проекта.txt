@@ -1,0 +1,12 @@
+Симулятор гонок			Race_simulator
+Гонка, гонки			Race
+Транспортное средство		Vehicle
+Наземное транспортное средство	Vehicle_land
+Воздушное транспортное средство	Vehicle_air
+Верблюд				Camel
+Верблюд быстроход		Camel_fast
+Кентавр				Centaur
+Ботинки-вездеходы		Allterrain_boots
+Ковер-самолет			Flying_carpet
+Орел				Eagle
+Метла				Broom

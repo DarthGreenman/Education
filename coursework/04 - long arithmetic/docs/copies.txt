@@ -1,0 +1,9 @@
+static auto reverse_sign(const value_type& number)
+{
+	value_type signed_number{ number };
+	if (is_negative(signed_number))
+		signed_number = make_signed(signed_number, sign::positive);
+	else
+		signed_number = make_signed(signed_number, sign::negative);
+	return signed_number;
+}
