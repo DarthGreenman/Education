@@ -1,0 +1,54 @@
+﻿/* Shape.h */
+
+/*
+* Базовый класс Shape хранит данные экземляров классов потомков и
+* выполняет все затратные операции (выделение и освобождение памяти,
+* копирование, циклы) при работе с экземплярами.
+*/
+
+#ifndef SHAPE_H
+#define SHAPE_H
+
+#include "Types.h"
+
+#include <vector>
+#include <memory>
+
+namespace geo {
+	enum class Errors : unsigned {
+		no_errors = 0,
+		bad_value, bad_data
+	};
+
+	class Shape {
+	protected:
+		Shape() noexcept;
+		Shape(size_t size);
+		Shape(const std::vector<double>& sides, 
+			const std::vector<double>& angles);
+		Shape(Shape&& movable) noexcept;
+		virtual ~Shape();
+
+		Shape& operator=(Shape&& movable) noexcept;
+		static double get_side(double adjacent_one, double adjacent_two,
+			double angle_between);
+		static double get_angle(const std::vector<double>& sides);
+
+	protected:
+		Shape_info info() const;
+		double perimeter() const;
+
+	private:
+		Errors sides_is_correct(const std::vector<double>& sides) const;
+		Errors angles_is_correct(const std::vector<double>& angles) const;
+		bool is_correct() const;
+		void init_sides(const std::vector<double>& sides);
+		void init_angles(const std::vector<double>& angles);
+		double sum_angles(const std::vector<double>& angles) const;
+
+	private:
+		std::unique_ptr<std::vector<double>> p_sides_{};
+		std::unique_ptr<std::vector<double>> p_angles_{};
+	};
+}
+#endif /* SHAPE_H */

@@ -1,0 +1,27 @@
+# ninja log v5
+12	388	7185552988842392	lib/CMakeFiles/Addressing_someone.dir/Leaver.cpp.obj	6b26bdb726513eba
+9	389	7185552988852401	lib/CMakeFiles/Addressing_someone.dir/Greeter.cpp.obj	465e1316e83dbb11
+405	652	7183069657004220	lib/Addressing_someone.dll	b53e13b94da2344f
+6	708	7185552992022370	homework_02_11_03/CMakeFiles/homework_02_11_03.dir/homework_02_11_03.cpp.obj	9936963df5d0ca20
+389	513	7185552989672396	lib/Addressing_someone.lib	715caf0bf7023843
+746	957	7183069660094218	homework_02_11_03/homework_02_11_03.exe	fde42e40bc55f81a
+9	119	7195249697355855	build.ninja	65798e5befc784fa
+389	513	7185552989672396	Addressing_someone.dll	715caf0bf7023843
+708	819	7185552992752379	homework_02_11_03.exe	f5d09e54c049cde2
+9	16	0	clean	ca20ad35778315c3
+11	682	7195249744375849	lib/CMakeFiles/Addressing_someone.dir/Leaver.cpp.obj	f07803a6d41ce9b8
+7	683	7195249744375849	lib/CMakeFiles/Addressing_someone.dir/Greeter.cpp.obj	a2d894723a0e3c8c
+683	869	7195249745475847	Addressing_someone.dll	715caf0bf7023843
+683	869	7195249745475847	lib/Addressing_someone.lib	715caf0bf7023843
+869	1007	7195249747085841	homework_02_11_03.exe	f5d09e54c049cde2
+19	26	0	clean	8c45b54705a541e8
+7	12	0	clean	8c45b54705a541e8
+5	10	0	clean	8c45b54705a541e8
+10	677	7195897940782928	lib/CMakeFiles/Addressing_someone.dir/Greeter.cpp.obj	a2d894723a0e3c8c
+13	678	7195897940772930	lib/CMakeFiles/Addressing_someone.dir/Leaver.cpp.obj	f07803a6d41ce9b8
+678	817	7195897941652933	Addressing_someone.dll	715caf0bf7023843
+678	817	7195897941652933	lib/Addressing_someone.lib	715caf0bf7023843
+7	1020	7195897944192922	homework_02_11_03/CMakeFiles/homework_02_11_03.dir/homework_02_11_03.cpp.obj	9936963df5d0ca20
+1020	1150	7195897945022922	homework_02_11_03.exe	f5d09e54c049cde2
+11	839	7195898467532933	homework_02_11_03/CMakeFiles/homework_02_11_03.dir/homework_02_11_03.cpp.obj	9936963df5d0ca20
+840	961	7195898468342928	homework_02_11_03.exe	f5d09e54c049cde2

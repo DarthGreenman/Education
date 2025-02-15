@@ -1,0 +1,8 @@
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug/homework_02_11_05/CMakeFiles/homework_02_11_05.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug/homework_02_11_05/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug/homework_02_11_05/CMakeFiles/rebuild_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug/lib/CMakeFiles/Geometric.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug/lib/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_02/homework_02_11/homework_02_11_05/out/build/x64-debug/lib/CMakeFiles/rebuild_cache.dir

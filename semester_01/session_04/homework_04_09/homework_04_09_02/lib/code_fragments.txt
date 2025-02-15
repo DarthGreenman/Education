@@ -1,0 +1,55 @@
+template<typename T> struct has_typedef_foobar {
+    typedef char yes[4];
+    typedef char no[2];
+
+    template<typename C>
+    static yes& test(typename C::foobar*);
+    
+    template<typename T>
+    static no& test(...);
+    
+    static const bool value = sizeof(test<T>(0)) == sizeof(yes);
+};
+
+struct foo { typedef float foobar; };
+struct bar { typedef float foobar; };
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Пример стандартного определителя
+//template<typename T> struct Is_reference : false_type {};
+//template<typename T> struct Is_reference<T&> : true_type {};
+//template<typename T> struct Is_reference<T&&> : true_type {};
+
+template<typename T> struct Remove_reference { using type = T; };
+template<typename T> struct Remove_reference<T&> { using type = T; };
+template<typename T> struct Remove_reference<T&&> { using type = T; };
+template<typename T>
+using Remove_reference_t = typename Remove_reference<T>::type;
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<bool C, typename T, typename F>
+struct Conditional { using type = T; };
+
+template<typename T, typename F>
+struct Conditional<false, T, F> { using type = F; };
+
+template<bool C, typename T, typename F>
+using Conditional_t = typename Conditional<C, T, F>::type;
+
+template<bool B, typename T = void>
+struct Enable_if { using type = T; };
+
+template<typename T>
+struct Enable_if<false, T> {};
+
+template<bool B, typename T = void>
+using Enable_if_t = typename Enable_if<B, T>::type;
+
+template<std::size_t N>
+auto to_numeric_impl(const std::bitset<N>& Bits, std::size_t Pos, int Numeric = 0) {
+	const auto pos = Pos - 1_z;
+	if (pos == std::numeric_limits<decltype(Pos)>::max())
+		return Numeric;
+	const decltype(Numeric) numeric{ Bits.test(pos) << pos };
+	return to_numeric_impl(Bits, --Pos, Numeric += numeric);
+}

@@ -1,0 +1,11 @@
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/CMakeFiles/rebuild_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/CMakeFiles/homework_04_04_01.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/CMakeFiles/rebuild_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/Catch2_build/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/Catch2_build/CMakeFiles/rebuild_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/Catch2_build/src/CMakeFiles/Catch2.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/Catch2_build/src/CMakeFiles/Catch2WithMain.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/Catch2_build/src/CMakeFiles/edit_cache.dir
+D:/Users/dima_kostyuchenko/Documents/Visual Studio 2022/source/repos/sessions/session_04/homework_04_04/homework_04_04_01/out/build/x64-debug/homework_04_04_01/Catch2_build/src/CMakeFiles/rebuild_cache.dir
