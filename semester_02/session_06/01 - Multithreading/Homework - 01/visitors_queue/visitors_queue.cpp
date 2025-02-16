@@ -4,6 +4,7 @@
 #include "my_localisation.h"
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
@@ -29,9 +30,8 @@ namespace th
 		using visiting_report = typename std::queue<std::tuple<std::string, time_point, time_point>>;
 
 		visitors_queue() = default;
-		explicit visitors_queue(const std::chrono::seconds& call_time,
-			const std::chrono::seconds& wait_time) :
-			_duration{ std::make_pair(call_time, wait_time) } {
+		explicit visitors_queue(std::chrono::seconds call_time, std::chrono::seconds wait_time) :
+			_duration{ _make_duration(call_time, wait_time) } {
 		}
 		visitors_queue(const visitors_queue&) = default;
 		visitors_queue(visitors_queue&&) = default;
@@ -61,8 +61,16 @@ namespace th
 		}
 
 	private:
+		auto _make_duration(std::chrono::seconds call_time, std::chrono::seconds wait_time) const 
+			-> decltype(std::make_pair(call_time, wait_time))
+		{
+			assert((wait_time >= (call_time + call_time)) && "The waiting time should be at least twice the call time.");
+			return std::make_pair(call_time, wait_time);
+		}
+
+	private:
 		queue _queue{};
-		std::pair<std::chrono::seconds, std::chrono::seconds> _duration{};
+		const std::pair<std::chrono::seconds, std::chrono::seconds> _duration{};
 	};
 
 	static auto print(visitors_queue::visiting_report&& report,
@@ -101,6 +109,7 @@ int main()
 	using namespace std::literals;
 	const std::chrono::seconds call_time{ 1s };
 	const std::chrono::seconds wait_time{ 2s };
+	visitors_queue vsq{ call_time, wait_time };
 
 	std::jthread wait{ [=]() 
 		{
@@ -114,7 +123,6 @@ int main()
 		}
 	};
 
-	visitors_queue vsq{ call_time, wait_time };
 	void (visitors_queue:: * v_came)(decltype(visitors)&&) = &visitors_queue::came;
 	std::thread producer{ v_came, &vsq, std::move(visitors) };
 	
