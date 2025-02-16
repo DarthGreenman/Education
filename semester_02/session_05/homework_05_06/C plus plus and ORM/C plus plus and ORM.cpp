@@ -34,9 +34,9 @@ int main()
 	{
 		"host=localhost "
 		"port=5432 "
-		"dbname=bookmarket " // record_store bookmarket
+		"dbname=bookmarket "
 		"user=postgres "
-		"password=489aMARy" // DarthGreenman1969 489aMARy
+		"password=489aMARy"
 	};
 
 	try
@@ -132,6 +132,3 @@ int main()
 	std::system("pause");
 	return 0;
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или     меню "Отладка" > "Запустить отладку"
