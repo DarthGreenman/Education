@@ -24,7 +24,7 @@
 #include <Wt/Dbo/Exception.h>
 #include <Wt/Dbo/ptr.h>
 
-#define NFIRST_LAUNCH
+#define FIRST_LAUNCH
 
 int main()
 {
