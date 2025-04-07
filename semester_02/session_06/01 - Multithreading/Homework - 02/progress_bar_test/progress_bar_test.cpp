@@ -21,21 +21,21 @@ int main()
 	using namespace devices::sensors;
 	const multiple_indicators<progress_bar> sensors
 	{
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178)}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::green}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::yellow}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::blue}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::cyan}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::magenta}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::red}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::dark_gray}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_gray}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_green}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_yellow}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_blue}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_cyan}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_magenta}}),
-		std::move(progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_red}})
+		progress_bar{ progress_bar_param{ static_cast<char>(178)}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::green}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::yellow}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::blue}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::cyan}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::magenta}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::red}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::dark_gray}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_gray}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_green}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_yellow}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_blue}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_cyan}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_magenta}},
+		progress_bar{ progress_bar_param{ static_cast<char>(178), csi::foreground_color::light_red}}
 	};
 
 	auto start = [&sensors](std::chrono::milliseconds tact, std::size_t pos)
