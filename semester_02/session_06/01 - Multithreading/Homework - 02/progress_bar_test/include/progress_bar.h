@@ -30,7 +30,7 @@ namespace devices
 				std::lock_guard<std::mutex> lock{ _mutex };
 				_param = param;
 			}
-			progress_bar(progress_bar&& movable) noexcept : progress_bar()
+			explicit progress_bar(progress_bar&& movable) noexcept : progress_bar()
 			{
 				std::swap(_param, movable._param);
 			}
