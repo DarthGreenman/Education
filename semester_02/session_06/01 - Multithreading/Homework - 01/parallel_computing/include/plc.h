@@ -91,6 +91,7 @@ namespace plc
 				get<0>(*b), /* ~ b.get().first_c - first_c */
 				ref(c)));
 		}
+		// Каждый поток выполняет одну и ту же задачу, но с разными данными - распараллеливание по данным
 		for_each(begin(tasks), end(tasks),
 			[](thread& task) { if (task.joinable()) task.join(); });
 
