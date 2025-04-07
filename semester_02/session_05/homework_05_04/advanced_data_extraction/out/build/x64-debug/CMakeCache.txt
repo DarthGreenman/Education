@@ -483,7 +483,7 @@ CPACK_SOURCE_7Z-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CPACK_SOURCE_ZIP
 CPACK_SOURCE_ZIP-ADVANCED:INTERNAL=1
 //Details about finding PostgreSQL
-FIND_PACKAGE_MESSAGE_DETAILS_PostgreSQL:INTERNAL=[C:/Program Files/PostgreSQL/17/lib/libpq.lib][C:/Program Files/PostgreSQL/17/include][c ][v17.0()]
+FIND_PACKAGE_MESSAGE_DETAILS_PostgreSQL:INTERNAL=[C:/Program Files/PostgreSQL/17/lib/libpq.lib][C:/Program Files/PostgreSQL/17/include][c ][v17.2()]
 //Result of TRY_COMPILE
 PQXX_HAVE_CHARCONV_FLOAT:INTERNAL=FALSE
 //Result of TRY_COMPILE
