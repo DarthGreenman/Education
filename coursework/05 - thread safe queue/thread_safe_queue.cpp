@@ -75,7 +75,7 @@ int main()
 	data_one.reserve(num_iter * num_func);
 	data_two.reserve(num_iter * num_func);
 	for (typename std::vector<value_type>::size_type count{}; count < num_iter;
-		++count, std::this_thread::sleep_for(300ms))
+		++count, std::this_thread::sleep_for(1s))
 	{
 		auto f1 = prepare.submit(func_prepare{ test::add<value_type> }, 0, count);
 		data_one.push_back(f1.get());

@@ -57,8 +57,8 @@ namespace multitask
 		}
 
 	private:
-		mutable std::mutex _mutex{}; // copy constructor is deleted, unsigned __int64
-		std::condition_variable _wake{}; // copy constructor is deleted, unsigned __int64
+		mutable std::mutex _mutex{}; // copy constructor is deleted
+		std::condition_variable _wake{}; // copy constructor is deleted
 		std::queue<value_type> _queue{};
 
 	public:
@@ -71,15 +71,3 @@ namespace multitask
 } // namespace multitask
 
 #endif // !SAFE_QUEUE_H_IN_MY_PROJECT
-
-/*
-decltype(auto) front()
-{
-	std::lock_guard<std::mutex> lk{ _mutex };
-	if (_queue.empty())
-		return std::unique_ptr<value_type>{};
-	auto value = std::make_unique<value_type>(std::move(_queue.front()));
-	_queue.pop();
-	return value;
-}
-*/
