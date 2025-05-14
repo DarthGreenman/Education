@@ -23,7 +23,7 @@ namespace multitask
 				std::for_each(std::begin(*p), std::end(*p),
 					[](typename std::vector<std::thread>::value_type& v)
 					{
-						if (v.joinable()) v.join();
+						if (v.joinable()) v.detach();
 					}
 				);
 			}
@@ -63,7 +63,7 @@ namespace multitask
 		{
 			while (!_complete)
 			{
-				if (typename decltype(_tasks)::unique_pointer task{ _tasks.front() };
+				if (typename decltype(_tasks)::shared_pointer task{ _tasks.front() };
 					task)
 				{
 					typename decltype(_tasks)::value_type exec{ std::move(*task) };

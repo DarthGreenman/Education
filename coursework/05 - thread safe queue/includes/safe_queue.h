@@ -30,30 +30,23 @@ namespace multitask
 	{
 	public:
 		using value_type = T;
-		using unique_pointer = typename std::unique_ptr<T>;
+		using shared_pointer = typename std::shared_ptr<T>;
 
 		safe_queue() = default;
 
 		~safe_queue() = default;
 
-		void push(const value_type& value)
-		{
-			std::lock_guard<std::mutex> lk{ _mutex };
-			_queue.push(value);
-			_wake.notify_all();
-		}
 		void push(value_type&& value)
 		{
 			std::lock_guard<std::mutex> lk{ _mutex };
 			_queue.push(std::move(value));
-			_wake.notify_all();
+			_wake.notify_one();
 		}
 		decltype(auto) front()
 		{
-			std::lock_guard<std::mutex> lk{ _mutex };
-			if (_queue.empty())
-				return std::unique_ptr<value_type>{};
-			auto value = std::make_unique<value_type>(std::move(_queue.front()));
+			std::unique_lock<std::mutex> lk{ _mutex };
+			_wake.wait(lk, [this] { return !_queue.empty(); });
+			auto value = std::make_shared<value_type>(std::move(_queue.front()));
 			_queue.pop();
 			return value;
 		}
@@ -79,3 +72,14 @@ namespace multitask
 
 #endif // !SAFE_QUEUE_H_IN_MY_PROJECT
 
+/*
+decltype(auto) front()
+{
+	std::lock_guard<std::mutex> lk{ _mutex };
+	if (_queue.empty())
+		return std::unique_ptr<value_type>{};
+	auto value = std::make_unique<value_type>(std::move(_queue.front()));
+	_queue.pop();
+	return value;
+}
+*/
