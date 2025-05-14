@@ -3,6 +3,7 @@
 #ifndef FOR_EACH_H
 #define FOR_EACH_H
 
+#include <algorithm>
 #include <future>
 
 namespace my

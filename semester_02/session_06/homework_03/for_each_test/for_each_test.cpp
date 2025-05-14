@@ -7,7 +7,6 @@
 #include <chrono>
 #include <concepts>
 #include <cstdlib>
-#include <execution>
 #include <initializer_list>
 #include <iomanip>
 #include <iosfwd>
@@ -17,7 +16,6 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include <cassert>
 
 //#define DEBUG
 
