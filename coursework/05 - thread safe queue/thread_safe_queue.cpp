@@ -107,6 +107,7 @@ int main()
 	using func_accumulate = std::function<test::acc<value_type>(const_iter, const_iter, test::acc<value_type>)>;
 
 	multitask::thread_pool<typename func_accumulate::result_type> accumulate{};
+	
 	auto s1 = accumulate.submit(func_accumulate{ std::for_each<const_iter, test::acc<value_type>> },
 		std::cbegin(data_one), std::cend(data_one), test::acc<value_type>{});
 	auto s2 = accumulate.submit(func_accumulate{ std::for_each<const_iter, test::acc<value_type>> },
