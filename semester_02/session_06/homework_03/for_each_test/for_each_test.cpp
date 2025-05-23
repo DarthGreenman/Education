@@ -56,35 +56,52 @@ int main()
 	}
 
 	{
-		vector<tuple<size_t, int, chrono::duration<double, milli>, chrono::duration<double, milli>>> data{};
+		vector<
+			tuple<
+			size_t, int, int, int, 
+			chrono::duration<double, milli>, 
+			chrono::duration<double, milli>,
+			chrono::duration<double, milli>
+			>
+		> data{};
 
 		for (const auto& count : initializer_list<size_t>
-			{ 1'000,10'000,100'000,1'000'000,10'000'000,100'000'000,1'000'000'000 })
+			{ 1'000,10'000,100'000,1'000'000, 10'000'000, 100'000'000, 1'000'000'000 })
 		{
 			const auto vec = utl::make_vector_sequential_values(count, 0);
 			using value_type = typename decay_t<decltype(vec)>::value_type;
 
-			std::pair<value_type, value_type> sum{};
-			auto add = [&sum](value_type value) { sum.first += value; };
+			std::tuple<value_type, value_type, value_type> sum{};
+			auto add = [&sum](value_type value) { std::get<0>(sum) += value; };
 
 			auto ts = utl::get<decltype(add)>(std::for_each,
 				cbegin(vec), cend(vec), add
 			);
-			auto tm = utl::get<void>(my::for_each,
-				cbegin(vec), cend(vec), [&sum](value_type value) { sum.second += value; }
+			auto tm = utl::get<void>(my::for_each_m,
+				cbegin(vec), cend(vec), [&sum](value_type value) { std::get<1>(sum) += value; }
+			);
+			auto ta = utl::get<void>(my::for_each,
+				cbegin(vec), cend(vec), [&sum](value_type value) { std::get<2>(sum) += value; }
 			);
 											
-			data.emplace_back(count, sum.second - sum.first, std::move(ts), std::move(tm));
+			data.emplace_back(count, 
+				std::get<0>(sum), std::get<1>(sum), std::get<2>(sum), 
+				std::move(ts), std::move(tm), std::move(ta));
 		}
 
+		constexpr auto width = 15u;
 		cout << setiosflags(ios::left);
 		cout << "\n\n\nDemonstration of the speed of execution of the operation of summing elements of a sequence:\n\n";
-		cout << setw(20) << "Number of elem." << setw(20) << "Checksum" << setw(20) << "Time std" << setw(20) << "Time my" << "Time my / Time std\n";	
+		cout << setw(width) << "Number" 
+			<< setw(width) << "Sum std" << setw(width) << "Sum m" << setw(width) << "Suma" 
+			<< setw(width) << "Time std" << setw(width) << "Time m" << "Time a\n";
 				
 		std::for_each(std::cbegin(data), std::cend(data), [](typename std::decay_t<decltype(data)>::value_type value)
 			{
-				auto&& [count, check, ts, tm] = value;
-				cout << setw(20) << count << setw(20) << check << setw(20) << ts << setw(20) << tm << tm / ts << '\n';
+				auto&& [count, sum1, sum2, sum3, ts, tm, ta] = value;
+				cout << setw(width) << count
+					<< setw(width) << sum1 << setw(width) << sum2 << setw(width) << sum3
+					<< setw(width) << ts << setw(width) << tm << ta << '\n';
 			}
 		);
 	}

@@ -3,8 +3,12 @@
 #ifndef FOR_EACH_H
 #define FOR_EACH_H
 
+#include "thread_pool.h"
+
 #include <algorithm>
+#include <functional>
 #include <future>
+#include <iterator>
 
 namespace my
 {
@@ -20,9 +24,26 @@ namespace my
 		}
 		else {
 			const auto median = first + distance / 2;
-			auto fa = std::async(std::launch::async, my::for_each<ForwardIter, UnaryFunc>, first, median, func);
-			auto fd = std::async(std::launch::deferred, my::for_each<ForwardIter, UnaryFunc>, median, last, func);
-			fa.get(); fd.get();
+			auto fl = std::async(std::launch::async, my::for_each<ForwardIter, UnaryFunc>, first, median, func);
+			auto fr = std::async(std::launch::deferred, my::for_each<ForwardIter, UnaryFunc>, median, last, func);
+			fl.get(); fr.get();
+		}
+	}
+
+	template<std::forward_iterator ForwardIter, typename UnaryFunc>
+	auto for_each_m(ForwardIter first, ForwardIter last, UnaryFunc func) -> void
+	{		
+		if (const auto distance = std::distance(first, last),
+			max_number_elem = static_cast<decltype(std::distance(first, last))>(10'000);
+			distance < max_number_elem)
+		{
+			std::for_each(first, last, func);
+			return;
+		}
+		else {
+			const auto median = first + distance / 2;
+			for_each_m(first, median, func);
+			for_each_m(median, last, func);
 		}
 	}
 } // namespace my
