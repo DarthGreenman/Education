@@ -1,0 +1,81 @@
+﻿// sql_query_builder_test.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+//
+
+#include "includes/date.h"
+#include "includes/sql_expr_base.h"
+#include "includes/sql_expr_requi.h"
+#include "includes/sql_expr_where.h"
+#include "includes/sql_query_builder.h"
+#include <algorithm>
+#include <cstdlib>
+#include <exception>
+#include <iostream>
+#include <iterator>
+#include <string>
+#include <utility>
+#include <vector>
+
+int main()
+{
+	using namespace sql::query;
+	using namespace tpsg;
+	try
+	{
+		std::vector<patterns::generative::sql_select_query> querys{};
+		querys.reserve(10);
+
+		decltype(querys)::value_type query_a{ "it_specialists" };
+		/// Добавляем по одному столбцу
+		query_a.add_colum("firstname", "nick").add_colum("lastname");
+		/// Добавляем одновременно несколько столбцов
+		using colum = sql::query::expr_requi;
+		query_a.add_colum(
+			colum{ "date_of_birth", "birth" },
+			colum{ "employee_position", "level" },
+			colum{ "mailbox" }
+		);
+		/// Добавляем по одному условию
+		query_a.add_where("birth", sql::oper::less,
+			tpsg::date{ day{20}, month{month::may()}, year{2000} }, sql::logic::AND)
+			.add_where("firstname", sql::oper::equal, "Nemo", sql::logic::AND)
+			.add_where("pos", sql::oper::greater_or_equal, 1234);
+
+		decltype(querys)::value_type query_b{ "sales_department_staff", "sales" };
+
+		/// Добавляем одновременно несколько столбцов
+		using colum = sql::query::expr_requi;
+		query_b.add_colum(
+			colum{ "firstname" },
+			colum{ "lastname" },
+			colum{ "date_of_birth", "birth" },
+			colum{ "employee_position", "pos" },
+			colum{ "mailbox" },
+			colum{ "postal_address", "address" }
+		);
+		/// Добавляем одновременно несколько условий
+		using where = sql::query::expr_where;
+		tpsg::date death_line{ day{22}, month{month::may()}, year{2025} };
+		query_b.add_where(
+			where{ "birth", sql::oper::less, std::move(death_line), sql::logic::OR },
+			where{ "birth", sql::oper::unequal, std::move(death_line), sql::logic::OR },
+			where{ "pos", sql::oper::greater_or_equal, 12 }
+		);
+
+		querys.push_back((std::move(query_a)));
+		querys.push_back((std::move(query_b)));
+
+		using elem_type =
+			typename std::iterator_traits<decltype(std::begin(querys))>::value_type;
+		std::for_each(std::begin(querys), std::end(querys),
+			[](elem_type& query)
+			{
+				std::cout << query.build() << "\n\n";
+			}
+		);
+	}
+	catch (const std::exception& err) { std::cout << err.what(); }
+	std::cout << '\n';
+
+	std::system("pause");
+	return 0;
+}
