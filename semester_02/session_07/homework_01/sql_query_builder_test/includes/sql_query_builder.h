@@ -5,6 +5,7 @@
 #include "sql_expr_base.h"
 #include "sql_expr_requi.h"
 #include "sql_expr_where.h" 
+#include <algorithm>
 #include <functional>
 #include <iterator>
 #include <string>
@@ -37,18 +38,26 @@ namespace patterns
 			/// SELECT * FROM TABLE_NAME;
 			explicit sql_select_query(const char* table_name)
 			{
-				decltype(_query.from) table{ table_name };
-				_query.from = std::move(table);
+				decltype(_struct.from) table{ table_name };
+				_struct.from = std::move(table);
 			}
 
 			/// SELECT * FROM TABLE_NAME AS NICKNAME;
 			explicit sql_select_query(const char* table_name, const char* nickname)
 			{
-				decltype(_query.from) table{ table_name, nickname };
-				_query.from = std::move(table);
+				decltype(_struct.from) table{ table_name, nickname };
+				_struct.from = std::move(table);
 			}
 			
-			sql_select_query(const sql_select_query&) = delete;
+			sql_select_query(const sql_select_query& query)
+			{
+				std::copy(std::cbegin(query._struct.select),
+					std::end(query._struct.select), std::back_inserter(_struct.select));
+	//			_struct.from = query._struct.from;
+				std::copy(std::cbegin(query._struct.where),
+					std::end(query._struct.where), std::back_inserter(_struct.where));
+
+			}
 			sql_select_query(sql_select_query&& query) noexcept : sql_select_query()
 			{
 				using std::swap; // Делаем возможным выроб лучшего кандидата
@@ -63,13 +72,13 @@ namespace patterns
 				typename = std::enable_if_t<(std::is_same_v<Args, sql::query::expr_requi> && ...)>>
 				decltype(auto) add_colum(Args&&... args)
 			{
-				(_query.select.emplace_back(std::forward<Args>(args)), ...);
+				(_struct.select.emplace_back(std::forward<Args>(args)), ...);
 				return *this;
 			}
 			template<typename... Args>
 			decltype(auto) add_colum(const char* arg, Args&&... args)
 			{
-				_query.select.emplace_back(arg, std::forward<Args>(args)...);
+				_struct.select.emplace_back(arg, std::forward<Args>(args)...);
 				return *this;
 			}
 			
@@ -80,13 +89,13 @@ namespace patterns
 				typename = std::enable_if_t<(std::is_same_v<Args, sql::query::expr_where> && ...)>>
 				decltype(auto) add_where(Args&&... args)
 			{
-				(_query.where.emplace_back(std::forward<Args>(args)), ...);
+				(_struct.where.emplace_back(std::forward<Args>(args)), ...);
 				return *this; 
 			}			
 			template<typename... Args>
 			decltype(auto) add_where(const char* arg, Args&&... args)
 			{
-				_query.where.emplace_back(arg, std::forward<Args>(args)...);
+				_struct.where.emplace_back(arg, std::forward<Args>(args)...);
 				return *this;
 			}
 	
@@ -96,13 +105,13 @@ namespace patterns
 					return _expr;
 
 				/// SELECT expression, ...
-				std::string expr{ _query.select.empty() ? "SELECT * " : "SELECT " };
-				expr += bind(std::cbegin(_query.select), std::cend(_query.select), ' ');
+				std::string expr{ _struct.select.empty() ? "SELECT * " : "SELECT " };
+				expr += bind(std::cbegin(_struct.select), std::cend(_struct.select), ' ');
 				/// FROM table
-				expr += "\nFROM " + std::string{ _query.from.get().first } +
-					(_query.where.empty() ? std::string{ send_to_server } : "\nWHERE ");
+				expr += "\nFROM " + std::string{ _struct.from.get().first } +
+					(_struct.where.empty() ? std::string{ send_to_server } : "\nWHERE ");
 				/// WHERE expression ...
-				expr += bind(std::cbegin(_query.where), std::cend(_query.where),
+				expr += bind(std::cbegin(_struct.where), std::cend(_struct.where),
 					send_to_server);
 				
 				_expr = std::move(expr);
@@ -141,12 +150,12 @@ namespace patterns
 			
 			void swap(sql_select_query& rhs) noexcept
 			{
-				std::swap(_query.select, rhs._query.select);
-				std::swap(_query.from, rhs._query.from);
-				std::swap(_query.where, rhs._query.where);
+				std::swap(_struct.select, rhs._struct.select);
+				std::swap(_struct.from, rhs._struct.from);
+				std::swap(_struct.where, rhs._struct.where);
 			}
 
-			sql::query::sql_select_query_structure _query{};
+			sql::query::sql_select_query_structure _struct{};
 			std::string _expr{};
 			static constexpr char send_to_server{ ';' };
 

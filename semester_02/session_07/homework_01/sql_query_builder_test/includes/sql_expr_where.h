@@ -76,14 +76,17 @@ namespace sql
 				_bind = logic;
 			}
 
-			expr_where(const expr_where&) = delete;
+			expr_where(const expr_where& expr) : _bind{ expr._bind }
+			{
+				std::memcpy(_expr, expr._expr, _size);
+			}
 			expr_where(expr_where&& expr) noexcept : expr_where()
 			{
 				this->swap(expr);
 			}
 			virtual ~expr_where() = default;
 
-			expr_where& operator=(const expr_where&) = delete;
+			expr_where& operator=(const expr_where&) = default;
 			expr_where& operator=(expr_where&& expr) noexcept
 			{
 				if (this != &expr)

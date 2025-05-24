@@ -52,7 +52,7 @@ namespace multitask
 		template<typename Func, typename... Args>
 		std::future<R> submit(Func func, Args&&... args)
 		{
-			std::packaged_task<R()> task(std::bind(func, args...));
+			std::packaged_task<R()> task(std::bind(func, std::forward<Args>(args)...));
 			std::future<R> future(task.get_future());
 			_tasks.push(std::move(task));
 			return future;

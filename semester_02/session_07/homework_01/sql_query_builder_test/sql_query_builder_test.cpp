@@ -64,10 +64,8 @@ int main()
 
 		/// Формирование запросов SELECT * FROM table_name из списка имен таблиц для примера,
 		/// из зарезирвированных слов SQL.
-		using elem_type1 =
-			typename std::iterator_traits<decltype(std::cbegin(sql::keywords))>::value_type;
 		std::for_each(std::cbegin(sql::keywords), std::cend(sql::keywords),
-			[&querys](const elem_type1& elem)
+			[&querys](const typename std::iterator_traits<decltype(std::cbegin(sql::keywords))>::value_type& elem)
 			{
 				querys.push_back(patterns::generative::sql_select_query{ elem });
 			});
@@ -75,16 +73,31 @@ int main()
 		/// Добавление "расширенных" запросов
 		querys.push_back((std::move(query_a)));
 		querys.push_back((std::move(query_b)));
-
 		
-		using elem_type2 =
-			typename std::iterator_traits<decltype(std::begin(querys))>::value_type;
-		std::for_each(std::begin(querys), std::end(querys),
-			[](elem_type2& query)
+		/// Обработка запросов в пуле потоков
+		using iterator = typename decltype(querys)::iterator;
+		using value_type = typename decltype(querys)::value_type;
+
+		auto build =	[](value_type& query)
 			{
 				std::cout << query.build() << "\n\n";
-			}
-		);
+			};
+		
+		using build_query = std::function<decltype(build)(iterator, iterator, decltype(build))>;
+		multitask::thread_pool<typename build_query::result_type> exec{};
+
+		auto first = std::begin(querys);
+		auto last = std::end(querys);
+		const auto median = querys.size() / 2;
+
+		auto run1 =
+			exec.submit(build_query{ std::for_each<iterator, decltype(build)> },
+				first, std::next(first, median), build);
+		auto run2 =
+			exec.submit(build_query{ std::for_each<iterator, decltype(build)> },
+				std::next(first, median + 1), last, build);
+		run1.get();
+		run2.get();	
 	}
 	catch (const std::exception& err) { std::cout << err.what(); }
 	std::cout << '\n';

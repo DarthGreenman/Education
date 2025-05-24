@@ -67,7 +67,10 @@ namespace sql
 				catch (...) { throw; }
 			}
 
-			expr_requi(const expr_requi&) = delete;
+			expr_requi(const expr_requi& expr) : _bind{ expr._bind }
+			{
+				std::memcpy(_expr, expr._expr, _size);
+			}
 			expr_requi(expr_requi&& expr) noexcept : expr_requi()
 			{
 				this->swap(expr);
