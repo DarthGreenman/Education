@@ -16,6 +16,9 @@
     <Filter Include="Файлы заголовков\sql">
       <UniqueIdentifier>{a77392b4-8073-4bf0-b2d5-aa5528eeb9bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\threads">
+      <UniqueIdentifier>{238d83cd-9701-4f0f-ae68-370b375dd4e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sql_query_builder_test.cpp">
@@ -43,6 +46,12 @@
     </ClInclude>
     <ClInclude Include="includes\sql_expr_where.h">
       <Filter>Файлы заголовков\sql</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\safe_queue.h">
+      <Filter>Файлы заголовков\threads</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\thread_pool.h">
+      <Filter>Файлы заголовков\threads</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

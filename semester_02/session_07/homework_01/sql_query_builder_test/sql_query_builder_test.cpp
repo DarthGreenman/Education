@@ -1,14 +1,15 @@
 ﻿// sql_query_builder_test.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
 
 #include "includes/date.h"
 #include "includes/sql_expr_base.h"
 #include "includes/sql_expr_requi.h"
 #include "includes/sql_expr_where.h"
 #include "includes/sql_query_builder.h"
+#include "includes/thread_pool.h"
 #include <algorithm>
 #include <cstdlib>
 #include <exception>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -22,7 +23,7 @@ int main()
 	try
 	{
 		std::vector<patterns::generative::sql_select_query> querys{};
-		querys.reserve(10);
+		querys.reserve(1000);
 
 		decltype(querys)::value_type query_a{ "it_specialists" };
 		/// Добавляем по одному столбцу
@@ -61,13 +62,24 @@ int main()
 			where{ "pos", sql::oper::greater_or_equal, 12 }
 		);
 
+		/// Формирование запросов SELECT * FROM table_name из списка имен таблиц для примера,
+		/// из зарезирвированных слов SQL.
+		using elem_type1 =
+			typename std::iterator_traits<decltype(std::cbegin(sql::keywords))>::value_type;
+		std::for_each(std::cbegin(sql::keywords), std::cend(sql::keywords),
+			[&querys](const elem_type1& elem)
+			{
+				querys.push_back(patterns::generative::sql_select_query{ elem });
+			});
+
+		/// Добавление "расширенных" запросов
 		querys.push_back((std::move(query_a)));
 		querys.push_back((std::move(query_b)));
 
-		using elem_type =
+		using elem_type2 =
 			typename std::iterator_traits<decltype(std::begin(querys))>::value_type;
 		std::for_each(std::begin(querys), std::end(querys),
-			[](elem_type& query)
+			[](elem_type2& query)
 			{
 				std::cout << query.build() << "\n\n";
 			}

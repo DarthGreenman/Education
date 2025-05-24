@@ -122,10 +122,10 @@ namespace sql
 			{
 				char expr[_size]{};
 				std::swap(expr, _expr); /// std::memmove(_expr, expr, std::strlen(expr) + 1);
-				helper::insert_back(expr, comp(), std::strlen(comp()));
-				helper::insert_back(expr, sql::character::single_quote());
-				helper::insert_back(expr, rhs, std::strlen(rhs));
-				helper::insert_back(expr, sql::character::single_quote());
+				helper::push_back(expr, comp(), std::strlen(comp()));
+				helper::push_back(expr, sql::character::single_quote());
+				helper::push_back(expr, rhs, std::strlen(rhs));
+				helper::push_back(expr, sql::character::single_quote());
 				std::swap(_expr, expr); /// std::memmove(_expr, expr, std::strlen(expr) + 1);
 			}
 

@@ -122,17 +122,17 @@ namespace sql
 		}
 
 		template<std::size_t N>
-		void insert_back(char(&dest)[N], const char* src, std::size_t count)
+		void push_back(char(&dest)[N], const char* src, std::size_t count)
 		{
 			for (std::size_t i{}, off = std::strlen(dest); i < count + 1; ++i)
 				dest[i + off] = src[i];
 		}
 
 		template<std::size_t N>
-		void insert_back(char(&dest)[N], char ch)
+		void push_back(char(&dest)[N], char ch)
 		{
 			const char src[]{ ch, '\0' };
-			insert_back(dest, src, std::strlen(src));
+			push_back(dest, src, std::strlen(src));
 		}
 
 		template<std::size_t N>

@@ -60,8 +60,8 @@ namespace sql
 				{
 					char expr[_size]{};
 					std::swap(expr, _expr); /// std::memmove(_expr, expr, std::strlen(expr) + 1);
-					helper::insert_back(expr, " AS ", std::strlen(" AS "));
-					helper::insert_back(expr, nickname, std::strlen(nickname));
+					helper::push_back(expr, " AS ", std::strlen(" AS "));
+					helper::push_back(expr, nickname, std::strlen(nickname));
 					std::swap(_expr, expr); /// std::memmove(_expr, expr, std::strlen(expr) + 1);
 				}
 				catch (...) { throw; }

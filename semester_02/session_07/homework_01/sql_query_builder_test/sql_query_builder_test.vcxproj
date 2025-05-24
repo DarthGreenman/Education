@@ -134,10 +134,12 @@
   <ItemGroup>
     <ClInclude Include="includes\date.h" />
     <ClInclude Include="includes\my_types.h" />
+    <ClInclude Include="includes\safe_queue.h" />
     <ClInclude Include="includes\sql_expr_base.h" />
     <ClInclude Include="includes\sql_expr_requi.h" />
     <ClInclude Include="includes\sql_expr_where.h" />
     <ClInclude Include="includes\sql_query_builder.h" />
+    <ClInclude Include="includes\thread_pool.h" />
     <ClInclude Include="includes\utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
