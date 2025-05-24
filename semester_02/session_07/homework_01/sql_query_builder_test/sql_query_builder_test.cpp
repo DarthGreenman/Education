@@ -76,6 +76,7 @@ int main()
 		querys.push_back((std::move(query_a)));
 		querys.push_back((std::move(query_b)));
 
+		
 		using elem_type2 =
 			typename std::iterator_traits<decltype(std::begin(querys))>::value_type;
 		std::for_each(std::begin(querys), std::end(querys),

@@ -90,8 +90,11 @@ namespace patterns
 				return *this;
 			}
 	
-			auto build() const -> std::string
-			{			
+			decltype(auto) build()
+			{
+				if (!_expr.empty())
+					return _expr;
+
 				/// SELECT expression, ...
 				std::string expr{ _query.select.empty() ? "SELECT * " : "SELECT " };
 				expr += bind(std::cbegin(_query.select), std::cend(_query.select), ' ');
@@ -101,7 +104,9 @@ namespace patterns
 				/// WHERE expression ...
 				expr += bind(std::cbegin(_query.where), std::cend(_query.where),
 					send_to_server);
-				return expr;
+				
+				_expr = std::move(expr);
+				return _expr;
 			}
 
 		private:
@@ -142,6 +147,7 @@ namespace patterns
 			}
 
 			sql::query::sql_select_query_structure _query{};
+			std::string _expr{};
 			static constexpr char send_to_server{ ';' };
 
 		public:
