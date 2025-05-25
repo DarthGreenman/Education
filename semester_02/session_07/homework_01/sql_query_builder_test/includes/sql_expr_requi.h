@@ -4,8 +4,9 @@
 #define SQL_EXPR_REQUI_H_IN_MY_PROJECT
 
 #include "sql_expr_base.h"
-#include <cstring>
+#include <algorithm>
 #include <functional>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -22,7 +23,7 @@ namespace sql
 {
 	namespace query
 	{
-		class expr_requi : public expr_base
+		class expr_requi
 		{
 		public:
 			expr_requi() = default;
@@ -39,7 +40,8 @@ namespace sql
 						std::to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
 				}
 				try {
-					std::memmove(_expr, name, std::strlen(name) + 1);
+					std::string temp_expr{ name };
+					std::swap(_expr, temp_expr);
 				}
 				catch (...) { throw; }
 			}
@@ -56,59 +58,72 @@ namespace sql
 					throw std::invalid_argument{ "\nException \"Unknown argument in expression\" in line: " +
 						std::to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
 				}
-				try
-				{
-					char expr[_size]{};
-					std::swap(expr, _expr); /// std::memmove(_expr, expr, std::strlen(expr) + 1);
-					helper::push_back(expr, " AS ", std::strlen(" AS "));
-					helper::push_back(expr, nickname, std::strlen(nickname));
-					std::swap(_expr, expr); /// std::memmove(_expr, expr, std::strlen(expr) + 1);
+
+				try {
+					std::string temp_expr{ name };
+					temp_expr.push_back(sql::character::space());
+					temp_expr += sql::keyword::AS;
+					temp_expr.push_back(sql::character::space());
+					temp_expr += nickname;
+					std::swap(_expr, temp_expr);
 				}
 				catch (...) { throw; }
 			}
 
-			expr_requi(const expr_requi& expr) : _bind{ expr._bind }
+			expr_requi(const expr_requi& other_expr) : _bind{ other_expr._bind }
 			{
-				std::memcpy(_expr, expr._expr, _size);
-			}
-			expr_requi(expr_requi&& expr) noexcept : expr_requi()
-			{
-				this->swap(expr);
-			}
-			virtual ~expr_requi() = default;
-
-			expr_requi& operator=(const expr_requi&) = delete;
-			expr_requi& operator=(expr_requi&& expr) noexcept
-			{
-				if (this != &expr)
-				{
-					std::memset(_expr, 0, _size);
-					_bind = nullptr;
-					this->swap(expr);
+				try {
+					std::copy(std::cbegin(other_expr._expr), std::cend(other_expr._expr),
+						std::back_inserter(_expr));
 				}
+				catch (...) { throw; }
+			}
+			expr_requi(expr_requi&& expr) noexcept : expr_requi() { swap(expr); }
+			~expr_requi() = default;
+
+			expr_requi& operator=(const expr_requi& other_expr)
+			{
+				if (this == &other_expr)
+					return *this;
+
+				expr_requi temp_expr{ other_expr };
+				swap(temp_expr);
+
 				return *this;
 			}
-			std::pair<const char*, sql::logic_operator> get() const override final
+			expr_requi& operator=(expr_requi&& other_expr) noexcept
 			{
-				return std::make_pair(_expr, _bind);
+				if (this == &other_expr)
+					return *this;
+
+				expr_requi temp_expr{ std::move(other_expr) };
+				swap(temp_expr);
+
+				return *this;
+			}
+			expr_requi& operator+=(const expr_requi& other_expr)
+			{
+				_expr += other_expr._expr;
+				if (!other_expr._bind)
+					return *this;
+
+				_expr.push_back(_bind());
+				_expr.push_back(sql::character::space());
+				return *this;
+			}
+			void bind(sql::logic_operator<char> logic) { _bind = logic; }
+			std::string get() const { return _expr; }
+
+		private:
+			void swap(expr_requi& other_expr) noexcept
+			{
+				std::swap(_expr, other_expr._expr);
+				std::swap(_bind, other_expr._bind);
 			}
 
 		private:
-			void swap(expr_requi& expr) noexcept
-			{
-				std::swap(_expr, expr._expr);
-				std::swap(_bind, expr._bind);
-			}
-
-		private:
-			/// Длина наименования псевдонима столбца в SQL имеет определённые ограничения 
-			/// в зависимости от используемой системы баз данных. В MySQL максимально
-			/// допустимый размер для имён баз данных, таблиц, столбцов и индексов — 64 символа,
-			/// для псевдонимов — 256 символов.
-			static constexpr unsigned _size{ 325 }; /// 64 + " AS " + 256 + '\0'
-			char _expr[_size]{}; // помещаем проверенную часть выражения
-			sql::logic_operator _bind{ sql::logic::comma }; // помещаем адрес функции, которая вызывается...
-
+			std::string _expr{}; // помещаем проверенную часть выражения
+			sql::logic_operator<char> _bind{ sql::character::comma }; // помещаем адрес функции, которая вызывается...
 		}; // class expr_requi
 	} // namespace query
 } // namespace sql

@@ -5,12 +5,10 @@
 
 #include "my_types.h"
 #include <cctype>
-#include <cstring>
-#include <deque>
 #include <functional>
 #include <iterator>
+#include <string>
 #include <type_traits>
-#include <utility>
 
 namespace sql
 {
@@ -26,7 +24,7 @@ namespace sql
 		"DATA","DATALINK","DATE","DAY","DEALLOCATE","DEC","DECIMAL","DECLARE","DEFAULT","DEFERRABLE","DELETE","DEPTH","DEREF",
 		"DESC","DESCRIPTOR","DESTRUCTOR","DIAGNOSTICS","DICTIONARY","DISCONNECT","DO","DOMAIN","DOUBLE","DROP","ELEMENT",
 		"END_EXEC","EQUALS","ESCAPE","EXCEPT","EXCEPTION","EXECUTE","EXIT","EXPAND","EXPANDING",
-		"FALSE","FIRST","FLOAT","FOR","FOREIGN","FREE","FROM","FUNCTION","FUSION",
+		"FALSE","FIRST","FLOAT","FOR","FOREIGN","FREE","c","FUNCTION","FUSION",
 		"GENERAL","GET","GLOBAL","GOTO","GROUP","GROUPING",
 		"HANDLER","HASH","HOUR",
 		"IDENTITY","IF","IGNORE","IMMEDIATE","IN","INDICATOR","INITIALIZE","INITIALLY","INNER","INOUT","INPUT","INSERT","INT",
@@ -48,10 +46,19 @@ namespace sql
 		"TABLE","TABLESAMPLE","TEMPORARY","TERMINATE","THAN","THEN","TIME","TIMESTAMP","TIMEZONE_HOUR","TIMEZONE_MINUTE",
 		"TO","TRAILING","TRANSACTION","TRANSLATION","TREAT","TRIGGER","TRUE",
 		"UESCAPE","UNDER","UNDO","UNION","UNIQUE","UNKNOWN","UNTIL","UPDATE","USAGE","USER","USING",
-		"VALUE","VALUES","VARCHAR","VARIABLE","VARYING","VIEW","WHEN","WHENEVER","WHERE","WHILE","WITH","WRITE","YEAR","ZONE"
+		"VALUE","VALUES","VARCHAR","VARIABLE","VARYING","VIEW",
+		"WHEN","WHENEVER","WHERE","WHILE","WITH","WRITE","YEAR","ZONE"
 	};
 
-	namespace oper
+	namespace keyword
+	{
+		constexpr decltype(auto) AS{ "AS" };
+		constexpr decltype(auto) SELECT{ "SELECT" };
+		constexpr decltype(auto) FROM{ "FROM" };
+		constexpr decltype(auto) WHERE{ "WHERE" };
+	} /// namespace keyword
+
+	namespace selection
 	{
 		constexpr decltype(auto) equal() { return "="; }
 		constexpr decltype(auto) unequal() { return "!="; }
@@ -64,45 +71,32 @@ namespace sql
 		constexpr decltype(auto) IN() { return "IN"; }
 		constexpr decltype(auto) BETWEEN() { return "BETWEEN"; }
 		*/
-	} // namespace oper
+	} /// namespace oper
 
 	namespace character
 	{
 		constexpr decltype(auto) comma() { return static_cast<char>(my::ascii::comma); }
 		constexpr decltype(auto) space() { return static_cast<char>(my::ascii::space); }
+		constexpr decltype(auto) asterisk() { return static_cast<char>(my::ascii::asterisk); }
+		constexpr decltype(auto) semicolon() { return static_cast<char>(my::ascii::semicolon); }
 		constexpr decltype(auto) single_quote() { return static_cast<char>(my::ascii::single_quote); }
-	} // namespace character
+	} /// namespace character
+
+	namespace special_character
+	{
+		constexpr decltype(auto) endl() { return '\n'; };
+	} /// namespace special_character 
 
 	namespace logic
 	{
-		auto comma()
-		{
-			static char ch[]{ my::ascii::comma };
-			return ch;
-		}
 		constexpr decltype(auto) AND() { return "AND"; }
 		constexpr decltype(auto) OR() { return "OR"; }
 		constexpr decltype(auto) NOT() { return "NOT"; }
-	} // struct namespace logic
+	} /// struct namespace logic
 
-	using comp_operator = std::function<const char* ()>;
-	using logic_operator = std::function<const char* ()>;
-
-	namespace query
-	{
-		struct expr_base
-		{
-			virtual std::pair<const char*, logic_operator> get() const = 0;
-			virtual ~expr_base() = default;
-
-			expr_base() = default;
-			expr_base(const expr_base&) = default;
-			expr_base(expr_base&&) noexcept = default;
-			expr_base& operator=(const expr_base&) = delete;
-			expr_base& operator=(expr_base&&) noexcept = default;
-
-		}; // class expr_base
-	} // namespace query
+	using select_operator = std::function<const char* ()>;
+	template<typename T>
+	using logic_operator = std::function<T()>;
 
 	namespace helper
 	{
@@ -115,45 +109,13 @@ namespace sql
 			return cont_temp;
 		}
 
-		static auto check(const char* value) -> bool
-		{ /// Алгоритм проверки имен и псевдонимов
-			return std::strlen(value) == 0 ? false :
-				true; /// считаем, что проверка прошла успешно
-		}
-
-		template<std::size_t N>
-		void push_back(char(&dest)[N], const char* src, std::size_t count)
+		auto check(const std::string& value) -> bool
 		{
-			for (std::size_t i{}, off = std::strlen(dest); i < count + 1; ++i)
-				dest[i + off] = src[i];
+			/// Алгоритм проверки имен и псевдонимов
+			return true; /// считаем, что проверка прошла успешно
 		}
-
-		template<std::size_t N>
-		void push_back(char(&dest)[N], char ch)
-		{
-			const char src[]{ ch, '\0' };
-			push_back(dest, src, std::strlen(src));
-		}
-
-		template<std::size_t N>
-		decltype(auto) size(char(&arr)[N]) { return N; }
-
-		template<std::size_t N, typename T,
-			typename = std::enable_if_t<std::is_same_v<T, int>>>
-		void numeric_to_char(char(&num_char)[N], T&& number)
-		{
-			std::deque<char> chars{ '\0' };
-			for (constexpr char numeric[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-				number > 0; number /= 10)
-			{
-				chars.push_back(numeric[number % 10]);
-			}
-
-			for (decltype(N) i{}; !chars.empty(); ++i, chars.pop_back())
-				num_char[i] = chars.back();
-		}
-	} // namespace helper
-} // namespace sql
+	} /// namespace helper
+} /// namespace sql
 
 #endif // !SQL_EXPR_BASE_H_IN_MY_PROJECT
 

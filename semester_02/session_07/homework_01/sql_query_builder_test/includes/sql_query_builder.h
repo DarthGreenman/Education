@@ -2,11 +2,11 @@
 
 #ifndef SQL_QUERY_BUILDER_H_IN_MY_PROJECT
 #define SQL_QUERY_BUILDER_H_IN_MY_PROJECT
+
 #include "sql_expr_base.h"
 #include "sql_expr_requi.h"
 #include "sql_expr_where.h" 
 #include <algorithm>
-#include <functional>
 #include <iterator>
 #include <string>
 #include <type_traits>
@@ -38,22 +38,20 @@ namespace patterns
 			/// SELECT * FROM TABLE_NAME;
 			explicit sql_select_query(const char* table_name)
 			{
-				decltype(_struct.from) table{ table_name };
-				_struct.from = std::move(table);
+				_struct.from = std::move(decltype(_struct.from){table_name});
 			}
 
 			/// SELECT * FROM TABLE_NAME AS NICKNAME;
 			explicit sql_select_query(const char* table_name, const char* nickname)
 			{
-				decltype(_struct.from) table{ table_name, nickname };
-				_struct.from = std::move(table);
+				_struct.from = std::move(decltype(_struct.from){table_name, nickname});
 			}
-			
+
 			sql_select_query(const sql_select_query& query)
 			{
 				std::copy(std::cbegin(query._struct.select),
 					std::end(query._struct.select), std::back_inserter(_struct.select));
-	//			_struct.from = query._struct.from;
+				_struct.from = query._struct.from;
 				std::copy(std::cbegin(query._struct.where),
 					std::end(query._struct.where), std::back_inserter(_struct.where));
 
@@ -81,7 +79,7 @@ namespace patterns
 				_struct.select.emplace_back(arg, std::forward<Args>(args)...);
 				return *this;
 			}
-			
+
 			/// ADD_WHERE
 			/// Методы добавляют в запрос одно, или сразу несколько выражений для WHERE:
 			/// WHERE expr1 AND|OR|NOT expr2 ...
@@ -90,64 +88,88 @@ namespace patterns
 				decltype(auto) add_where(Args&&... args)
 			{
 				(_struct.where.emplace_back(std::forward<Args>(args)), ...);
-				return *this; 
-			}			
+				return *this;
+			}
 			template<typename... Args>
 			decltype(auto) add_where(const char* arg, Args&&... args)
 			{
 				_struct.where.emplace_back(arg, std::forward<Args>(args)...);
 				return *this;
 			}
-	
-			decltype(auto) build()
+
+			auto build() -> std::string
 			{
 				if (!_expr.empty())
 					return _expr;
 
-				/// SELECT expression, ...
-				std::string expr{ _struct.select.empty() ? "SELECT * " : "SELECT " };
-				expr += bind(std::cbegin(_struct.select), std::cend(_struct.select), ' ');
-				/// FROM table
-				expr += "\nFROM " + std::string{ _struct.from.get().first } +
-					(_struct.where.empty() ? std::string{ send_to_server } : "\nWHERE ");
+				/// SELECT
+				std::string expr{};
+				/// Формирует список столбцов
+				bind_select(expr);
+				expr.push_back(sql::special_character::endl());
+				/// FROM
+				bind_from(expr);
 				/// WHERE expression ...
-				expr += bind(std::cbegin(_struct.where), std::cend(_struct.where),
-					send_to_server);
-				
+				if (!_struct.where.empty()) {
+					expr.push_back(sql::special_character::endl());
+					bind_where(expr);
+				}
+				expr.push_back(sql::character::semicolon());
 				_expr = std::move(expr);
+
 				return _expr;
 			}
 
 		private:
-			template<typename Iter>
-			auto bind(Iter first, Iter last, const char end_section) const -> std::string
+			auto bind_select(std::string& expr) -> void
+			{
+				expr += sql::keyword::SELECT;
+				expr.push_back(sql::character::space());
+
+				if (_struct.select.empty()) {
+					expr.push_back(sql::character::asterisk());
+					return;
+				}
+				const auto select =
+					bind(std::begin(_struct.select), std::end(_struct.select),
+						sql::query::expr_requi{});
+				std::copy(std::cbegin(select), std::cend(select),
+					std::back_inserter(expr));
+			}
+			auto bind_from(std::string& expr) -> void
+			{
+				expr += sql::keyword::FROM;
+				expr.push_back(sql::character::space());
+				expr += _struct.from.get();
+			}
+			auto bind_where(std::string& expr) -> void
+			{
+				if (_struct.where.empty())
+					return;
+
+				expr += sql::keyword::WHERE;
+				const auto where =
+					bind(std::begin(_struct.where), std::end(_struct.where),
+						sql::query::expr_where{});
+				std::copy(std::cbegin(where), std::cend(where),
+					std::back_inserter(expr));
+			}
+			template<typename Iter, typename T>
+			auto bind(Iter first, Iter last, T expr = T{}) -> std::string
 			{
 				using elem_type = typename std::iterator_traits<decltype(first)>::value_type;
-				std::string expr{};
 				auto count = std::distance(first, last);
 
-				std::for_each(first, last, [&expr, &count, &end_section, this](const elem_type& elem)
+				std::for_each(first, last, [&expr, &count](elem_type& elem)
 					{
-						auto&& [ex, fl] = elem.get();
-						expr += ex;
-						expr += (--count ? bind(fl) : std::string{ end_section });
+						if (!(--count))
+							elem.bind(nullptr);
+						expr += elem;
 					}
 				);
-				return expr;
+				return expr.get();
 			}
-			
-			auto bind(sql::logic_operator logic) const -> std::string
-				try
-			{
-				std::string expr{ logic() };
-				if (expr[0] == sql::character::comma())
-					expr += sql::character::space();
-				else
-					expr = sql::character::space() + expr + sql::character::space();
-				return expr;
-			}
-			catch (...) { throw; }
-			
+
 			void swap(sql_select_query& rhs) noexcept
 			{
 				std::swap(_struct.select, rhs._struct.select);
@@ -157,7 +179,6 @@ namespace patterns
 
 			sql::query::sql_select_query_structure _struct{};
 			std::string _expr{};
-			static constexpr char send_to_server{ ';' };
 
 		public:
 			sql_select_query() = default;

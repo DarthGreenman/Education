@@ -5,9 +5,9 @@
 
 #include "date.h"
 #include "sql_expr_base.h"
-#include <cstring>
+#include <algorithm>
 #include <functional>
-#include <limits>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -45,62 +45,84 @@ namespace sql
 {
 	namespace query
 	{
-		class expr_where : public expr_base
+		class expr_where
 		{
 		public:
 			expr_where() = default;
 
-			explicit expr_where(const char* lhs, const comp_operator& comp, const char* rhs)
+			explicit expr_where(const char* lhs, const select_operator& select, const char* rhs)
 				: expr_where(lhs)
 			{
-				construct(comp, rhs);
+				construct(select, rhs);
 			}
 
-			template<typename T, typename = std::enable_if_t<std::is_same_v<T, int>>>
-			explicit expr_where(const char* lhs, comp_operator comp, T&& rhs)
+			template<typename T, typename = std::enable_if_t<std::is_integral_v<T> ||
+				std::is_floating_point_v<T>>>
+				explicit expr_where(const char* lhs, select_operator select, T&& rhs)
 				: expr_where(lhs)
 			{
-				char num[std::numeric_limits<std::size_t>::digits10]{};
-				helper::numeric_to_char(num, std::forward<T>(rhs));
-				construct(comp, num);
+				try {
+					construct(select, std::to_string(rhs));
+				}
+				catch (...) { throw; }
 			}
 
-			explicit expr_where(const char* lhs, const comp_operator& comp, const tpsg::date& rhs,
-				const logic_operator& logic) : expr_where(lhs, comp, rhs.to_string().c_str(), logic)
+			explicit expr_where(const char* lhs, const select_operator& select, const tpsg::date& rhs,
+				const logic_operator<const char*>& logic) : expr_where(lhs, select, rhs.to_string().c_str(), logic)
 			{
 			}
 
-			explicit expr_where(const char* lhs, const comp_operator& comp, const char* rhs,
-				const logic_operator& logic) : expr_where(lhs, comp, rhs)
+			explicit expr_where(const char* lhs, const select_operator& select, const char* rhs,
+				const logic_operator<const char*>& logic) : expr_where(lhs, select, rhs)
 			{
 				_bind = logic;
 			}
 
-			expr_where(const expr_where& expr) : _bind{ expr._bind }
+			expr_where(const expr_where& other_expr) : _bind{ other_expr._bind }
 			{
-				std::memcpy(_expr, expr._expr, _size);
+				try {
+					std::copy(std::cbegin(other_expr._expr), std::cend(other_expr._expr),
+						std::back_inserter(_expr));
+				}
+				catch (...) { throw; }
 			}
-			expr_where(expr_where&& expr) noexcept : expr_where()
-			{
-				this->swap(expr);
-			}
+			expr_where(expr_where&& other_expr) noexcept : expr_where() { swap(other_expr); }
+
 			virtual ~expr_where() = default;
 
-			expr_where& operator=(const expr_where&) = default;
-			expr_where& operator=(expr_where&& expr) noexcept
+			expr_where& operator=(const expr_where& other_expr)
 			{
-				if (this != &expr)
-				{
-					std::memset(_expr, 0, _size);
-					_bind = nullptr;
-					this->swap(expr);
-				}
+				if (this == &other_expr)
+					return *this;
+
+				expr_where temp_expr{ other_expr };
+				swap(temp_expr);
+
 				return *this;
 			}
-			std::pair<const char*, sql::logic_operator> get() const	override final
+			expr_where& operator=(expr_where&& other_expr) noexcept
 			{
-				return std::make_pair(_expr, _bind);
+				if (this == &other_expr)
+					return *this;
+
+				expr_where temp_expr{ std::move(other_expr) };
+				swap(temp_expr);
+
+				return *this;
 			}
+			expr_where& operator+=(const expr_where& other_expr)
+			{
+				_expr += other_expr._expr;
+				if (!other_expr._bind)
+					return *this;
+
+				_expr.push_back(sql::character::space());
+				_expr += _bind();
+				_expr.push_back(sql::character::space());
+				return *this;
+			}
+			void bind(sql::logic_operator<const char*> logic) { _bind = logic; }
+			std::string get() const { return _expr; }
 
 		private:
 			/// Конструктор для выражений:
@@ -116,33 +138,35 @@ namespace sql
 						std::to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
 				}
 				try {
-					std::memmove(_expr, name, std::strlen(name) + 1);
+					std::string temp_expr{ name };
+					std::swap(_expr, temp_expr);
 				}
 				catch (...) { throw; }
 			}
 
-			void construct(const comp_operator& comp, const char* rhs)
+			void construct(const select_operator& select, const std::string& rhs)
 			{
-				char expr[_size]{};
-				std::swap(expr, _expr); /// std::memmove(_expr, expr, std::strlen(expr) + 1);
-				helper::push_back(expr, comp(), std::strlen(comp()));
-				helper::push_back(expr, sql::character::single_quote());
-				helper::push_back(expr, rhs, std::strlen(rhs));
-				helper::push_back(expr, sql::character::single_quote());
-				std::swap(_expr, expr); /// std::memmove(_expr, expr, std::strlen(expr) + 1);
+				try
+				{
+					std::string temp_expr{ _expr };
+					temp_expr += select();
+					temp_expr.push_back(sql::character::single_quote());
+					temp_expr += rhs;
+					temp_expr.push_back(sql::character::single_quote());
+					std::swap(_expr, temp_expr);
+				}
+				catch (...) { throw; }
 			}
 
-			void swap(expr_where& expr) noexcept
+			void swap(expr_where& other_expr) noexcept
 			{
-				std::swap(_expr, expr._expr);
-				std::swap(_bind, expr._bind);
+				std::swap(_expr, other_expr._expr);
+				std::swap(_bind, other_expr._bind);
 			}
 
 		private:
-			static constexpr unsigned _size{ 1024 };
-			char _expr[_size]{}; // помещаем проверенную часть выражения
-			sql::logic_operator _bind{ nullptr }; // помещаем адрес функции, которая вызывается...
-
+			std::string _expr{}; // помещаем проверенную часть выражения
+			sql::logic_operator<const char*> _bind{ sql::logic::AND }; // помещаем адрес функции, которая вызывается...
 		}; // class expr_where
 	} // namespace expr
 } // namespace sql

@@ -36,13 +36,12 @@ int main()
 			colum{ "mailbox" }
 		);
 		/// Добавляем по одному условию
-		query_a.add_where("birth", sql::oper::less,
+		query_a.add_where("birth", sql::selection::less,
 			tpsg::date{ day{20}, month{month::may()}, year{2000} }, sql::logic::AND)
-			.add_where("firstname", sql::oper::equal, "Nemo", sql::logic::AND)
-			.add_where("pos", sql::oper::greater_or_equal, 1234);
+			.add_where("firstname", sql::selection::equal, "Nemo", sql::logic::AND)
+			.add_where("pos", sql::selection::greater_or_equal, 1234.09);
 
 		decltype(querys)::value_type query_b{ "sales_department_staff", "sales" };
-
 		/// Добавляем одновременно несколько столбцов
 		using colum = sql::query::expr_requi;
 		query_b.add_colum(
@@ -57,24 +56,31 @@ int main()
 		using where = sql::query::expr_where;
 		tpsg::date death_line{ day{22}, month{month::may()}, year{2025} };
 		query_b.add_where(
-			where{ "birth", sql::oper::less, std::move(death_line), sql::logic::OR },
-			where{ "birth", sql::oper::unequal, std::move(death_line), sql::logic::OR },
-			where{ "pos", sql::oper::greater_or_equal, 12 }
+			where{ "birth", sql::selection::less, std::move(death_line), sql::logic::OR },
+			where{ "birth", sql::selection::unequal, std::move(death_line), sql::logic::OR },
+			where{ "pos", sql::selection::greater_or_equal, 12 }
 		);
 
-		/// Формирование запросов SELECT * FROM table_name из списка имен таблиц для примера,
+		/// Добавляем запросы на все данные таблиц SELECT * FROM table_name из списка имен таблиц для примера,
 		/// из зарезирвированных слов SQL.
 		std::for_each(std::cbegin(sql::keywords), std::cend(sql::keywords),
 			[&querys](const typename std::iterator_traits<decltype(std::cbegin(sql::keywords))>::value_type& elem)
 			{
 				querys.push_back(patterns::generative::sql_select_query{ elem });
 			});
+		/// Добавляем запросы на все данные таблиц
+		querys.push_back(decltype(querys)::value_type{ "managers1" });
+		querys.push_back(decltype(querys)::value_type{ "managers2" });
+		querys.push_back(decltype(querys)::value_type{ "managers3" });
+		querys.push_back(decltype(querys)::value_type{ "managers4" });
+		querys.push_back(decltype(querys)::value_type{ "managers5" });
+		querys.push_back(decltype(querys)::value_type{ "managers6" });
 
-		/// Добавление "расширенных" запросов
+		/// Добавляем "расширенные" запросы
 		querys.push_back((std::move(query_a)));
 		querys.push_back((std::move(query_b)));
-		
-		/// Обработка запросов в пуле потоков
+
+		/// Обрабатываем запросы в пуле потоков
 		using iterator = typename decltype(querys)::iterator;
 		using value_type = typename decltype(querys)::value_type;
 
@@ -82,7 +88,7 @@ int main()
 			{
 				std::cout << query.build() << "\n\n";
 			};
-		
+
 		using build_query = std::function<decltype(build)(iterator, iterator, decltype(build))>;
 		multitask::thread_pool<typename build_query::result_type> exec{};
 
@@ -97,11 +103,11 @@ int main()
 			exec.submit(build_query{ std::for_each<iterator, decltype(build)> },
 				std::next(first, median + 1), last, build);
 		run1.get();
-		run2.get();	
+		run2.get();
 	}
 	catch (const std::exception& err) { std::cout << err.what(); }
 	std::cout << '\n';
-
+	
 	std::system("pause");
 	return 0;
 }
