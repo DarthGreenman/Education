@@ -8,6 +8,7 @@
 #include "sql_expr_where.h" 
 #include <algorithm>
 #include <iterator>
+#include <stdexcept>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -101,7 +102,11 @@ namespace patterns
 			{
 				if (!_expr.empty())
 					return _expr;
-
+				
+				if (!check()) {
+					throw std::invalid_argument{ "\nException \"Unknown column name or alias\" in line: " +
+							std::to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
+				}
 				/// SELECT
 				std::string expr{};
 				/// Формирует список столбцов
@@ -168,6 +173,12 @@ namespace patterns
 					}
 				);
 				return expr.get();
+			}
+			auto check() -> bool
+			{
+				/// Алгоритм проверки наличия имен или псевдонимов выражения WHERE в 
+				/// списке SELECT
+				return true; /// считаем, что проверка прошла успешно
 			}
 
 			void swap(sql_select_query& rhs) noexcept
