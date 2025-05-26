@@ -58,7 +58,7 @@ namespace sql
 		constexpr decltype(auto) WHERE{ "WHERE" };
 	} /// namespace keyword
 
-	namespace selection
+	namespace compression
 	{
 		constexpr decltype(auto) equal() { return "="; }
 		constexpr decltype(auto) unequal() { return "!="; }
@@ -87,16 +87,16 @@ namespace sql
 		constexpr decltype(auto) endl() { return '\n'; };
 	} /// namespace special_character 
 
-	namespace logic
+	namespace logical
 	{
 		constexpr decltype(auto) AND() { return "AND"; }
 		constexpr decltype(auto) OR() { return "OR"; }
 		constexpr decltype(auto) NOT() { return "NOT"; }
-	} /// struct namespace logic
+	} /// struct namespace logical
 
-	using select_operator = std::function<const char* ()>;
+	using compression_operator = std::function<const char* ()>;
 	template<typename T>
-	using logic_operator = std::function<T()>;
+	using logical_operator = std::function<T()>;
 
 	namespace helper
 	{
@@ -105,11 +105,12 @@ namespace sql
 		decltype(auto) toupper(const Container& cont)
 		{
 			Container cont_temp{ std::move(cont) };
-			std::transform(std::cbegin(cont_temp), std::cend(cont_temp), std::begin(cont_temp), ::toupper);
+			std::transform(std::cbegin(cont_temp), std::cend(cont_temp), std::begin(cont_temp), 
+				[](unsigned char c) { return std::toupper(c); });
 			return cont_temp;
 		}
 
-		auto check(const std::string& value) -> bool
+		auto check(const std::string&) -> bool
 		{
 			/// Алгоритм проверки имен и псевдонимов
 			return true; /// считаем, что проверка прошла успешно

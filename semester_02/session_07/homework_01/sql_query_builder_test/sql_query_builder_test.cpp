@@ -20,11 +20,13 @@ int main()
 {
 	using namespace sql::query;
 	using namespace tpsg;
+
 	try
 	{
 		std::vector<patterns::generative::sql_select_query> querys{};
 		querys.reserve(1000);
 
+		/// Таблица "it_specialists" //////////////////////////////////////////////////////////////
 		decltype(querys)::value_type query_a{ "it_specialists" };
 		/// Добавляем по одному столбцу
 		query_a.add_colum("firstname", "nick").add_colum("lastname");
@@ -36,11 +38,12 @@ int main()
 			colum{ "mailbox" }
 		);
 		/// Добавляем по одному условию
-		query_a.add_where("birth", sql::selection::less,
-			tpsg::date{ day{20}, month{month::may()}, year{2000} }, sql::logic::AND)
-			.add_where("firstname", sql::selection::equal, "Nemo", sql::logic::AND)
-			.add_where("pos", sql::selection::greater_or_equal, 1234.09);
+		query_a.add_where("birth", sql::compression::less,
+			tpsg::date{ day{20}, month{month::may()}, year{2000} }, sql::logical::AND)
+			.add_where("firstname", sql::compression::equal, "Nemo", sql::logical::AND)
+			.add_where("pos", sql::compression::greater_or_equal, 1234.09);
 
+		/// Таблица "sales_department_staff" //////////////////////////////////////////////////////
 		decltype(querys)::value_type query_b{ "sales_department_staff", "sales" };
 		/// Добавляем одновременно несколько столбцов
 		using colum = sql::query::expr_requi;
@@ -56,27 +59,26 @@ int main()
 		using where = sql::query::expr_where;
 		tpsg::date death_line{ day{22}, month{month::may()}, year{2025} };
 		query_b.add_where(
-			where{ "birth", sql::selection::less, std::move(death_line), sql::logic::OR },
-			where{ "birth", sql::selection::unequal, std::move(death_line), sql::logic::OR },
-			where{ "pos", sql::selection::greater_or_equal, 12 }
+			where{ "birth", sql::compression::less, std::move(death_line), sql::logical::OR },
+			where{ "birth", sql::compression::unequal, std::move(death_line), sql::logical::NOT },
+			where{ "pos", sql::compression::greater_or_equal, 12 }
 		);
 
-		/// Добавляем запросы на все данные таблиц SELECT * FROM table_name из списка имен таблиц для примера,
-		/// из зарезирвированных слов SQL.
-		std::for_each(std::cbegin(sql::keywords), std::cend(sql::keywords),
+		/// ///////////////////////////////////////////////////////////////////////////////////////
+		/// Добавляем запросы на все данные таблиц (SELECT * FROM table_name) из списка 10 таблиц 
+		/// для примера, из зарезирвированных слов SQL.
+		std::for_each(std::cbegin(sql::keywords), std::next(std::cbegin(sql::keywords), 10),
 			[&querys](const typename std::iterator_traits<decltype(std::cbegin(sql::keywords))>::value_type& elem)
 			{
 				querys.push_back(patterns::generative::sql_select_query{ elem });
 			});
-		/// Добавляем запросы на все данные таблиц
+		
 		querys.push_back(decltype(querys)::value_type{ "managers1" });
 		querys.push_back(decltype(querys)::value_type{ "managers2" });
 		querys.push_back(decltype(querys)::value_type{ "managers3" });
 		querys.push_back(decltype(querys)::value_type{ "managers4" });
 		querys.push_back(decltype(querys)::value_type{ "managers5" });
 		querys.push_back(decltype(querys)::value_type{ "managers6" });
-
-		/// Добавляем "расширенные" запросы
 		querys.push_back((std::move(query_a)));
 		querys.push_back((std::move(query_b)));
 
@@ -84,7 +86,7 @@ int main()
 		using iterator = typename decltype(querys)::iterator;
 		using value_type = typename decltype(querys)::value_type;
 
-		auto build =	[](value_type& query)
+		auto build = [](value_type& query)
 			{
 				std::cout << query.build() << "\n\n";
 			};
@@ -94,7 +96,7 @@ int main()
 
 		auto first = std::begin(querys);
 		auto last = std::end(querys);
-		const auto median = querys.size() / 2;
+		const auto median = std::distance(first, last) / 2;
 
 		auto run1 =
 			exec.submit(build_query{ std::for_each<iterator, decltype(build)> },
@@ -102,12 +104,12 @@ int main()
 		auto run2 =
 			exec.submit(build_query{ std::for_each<iterator, decltype(build)> },
 				std::next(first, median + 1), last, build);
-		run1.get();
-		run2.get();
+		run1.get(); run2.get();
 	}
 	catch (const std::exception& err) { std::cout << err.what(); }
+
 	std::cout << '\n';
-	
+
 	std::system("pause");
 	return 0;
 }

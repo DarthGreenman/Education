@@ -20,9 +20,9 @@ namespace sql
 	{
 		struct sql_select_query_structure
 		{
-			std::vector<sql::query::expr_requi> select;
-			sql::query::expr_requi from;
-			std::vector<sql::query::expr_where> where;
+			std::vector<sql::query::expr_requi> colums;
+			sql::query::expr_requi table;
+			std::vector<sql::query::expr_where> wheres;
 		};
 	} // namespace query
 } // namespace sql
@@ -34,34 +34,30 @@ namespace patterns
 		class sql_select_query
 		{
 		public:
-			friend void swap(sql_select_query& lhs, sql_select_query& rhs) noexcept;
+			friend auto swap(sql_select_query& lhs, sql_select_query& rhs) noexcept -> void;
 
 			/// SELECT * FROM TABLE_NAME;
 			explicit sql_select_query(const char* table_name)
 			{
-				_struct.from = std::move(decltype(_struct.from){table_name});
+				_expr.table = std::move(decltype(_expr.table){table_name});
 			}
 
 			/// SELECT * FROM TABLE_NAME AS NICKNAME;
 			explicit sql_select_query(const char* table_name, const char* nickname)
 			{
-				_struct.from = std::move(decltype(_struct.from){table_name, nickname});
+				_expr.table = std::move(decltype(_expr.table){table_name, nickname});
 			}
 
 			sql_select_query(const sql_select_query& query)
 			{
-				std::copy(std::cbegin(query._struct.select),
-					std::end(query._struct.select), std::back_inserter(_struct.select));
-				_struct.from = query._struct.from;
-				std::copy(std::cbegin(query._struct.where),
-					std::end(query._struct.where), std::back_inserter(_struct.where));
+				std::copy(std::cbegin(query._expr.colums),
+					std::end(query._expr.colums), std::back_inserter(_expr.colums));
+				_expr.table = query._expr.table;
+				std::copy(std::cbegin(query._expr.wheres),
+					std::end(query._expr.wheres), std::back_inserter(_expr.wheres));
 
 			}
-			sql_select_query(sql_select_query&& query) noexcept : sql_select_query()
-			{
-				using std::swap; // Делаем возможным выроб лучшего кандидата
-				swap(*this, query);
-			}
+			sql_select_query(sql_select_query&& query) noexcept : sql_select_query() { swap(query);}
 			~sql_select_query() = default;
 
 			/// ADD_COLUM
@@ -71,13 +67,13 @@ namespace patterns
 				typename = std::enable_if_t<(std::is_same_v<Args, sql::query::expr_requi> && ...)>>
 				decltype(auto) add_colum(Args&&... args)
 			{
-				(_struct.select.emplace_back(std::forward<Args>(args)), ...);
+				(_expr.colums.emplace_back(std::forward<Args>(args)), ...);
 				return *this;
 			}
 			template<typename... Args>
 			decltype(auto) add_colum(const char* arg, Args&&... args)
 			{
-				_struct.select.emplace_back(arg, std::forward<Args>(args)...);
+				_expr.colums.emplace_back(arg, std::forward<Args>(args)...);
 				return *this;
 			}
 
@@ -88,108 +84,96 @@ namespace patterns
 				typename = std::enable_if_t<(std::is_same_v<Args, sql::query::expr_where> && ...)>>
 				decltype(auto) add_where(Args&&... args)
 			{
-				(_struct.where.emplace_back(std::forward<Args>(args)), ...);
+				(_expr.wheres.emplace_back(std::forward<Args>(args)), ...);
 				return *this;
 			}
 			template<typename... Args>
 			decltype(auto) add_where(const char* arg, Args&&... args)
 			{
-				_struct.where.emplace_back(arg, std::forward<Args>(args)...);
+				_expr.wheres.emplace_back(arg, std::forward<Args>(args)...);
 				return *this;
 			}
 
 			auto build() -> std::string
 			{
-				if (!_expr.empty())
-					return _expr;
-				
 				if (!check()) {
 					throw std::invalid_argument{ "\nException \"Unknown column name or alias\" in line: " +
 							std::to_string(__LINE__) + ", file:\n" + std::string{ __FILE__ } + '\n' };
 				}
 				/// SELECT
-				std::string expr{};
-				/// Формирует список столбцов
-				bind_select(expr);
-				expr.push_back(sql::special_character::endl());
+				std::string text{};
+				bind(text, sql::query::expr_requi{});
+				text.push_back(sql::special_character::endl());
 				/// FROM
-				bind_from(expr);
+				bind(text);
 				/// WHERE expression ...
-				if (!_struct.where.empty()) {
-					expr.push_back(sql::special_character::endl());
-					bind_where(expr);
+				if (!_expr.wheres.empty()) {
+					text.push_back(sql::special_character::endl());
+					bind(text, sql::query::expr_where{});
 				}
-				expr.push_back(sql::character::semicolon());
-				_expr = std::move(expr);
+				text.push_back(sql::character::semicolon());
+				_text = std::move(text);
 
-				return _expr;
+				return _text;
 			}
 
 		private:
-			auto bind_select(std::string& expr) -> void
+			auto bind(std::string& text, sql::query::expr_requi) -> void
 			{
-				expr += sql::keyword::SELECT;
-				expr.push_back(sql::character::space());
+				text += sql::keyword::SELECT;
+				text.push_back(sql::character::space());
 
-				if (_struct.select.empty()) {
-					expr.push_back(sql::character::asterisk());
+				if (_expr.colums.empty()) {
+					text.push_back(sql::character::asterisk());
+					text.push_back(sql::character::space());
 					return;
 				}
-				const auto select =
-					bind(std::begin(_struct.select), std::end(_struct.select),
-						sql::query::expr_requi{});
-				std::copy(std::cbegin(select), std::cend(select),
-					std::back_inserter(expr));
+				bind(std::begin(_expr.colums), std::end(_expr.colums), text);
 			}
-			auto bind_from(std::string& expr) -> void
+			auto bind(std::string& text) const -> void
 			{
-				expr += sql::keyword::FROM;
-				expr.push_back(sql::character::space());
-				expr += _struct.from.get();
+				text += sql::keyword::FROM;
+				text.push_back(sql::character::space());
+				text += _expr.table.get();
 			}
-			auto bind_where(std::string& expr) -> void
+			auto bind(std::string& text, sql::query::expr_where) -> void
 			{
-				if (_struct.where.empty())
-					return;
-
-				expr += sql::keyword::WHERE;
-				const auto where =
-					bind(std::begin(_struct.where), std::end(_struct.where),
-						sql::query::expr_where{});
-				std::copy(std::cbegin(where), std::cend(where),
-					std::back_inserter(expr));
+				text += sql::keyword::WHERE;
+				text.push_back(sql::character::space());
+				bind(std::begin(_expr.wheres), std::end(_expr.wheres), text);
 			}
-			template<typename Iter, typename T>
-			auto bind(Iter first, Iter last, T expr = T{}) -> std::string
+			template<typename Iter>
+			auto bind(Iter first, Iter last, std::string& text) const -> void
 			{
-				using elem_type = typename std::iterator_traits<decltype(first)>::value_type;
+				using value_type = typename std::iterator_traits<decltype(first)>::value_type;
+				value_type expr{};
 				auto count = std::distance(first, last);
 
-				std::for_each(first, last, [&expr, &count](elem_type& elem)
-					{
+				std::for_each(first, last, [&expr, &count](value_type& elem) {
 						if (!(--count))
 							elem.bind(nullptr);
-						expr += elem;
-					}
+						expr += elem; }
 				);
-				return expr.get();
+				const auto __text = expr.get();
+				std::copy(std::cbegin(__text), std::cend(__text), std::back_inserter(text));
 			}
-			auto check() -> bool
+
+			auto check() const -> bool
 			{
 				/// Алгоритм проверки наличия имен или псевдонимов выражения WHERE в 
 				/// списке SELECT
 				return true; /// считаем, что проверка прошла успешно
 			}
 
-			void swap(sql_select_query& rhs) noexcept
+			auto swap(sql_select_query& rhs) noexcept -> void
 			{
-				std::swap(_struct.select, rhs._struct.select);
-				std::swap(_struct.from, rhs._struct.from);
-				std::swap(_struct.where, rhs._struct.where);
+				std::swap(_expr.colums, rhs._expr.colums);
+				std::swap(_expr.table, rhs._expr.table);
+				std::swap(_expr.wheres, rhs._expr.wheres);
 			}
 
-			sql::query::sql_select_query_structure _struct{};
-			std::string _expr{};
+			sql::query::sql_select_query_structure _expr{};
+			std::string _text{};
 
 		public:
 			sql_select_query() = default;
@@ -198,7 +182,7 @@ namespace patterns
 
 		}; // class sql_select_query
 
-		void swap(sql_select_query& lhs, sql_select_query& rhs) noexcept { lhs.swap(rhs); }
+		auto swap(sql_select_query& lhs, sql_select_query& rhs) noexcept -> void { lhs.swap(rhs); }
 
 	} // namespace generative
 } // namespace patterns

@@ -107,15 +107,15 @@ namespace sql
 				if (!other_expr._bind)
 					return *this;
 
-				_expr.push_back(_bind());
+				_expr.push_back(other_expr._bind());
 				_expr.push_back(sql::character::space());
 				return *this;
 			}
-			void bind(sql::logic_operator<char> logic) { _bind = logic; }
-			std::string get() const { return _expr; }
+			auto bind(sql::logical_operator<char> logic) -> void { _bind = logic; }
+			auto get() const -> std::string { return _expr; }
 
 		private:
-			void swap(expr_requi& other_expr) noexcept
+			auto swap(expr_requi& other_expr) noexcept -> void
 			{
 				std::swap(_expr, other_expr._expr);
 				std::swap(_bind, other_expr._bind);
@@ -123,7 +123,7 @@ namespace sql
 
 		private:
 			std::string _expr{}; // помещаем проверенную часть выражения
-			sql::logic_operator<char> _bind{ sql::character::comma }; // помещаем адрес функции, которая вызывается...
+			sql::logical_operator<char> _bind{ sql::character::comma }; // помещаем адрес функции, которая вызывается...
 		}; // class expr_requi
 	} // namespace query
 } // namespace sql
