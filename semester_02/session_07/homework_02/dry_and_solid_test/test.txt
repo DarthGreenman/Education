@@ -1,0 +1,11 @@
+
+beginning of formatted text
+A. Strings are objects that represent sequences of characters.
+end of formatted text
+
+<html>	<head>
+		<meta property = "og:image:alt" content = "Image description">
+	</head>
+</html>
+
+"address" : {"street": "Moskovskoe sh., 10, fl. 101", "city": "Leningrad", "postalCode": 101101}
