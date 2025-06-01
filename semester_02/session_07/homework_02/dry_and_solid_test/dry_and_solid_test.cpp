@@ -17,7 +17,8 @@ namespace my_literals
 	void send_to(std::ofstream& of, T tag, Args&&... args)
 	{
 		const solid::basic_data raw{ std::forward<Args>(args)... };
-		raw.send_to(of, tag);
+		void(decltype(raw):: * send)(std::ofstream&, T) const = &decltype(raw)::send_to;
+		std::invoke(send, &raw, of, tag);
 	}
 }
 
