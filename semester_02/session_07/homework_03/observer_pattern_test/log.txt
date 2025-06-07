@@ -1,0 +1,3 @@
+pattern::journal::warning	Warning
+pattern::journal::error	Error
+pattern::journal::fatal	Fatal
