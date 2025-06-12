@@ -9,8 +9,8 @@
 #include <memory>
 #include <string>
 
-std::string get_error() { return "Error message"; }
-std::string get_fatal() { return "Fatal error message"; }
+static std::string get_error() { return "Error message"; }
+static std::string get_fatal() { return "Fatal error message"; }
 
 int main()
 {

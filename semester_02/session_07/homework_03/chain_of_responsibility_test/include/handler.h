@@ -19,19 +19,14 @@ namespace pattern
 			void receiver(const logger& log)
 			{
 				if (can_handler() == log.type())
-					handle(log.message());
-				else if (_next)
-					_next->receiver(log);
-				else
 				{
-					/// Обработчик неизвестного сообщения должен выбросить исключение с текстом о необработанном
-					/// сообщении.
-					using namespace std;
-					throw runtime_error{
-						"\nRuntime error, no handler found for this type of message: " + string{__FUNCTION__} +
-						"\nfile: " + string{ __FILE__ } + "\nline: " + to_string(__LINE__)
-					};
+					handle(log.message());
+					return;
 				}
+				_next ? _next->receiver(log) : throw std::runtime_error{
+						"\nRuntime error, no handler found for this type of message: " + std::string{__FUNCTION__} +
+						"\nfile: " + std::string{ __FILE__ } + "\nline: " + std::to_string(__LINE__)
+					};
 			}
 			virtual ~log_handler() = default;
 

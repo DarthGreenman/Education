@@ -7,7 +7,6 @@
 #include "logger.h"
 #include <fstream>
 #include <ios>
-#include <iosfwd>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -83,7 +82,7 @@ namespace pattern
 			void handle(const std::string& msg) override final
 			{
 				using namespace std;
-				throw runtime_error{ msg + "\method: " + string{__FUNCTION__} +
+				throw runtime_error{ msg + " method: " + string{__FUNCTION__} +
 					"\nfile: " + string{ __FILE__ } + "\nline: " + to_string(__LINE__) };
 			}
 		}; /// struct fatal

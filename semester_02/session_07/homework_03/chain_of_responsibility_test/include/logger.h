@@ -3,9 +3,10 @@
 #ifndef LOGGER_H_IN_MY_PROJECT
 #define LOGGER_H_IN_MY_PROJECT
 
+#include <algorithm>
 #include <iterator>
 #include <string>
-#include <type_traits>
+#include <utility>
 
 namespace pattern
 {
