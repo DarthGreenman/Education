@@ -9,7 +9,7 @@
 
 #include <algorithm>
 #include <fstream>
-#include <iosfwd>
+#include <iterator>
 #include <map>
 #include <sstream>
 #include <stdexcept>
@@ -25,17 +25,21 @@ namespace ini
 
         using const_iterator = typename std::string::const_iterator;
 
-        constexpr parser() = default;
+        parser() = default;
         parser(std::ifstream& file)
         {
             using namespace std;
             using namespace my::ascii;
             for (string line{}, heading{}; getline(file, line); )
             {
-                if (const auto& [first, last] = get_range(std::begin(line), std::end(line)); first != last)
+                if (const auto& [first, last] = get_range(std::begin(line), std::end(line)); 
+                    first != last)
                 {
-                    if (const auto& [key, val] = get_param(first, last, heading); !heading.empty() && !key.empty())
+                    if (const auto& [key, val] = get_param(first, last, heading); 
+                        !heading.empty() && !key.empty())
+                    {
                         records_.emplace(heading, make_pair(key, val));
+                    }
                 }
             }
         }
@@ -46,7 +50,7 @@ namespace ini
 
         parser& operator=(const parser&) = delete;
         parser& operator=(parser&&) = delete;
-
+        
         // Возращает значение ключа в целочисленном типе; в типе числа с плавающей запятой; в строке,
         // если значение отсутствует возвращает "empty" с указанием заголовка и ключа. 
         // Входные данные: запрос - строка формата "ЗАГОЛОВОК:КЛЮЧ", в данном случае разделитель ':'
@@ -61,7 +65,7 @@ namespace ini
 
             return get_value<Type>(get_pair(param, delim));
         }
-        
+                
         // Возращает значение ключа в целочисленном типе; в типе числа с плавающей запятой; в строке,
         // если значение отсутствует возвращает "empty" с указанием заголовка и ключа. 
         // Входные данные: запрос - структура { ЗАГОЛОВОК, КЛЮЧ }.
@@ -86,7 +90,7 @@ namespace ini
                 error_message += lower->second.first + ' ';
             throw std::invalid_argument{ error_message + '\n'};
         }
-
+        
     private:
         // Возвращает интервал, где:
         // начало - первый элемент отличный от ' ' или '\t', или first;
@@ -137,7 +141,8 @@ namespace ini
             auto rule_heading = [](char ch) { return is_letter(ch) || is_digit(ch); };
             auto rule_param_key = [](char ch) { return is_letter(ch) || is_digit(ch) || ch == underscore || ch == period; };
             auto rule_param_val = [](char ch) { return is_letter(ch) || is_digit(ch) || ch == underscore || ch == period ||
-                ch == slash || ch == percent || ch == asterisk || ch == double_quote || ch == space; };
+                ch == slash || ch == percent || ch == asterisk || ch == double_quote || ch == space || ch == colon || ch == backslash  ||
+                ch == comma; };
 
             switch (*first)
             {
@@ -145,7 +150,8 @@ namespace ini
             case N: case O: case P: case Q: case R: case S: case T: case U: case V: case W: case X: case Y: case Z:
             case a: case b: case c: case d: case e: case f: case g: case h: case i: case j: case k: case l: case m:
             case n: case o: case p: case q: case r: case s: case t: case u: case v: case w: case x: case y: case z:
-                if (const auto to_sign = find(first, last, equality_sign); to_sign != last && !heading.empty())
+                if (const auto to_sign = find(first, last, equality_sign); 
+                    to_sign != last && !heading.empty())
                     return make_pair(get_lexeme(first, to_sign, rule_param_key), get_lexeme(next(to_sign), last, rule_param_val));
                 break;
 
@@ -161,7 +167,6 @@ namespace ini
 
             return pair<string, string>{};
         }
-        
         auto get_pair(const std::string& param, char delim) const -> std::pair<std::string, std::string>
         {
             using namespace std;

@@ -71,7 +71,7 @@ namespace my
             Y                    = 0b01011001,
             Z                    = 0b01011010,
             left_square_bracket  = 0b01011011, // [
-            backslash            = 0b01011100,
+            backslash            = 0b01011100, // '\'
             right_square_bracket = 0b01011101, // ]
             caret                = 0b01011110, // ^
             underscore           = 0b01011111, // _
