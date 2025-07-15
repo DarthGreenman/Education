@@ -12,9 +12,16 @@
 
 namespace watch
 {
-	stopwatch::stopwatch(QObject* parent)
+	stopwatch::stopwatch(std::chrono::milliseconds timeout, QObject* parent)
 		try : QObject(parent), _timer{ std::make_unique<QTimer>() }
 	{
+		_timer.get()->setInterval(timeout);
+		QObject::connect(_timer.get(), &QTimer::timeout, this, [&, timeout]
+			{
+				const auto point = std::chrono::milliseconds{ ++_counter };
+				emit update(point * timeout.count());
+			}
+		);
 	}
 	catch (...)
 	{
@@ -34,17 +41,7 @@ namespace watch
 		return QTime{ hrs.count(), min.count(), static_cast<int>(sec.count()), 
 			static_cast<int>(time_point.count()) };
 	}
-	void stopwatch::start(std::chrono::milliseconds timeout)
-	{
-		QObject::connect(_timer.get(), &QTimer::timeout, this,
-			[&, timeout]
-			{
-				const auto point = std::chrono::milliseconds{ ++_counter };
-				emit update(point * timeout.count());
-			}
-		);
-		_timer->start(timeout);
-	}
+	void stopwatch::start()	{ _timer->start();	}
 	void stopwatch::stop() { _timer->stop(); }
 	std::size_t stopwatch::add_circle() { return ++_circle; }
 	void stopwatch::reset()

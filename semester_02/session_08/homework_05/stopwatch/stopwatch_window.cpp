@@ -22,9 +22,9 @@ namespace watch
 {
 	stopwatch_window::stopwatch_window(QWidget* parent)
 		try : QWidget(parent),
-		_start{ new QPushButton{"Старт"} }, _loop{ new QPushButton{"Круг"} }, _reset{ new QPushButton{"Сброс"} },
+		_start{ new QPushButton{"Старт"} }, _circle{ new QPushButton{"Круг"} }, _reset{ new QPushButton{"Сброс"} },
 		_time_view{ new QLabel{QTime{ 0,0 }.toString(Qt::ISODateWithMs)} }, _time_list_view{ new QListWidget{} },
-		_timer{ std::make_unique<stopwatch>() }
+		_timer{ std::make_unique<stopwatch>(std::chrono::milliseconds{ 100 }) }
 	{
 		QWidget::setWindowTitle("Секундомер");
 		QWidget::setFixedWidth(300);
@@ -32,6 +32,7 @@ namespace watch
 
 		handler();
 		QObject::connect(_timer.get(), &stopwatch::update, this, &stopwatch_window::update_time);
+		QObject::connect(_timer.get(), &stopwatch::update, this, &stopwatch_window::update_time_list);
 	}
 	catch (...)
 	{
@@ -41,6 +42,16 @@ namespace watch
 	void stopwatch_window::update_time(std::chrono::milliseconds time_point)
 	{
 		_time_view->setText(stopwatch::convert_to_time(time_point).toString(Qt::ISODateWithMs));
+	}
+	void stopwatch_window::update_time_list(std::chrono::milliseconds time_point)
+	{
+		if (!_time_list_view->count())
+		{
+			//QString value{ "Круг: " + QString::number(_timer->add_circle()) + " время: " + _time_view->text() };
+			_time_list_view->addItem(QTime{ 0,0 }.toString(Qt::ISODateWithMs));
+			_time_list_view->currentItem()->setText(stopwatch::convert_to_time(time_point).toString(Qt::ISODateWithMs));
+		}
+
 	}
 	QLayout* stopwatch_window::make_environment()
 	{
@@ -54,11 +65,11 @@ namespace watch
 	QLayout* stopwatch_window::make_control_area()
 	{
 		_start->setCheckable(true);
-		_loop->setDisabled(true);
+		_circle->setDisabled(true);
 
 		auto box = new QHBoxLayout{};
 		box->addWidget(_start); 
-		box->addWidget(_loop); 
+		box->addWidget(_circle); 
 		box->addWidget(_reset);
 
 		return box;
@@ -69,12 +80,12 @@ namespace watch
 			{
 				const auto is_checked = _start->isChecked();
 				_start->setText(is_checked ? "Стоп" : "Старт");
-				_loop->setEnabled(is_checked ? true : false);
-				is_checked ? _timer->start(std::chrono::milliseconds{ 100 }) : _timer->stop();
+				_circle->setEnabled(is_checked ? true : false);
+				is_checked ? _timer->start() : _timer->stop();
 			}
 		);
 
-		QObject::connect(_loop, &QPushButton::clicked, this, [&]
+		QObject::connect(_circle, &QPushButton::clicked, this, [&]
 			{
 				QString value{ "Круг: " + QString::number(_timer->add_circle()) + " время: " + _time_view->text() };
 				_time_list_view->addItem(std::move(value));

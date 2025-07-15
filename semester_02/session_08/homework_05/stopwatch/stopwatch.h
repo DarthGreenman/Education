@@ -17,11 +17,11 @@ namespace watch
 		Q_OBJECT
 
 	public:
-		stopwatch(QObject* parent = nullptr);
+		stopwatch(std::chrono::milliseconds timeout, QObject* parent = nullptr);
 		~stopwatch() = default;
 
 		static QTime convert_to_time(std::chrono::milliseconds time_point);
-		void start(std::chrono::milliseconds timeout);
+		void start();
 		void stop();
 		std::size_t add_circle();
 		void reset();

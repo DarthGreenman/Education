@@ -25,6 +25,7 @@ namespace watch
 
 	public slots:
 		void update_time(std::chrono::milliseconds time_point);
+		void update_time_list(std::chrono::milliseconds time_point);
 
 	private:
 		QLayout* make_environment();
@@ -32,7 +33,7 @@ namespace watch
 		void handler();
 
 	private:
-		QPushButton* _start{}, * _loop{}, * _reset{};
+		QPushButton* _start{}, * _circle{}, * _reset{};
 		QLabel* _time_view{};
 		QListWidget* _time_list_view{};
 		std::unique_ptr<stopwatch> _timer{};
