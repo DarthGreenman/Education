@@ -20,11 +20,12 @@
 
 namespace watch
 {
+	using namespace std::chrono_literals;
 	stopwatch_window::stopwatch_window(QWidget* parent)
 		try : QWidget(parent),
 		_start{ new QPushButton{"Старт"} }, _circle{ new QPushButton{"Круг"} }, _reset{ new QPushButton{"Сброс"} },
 		_time_view{ new QLabel{QTime{ 0,0 }.toString(Qt::ISODateWithMs)} }, _time_list_view{ new QListWidget{} },
-		_timer{ std::make_unique<stopwatch>(std::chrono::milliseconds{ 100 }) }
+		_timer{ std::make_unique<stopwatch>(100ms) }
 	{
 		QWidget::setWindowTitle("Секундомер");
 		QWidget::setFixedWidth(300);
@@ -32,7 +33,6 @@ namespace watch
 
 		handler();
 		QObject::connect(_timer.get(), &stopwatch::update, this, &stopwatch_window::update_time);
-		QObject::connect(_timer.get(), &stopwatch::update, this, &stopwatch_window::update_time_list);
 	}
 	catch (...)
 	{
@@ -41,17 +41,7 @@ namespace watch
 	}
 	void stopwatch_window::update_time(std::chrono::milliseconds time_point)
 	{
-		_time_view->setText(stopwatch::convert_to_time(time_point).toString(Qt::ISODateWithMs));
-	}
-	void stopwatch_window::update_time_list(std::chrono::milliseconds time_point)
-	{
-		if (!_time_list_view->count())
-		{
-			//QString value{ "Круг: " + QString::number(_timer->add_circle()) + " время: " + _time_view->text() };
-			_time_list_view->addItem(QTime{ 0,0 }.toString(Qt::ISODateWithMs));
-			_time_list_view->currentItem()->setText(stopwatch::convert_to_time(time_point).toString(Qt::ISODateWithMs));
-		}
-
+		_time_view->setText(stopwatch::format_to_view(time_point).toString(Qt::ISODateWithMs));
 	}
 	QLayout* stopwatch_window::make_environment()
 	{
@@ -74,6 +64,9 @@ namespace watch
 
 		return box;
 	}
+	/// <summary>
+	/// Обработчик сигналов элементов управления
+	/// </summary>
 	void stopwatch_window::handler()
 	{
 		QObject::connect(_start, &QPushButton::toggled, this,[&]
@@ -87,7 +80,9 @@ namespace watch
 
 		QObject::connect(_circle, &QPushButton::clicked, this, [&]
 			{
-				QString value{ "Круг: " + QString::number(_timer->add_circle()) + " время: " + _time_view->text() };
+				const auto& [circle, duration] = _timer->add_circle();
+				QString value{ "Круг: " + QString::number(circle) + " время: " + 
+					stopwatch::format_to_view(duration).toString(Qt::ISODateWithMs) };
 				_time_list_view->addItem(std::move(value));
 			}
 		);
