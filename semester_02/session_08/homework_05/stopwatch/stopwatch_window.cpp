@@ -92,7 +92,6 @@ namespace watch
 				_timer->reset();
 				_time_view->setText(QTime{ 0,0 }.toString(Qt::ISODateWithMs));
 				_time_list_view->clear();
-				_start->setChecked(false);
 			}
 		);
 	}
