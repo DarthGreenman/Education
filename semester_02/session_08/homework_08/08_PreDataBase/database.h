@@ -11,6 +11,7 @@
 #include <qsqldatabase.h>
 #include <qsqlerror.h>
 #include <qsqlquery.h>
+#include <qsqlquerymodel.h>
 #include <qsqltablemodel.h>
 #include <qstring.h>
 #include <qtmetamacros.h>
@@ -55,7 +56,7 @@ namespace mydb
 		/// </summary>
 		/// <param name="query"></param>
 		/// <param name="genre"></param>
-		void prepareQuery(movieGenre genre);
+		void prepareQuery(QSqlQuery* query, movieGenre genre);
 	
 	public:
 		/// <summary>
@@ -87,11 +88,11 @@ namespace mydb
 	signals:
 		void sendStatusConnection(bool status);
 		void sendTableData(QSqlTableModel* model, const QStringList& header);
-		void sendSqlData(QSqlQuery* query, const QStringList& header);
+		void sendSqlData(QSqlQueryModel* query, const QStringList& header);
 
 	private:
 		std::unique_ptr<QSqlDatabase> _db{};
-		std::unique_ptr<QSqlQuery> _query{};
+		std::unique_ptr<QSqlQueryModel> _query{};
 		std::unique_ptr<QSqlTableModel> _table{};
 		const QStringList _header{ QStringList() << "Название" << "Описание" };
 

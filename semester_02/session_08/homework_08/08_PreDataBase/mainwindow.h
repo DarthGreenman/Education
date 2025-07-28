@@ -6,10 +6,12 @@
 #include "database.h"
 #include "db_connect.h"
 #include <memory>
+#include <qabstractitemmodel.h>
 #include <qcontainerfwd.h>
 #include <qmainwindow.h>
 #include <qmessagebox.h>
-#include <qsqlquery.h>
+#include <qnamespace.h>
+#include <qsqlquerymodel.h>
 #include <qsqltablemodel.h>
 #include <qtconfigmacros.h>
 #include <qtmetamacros.h>
@@ -44,7 +46,7 @@ public slots:
 	/// </summary>
 	/// <param name="model"></param>
 	/// <param name="header"></param>
-	void receiveTableData(QSqlTableModel* model, const QStringList& header);
+	void receiveTableData(QSqlTableModel* table, const QStringList& header);
 
 	/// <summary>
 	/// Метод получает указатель на данные, заполняем данными модель,
@@ -52,7 +54,7 @@ public slots:
 	/// </summary>
 	/// <param name="query"></param>
 	/// <param name="header"></param>
-	void receiveSqlData(QSqlQuery* query, const QStringList& header);
+	void receiveSqlData(QSqlQueryModel* query, const QStringList& header);
 
 	/// <summary>
 	/// Метод изменяет состояние элементов управления в зависимости от статуса состояния
@@ -82,6 +84,8 @@ private:
 		if (const auto error = _db->executeQuery(std::forward<T>(value)); error.isValid())
 			QMessageBox::critical(this, "Error", error.text());
 	}
+
+	void receiveData(QAbstractTableModel* model, const QStringList& header);
 
 private:
 	enum class model { table, item };

@@ -6,6 +6,7 @@
 #include "ui_mainwindow.h"
 
 #include <memory>
+#include <qabstractitemmodel.h>
 #include <qabstractitemview.h>
 #include <qaction.h>
 #include <qcontainerfwd.h>
@@ -14,9 +15,8 @@
 #include <qnamespace.h>
 #include <qobject.h>
 #include <qpushbutton.h>
-#include <qsqlquery.h>
+#include <qsqlquerymodel.h>
 #include <qsqltablemodel.h>
-#include <qstandarditemmodel.h>
 #include <qtableview.h>
 #include <qtconcurrentrun.h>
 #include <qwidget.h>
@@ -118,38 +118,26 @@ void MainWindow::setupControl()
 		{
 			auto model = _ui->view->model();
 			_cleaner == model::table ? dynamic_cast<QSqlTableModel*>(model)->clear() :
-				dynamic_cast<QStandardItemModel*>(model)->clear();
+				dynamic_cast<QSqlQueryModel*>(model)->clear();
 			_ui->clear->setEnabled(false);
 		});
 }
 
-void MainWindow::receiveTableData(QSqlTableModel* model, const QStringList& header)
+void MainWindow::receiveTableData(QSqlTableModel* table, const QStringList& header)
 {
 	// Удаляем не актуальные столбцы.
-	model->removeColumn(0);
+	table->removeColumn(0);
 	const auto colum = header.size();
-	const auto count = model->columnCount() - header.size();
-	model->removeColumns(colum, count);
-	// Устанавливаем наименование столбцов.
-	for (std::size_t col{}; col < header.size(); ++col) {
-		model->setHeaderData(col, Qt::Horizontal, header[col]);
-	}
-	_ui->view->setModel(model); // Передаем модель в представление.
+	const auto count = table->columnCount() - header.size();
+	table->removeColumns(colum, count);
+
+	receiveData(table, header);
+
 }
 
-void MainWindow::receiveSqlData(QSqlQuery* query, const QStringList& header)
+void MainWindow::receiveSqlData(QSqlQueryModel* query, const QStringList& header)
 {
-	auto model = new QStandardItemModel{ this };
-	// Передаем данные из запроса в модель.
-	for (std::size_t row{}; query->next(); model->insertRow(++row)) {
-		for (std::size_t col{}; col < header.size(); ++col)
-		{
-			const auto item = new QStandardItem{ query->value(col).toString() };
-			model->setItem(row, col, item);
-		}
-	}
-	model->setHorizontalHeaderLabels(header); // Устанавливаем наименование столбцов.
-	_ui->view->setModel(model); // Передаем модель в представление.
+	receiveData(query, header);
 }
 
 void MainWindow::receiveStatusConnection(bool status)
@@ -186,4 +174,13 @@ void MainWindow::connectToDatabase()
 		_ui->connect->setText("Подключиться");
 		_ui->query->setEnabled(false);
 	}
+}
+
+void MainWindow::receiveData(QAbstractTableModel* model, const QStringList& header)
+{
+	// Устанавливаем наименование столбцов.
+	for (std::size_t col{}; col < header.size(); ++col) {
+		model->setHeaderData(col, Qt::Horizontal, header[col]);
+	}
+	_ui->view->setModel(model); // Передаем модель в представление.
 }

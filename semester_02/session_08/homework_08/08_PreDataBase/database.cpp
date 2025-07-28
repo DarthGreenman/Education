@@ -8,6 +8,7 @@
 #include <qsqldatabase.h>
 #include <qsqlerror.h>
 #include <qsqlquery.h>
+#include <qsqlquerymodel.h>
 #include <qsqltablemodel.h>
 #include <qstring.h>
 #include <qtmetamacros.h>
@@ -44,25 +45,26 @@ namespace mydb
 		_db->close();
 	}
 
-	void Database::prepareQuery(movieGenre genre)
+	void Database::prepareQuery(QSqlQuery* query, movieGenre genre)
 	{
-		_query->clear();
 		static QString text{ "SELECT title, description FROM film "
 			"JOIN film_category ON film.film_id = film_category.film_id "
 			"JOIN category ON category.category_id = film_category.category_id "
 			"WHERE category.name = :genre" };
-	
-		_query->prepare(text);
-		genre == movieGenre::comedy ? _query->bindValue(":genre", "Comedy") :
-			_query->bindValue(":genre", "Horror");
+
+		query->prepare(text);
+		genre == movieGenre::comedy ? query->bindValue(":genre", "Comedy") :
+			query->bindValue(":genre", "Horror");
 	}
 
 	QSqlError Database::executeQuery(movieGenre genre)
 	{
-		_query = std::make_unique<QSqlQuery>(*_db);
-		prepareQuery(genre);
-		if (_query->exec())
+		QSqlQuery query{ *_db };
+		prepareQuery(&query, genre);
+		if (query.exec())
 		{
+			_query = std::make_unique<QSqlQueryModel>(nullptr);
+			_query->setQuery(query);
 			emit sendSqlData(_query.get(), _header);
 			return QSqlError{};
 		}
