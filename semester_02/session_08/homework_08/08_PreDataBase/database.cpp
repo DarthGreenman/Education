@@ -65,7 +65,7 @@ namespace mydb
 		{
 			_query = std::make_unique<QSqlQueryModel>(nullptr);
 			_query->setQuery(query);
-			emit sendSqlData(_query.get(), _header);
+			emit sendData(_query.get(), _header);
 			return QSqlError{};
 		}
 		return _query->lastError();
@@ -77,7 +77,7 @@ namespace mydb
 		_table->setTable(tableName);
 		if (_table->select())
 		{
-			emit sendTableData(_table.get(), _header);
+			emit sendData(_table.get(), _header);
 			return QSqlError{};
 		}
 		return _table->lastError();

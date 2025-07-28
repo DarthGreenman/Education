@@ -14,6 +14,7 @@
 #include <qmessagebox.h>
 #include <qnamespace.h>
 #include <qobject.h>
+#include <qoverload.h>
 #include <qpushbutton.h>
 #include <qsqlquerymodel.h>
 #include <qsqltablemodel.h>
@@ -94,21 +95,25 @@ void MainWindow::setupControl()
 		});
 
 	/*********************************************************************************************/
-	/// Получаем данные методами класса QSqlQuery.
-	QObject::connect(_db.get(), &mydb::Database::sendSqlData, this, &MainWindow::receiveSqlData);
+	/// Получаем данные методами класса QSqlTableModel.
+	QObject::connect(_db.get(), qOverload<QSqlTableModel*, const QStringList&>(&mydb::Database::sendData),
+		this, qOverload<QSqlTableModel*, const QStringList&>(&MainWindow::receiveData));
 	/// Обновляем интерфейс.
-	QObject::connect(_db.get(), &mydb::Database::sendSqlData, this, [&]
+	QObject::connect(_db.get(), qOverload<QSqlTableModel*, const QStringList&>(&mydb::Database::sendData),
+		this, [&]
 		{
-			_cleaner = model::item;
+			_cleaner = model::table;
 			_ui->clear->setEnabled(true);
 		});
 
-	/// Получаем данные методами класса QSqlTableModel.
-	QObject::connect(_db.get(), &mydb::Database::sendTableData, this, &MainWindow::receiveTableData);
+	/// Получаем данные методами класса QSqlQueryModel.
+	QObject::connect(_db.get(), qOverload<QSqlQueryModel*, const QStringList&>(&mydb::Database::sendData),
+		this, qOverload<QSqlQueryModel*, const QStringList&>(&MainWindow::receiveData));
 	/// Обновляем интерфейс.
-	QObject::connect(_db.get(), &mydb::Database::sendTableData, this, [&]
+	QObject::connect(_db.get(), qOverload<QSqlQueryModel*, const QStringList&>(&mydb::Database::sendData),
+		this, [&]
 		{
-			_cleaner = model::table;
+			_cleaner = model::query;
 			_ui->clear->setEnabled(true);
 		});
 
@@ -123,7 +128,7 @@ void MainWindow::setupControl()
 		});
 }
 
-void MainWindow::receiveTableData(QSqlTableModel* table, const QStringList& header)
+void MainWindow::receiveData(QSqlTableModel* table, const QStringList& header)
 {
 	// Удаляем не актуальные столбцы.
 	table->removeColumn(0);
@@ -131,13 +136,13 @@ void MainWindow::receiveTableData(QSqlTableModel* table, const QStringList& head
 	const auto count = table->columnCount() - header.size();
 	table->removeColumns(colum, count);
 
-	receiveData(table, header);
+	receiveData(static_cast<QAbstractTableModel*>(table), header);
 
 }
 
-void MainWindow::receiveSqlData(QSqlQueryModel* query, const QStringList& header)
+void MainWindow::receiveData(QSqlQueryModel* query, const QStringList& header)
 {
-	receiveData(query, header);
+	receiveData(static_cast<QAbstractTableModel*>(query), header);
 }
 
 void MainWindow::receiveStatusConnection(bool status)

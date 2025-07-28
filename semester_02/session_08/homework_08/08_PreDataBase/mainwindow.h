@@ -46,7 +46,7 @@ public slots:
 	/// </summary>
 	/// <param name="model"></param>
 	/// <param name="header"></param>
-	void receiveTableData(QSqlTableModel* table, const QStringList& header);
+	void receiveData(QSqlTableModel* table, const QStringList& header);
 
 	/// <summary>
 	/// Метод получает указатель на данные, заполняем данными модель,
@@ -54,7 +54,7 @@ public slots:
 	/// </summary>
 	/// <param name="query"></param>
 	/// <param name="header"></param>
-	void receiveSqlData(QSqlQueryModel* query, const QStringList& header);
+	void receiveData(QSqlQueryModel* query, const QStringList& header);
 
 	/// <summary>
 	/// Метод изменяет состояние элементов управления в зависимости от статуса состояния
@@ -88,7 +88,7 @@ private:
 	void receiveData(QAbstractTableModel* model, const QStringList& header);
 
 private:
-	enum class model { table, item };
+	enum class model { table, query };
 
 	std::unique_ptr<Ui::MainWindow> _ui{};
 	std::unique_ptr<mydb::Database> _db{};

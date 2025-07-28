@@ -87,8 +87,8 @@ namespace mydb
 
 	signals:
 		void sendStatusConnection(bool status);
-		void sendTableData(QSqlTableModel* model, const QStringList& header);
-		void sendSqlData(QSqlQueryModel* query, const QStringList& header);
+		void sendData(QSqlTableModel* model, const QStringList& header);
+		void sendData(QSqlQueryModel* query, const QStringList& header);
 
 	private:
 		std::unique_ptr<QSqlDatabase> _db{};
