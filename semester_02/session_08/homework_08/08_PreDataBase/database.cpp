@@ -57,6 +57,15 @@ namespace mydb
 			query->bindValue(":genre", "Horror");
 	}
 
+	void Database::prepareQuery()
+	{
+		// Удаляем не актуальные столбцы.
+		_table->removeColumn(0);
+		const auto colum = _header.size();
+		const auto count = _table->columnCount() - _header.size();
+		_table->removeColumns(colum, count);
+	}
+
 	QSqlError Database::executeQuery(movieGenre genre)
 	{
 		QSqlQuery query{ *_db };
@@ -77,6 +86,7 @@ namespace mydb
 		_table->setTable(tableName);
 		if (_table->select())
 		{
+			prepareQuery();			
 			emit sendData(_table.get(), _header);
 			return QSqlError{};
 		}

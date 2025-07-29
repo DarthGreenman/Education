@@ -130,19 +130,14 @@ void MainWindow::setupControl()
 
 void MainWindow::receiveData(QSqlTableModel* table, const QStringList& header)
 {
-	// Удаляем не актуальные столбцы.
-	table->removeColumn(0);
-	const auto colum = header.size();
-	const auto count = table->columnCount() - header.size();
-	table->removeColumns(colum, count);
-
-	receiveData(static_cast<QAbstractTableModel*>(table), header);
-
+	setHeader(table, header);
+	_ui->view->setModel(table); // Передаем модель в представление.
 }
 
 void MainWindow::receiveData(QSqlQueryModel* query, const QStringList& header)
 {
-	receiveData(static_cast<QAbstractTableModel*>(query), header);
+	setHeader(query, header);
+	_ui->view->setModel(query); // Передаем модель в представление.
 }
 
 void MainWindow::receiveStatusConnection(bool status)
@@ -181,11 +176,10 @@ void MainWindow::connectToDatabase()
 	}
 }
 
-void MainWindow::receiveData(QAbstractTableModel* model, const QStringList& header)
+void MainWindow::setHeader(QAbstractTableModel* model, const QStringList& header)
 {
 	// Устанавливаем наименование столбцов.
 	for (std::size_t col{}; col < header.size(); ++col) {
 		model->setHeaderData(col, Qt::Horizontal, header[col]);
 	}
-	_ui->view->setModel(model); // Передаем модель в представление.
 }

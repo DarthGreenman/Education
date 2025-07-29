@@ -57,6 +57,8 @@ namespace mydb
 		/// <param name="query"></param>
 		/// <param name="genre"></param>
 		void prepareQuery(QSqlQuery* query, movieGenre genre);
+
+		void prepareQuery();
 	
 	public:
 		/// <summary>

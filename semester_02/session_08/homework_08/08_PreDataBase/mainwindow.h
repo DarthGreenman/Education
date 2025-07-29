@@ -85,7 +85,7 @@ private:
 			QMessageBox::critical(this, "Error", error.text());
 	}
 
-	void receiveData(QAbstractTableModel* model, const QStringList& header);
+	void setHeader(QAbstractTableModel* model, const QStringList& header);
 
 private:
 	enum class model { table, query };
