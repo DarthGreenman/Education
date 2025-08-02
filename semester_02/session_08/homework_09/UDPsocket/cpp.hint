@@ -1,0 +1,11 @@
+// Файлы указаний помогают среде IDE Visual Studio интерпретировать идентификаторы Visual C++
+// (например, имена функций и макросов).
+// Дополнительные сведения: https://go.microsoft.com/fwlink/?linkid=865984
+#define slots
+#define QT_BEGIN_NAMESPACE
+#define QT_BEGIN_NAMESPACE inline namespace QT_NAMESPACE {
+#define QT_BEGIN_NAMESPACE namespace QT_NAMESPACE {
+#define QT_END_NAMESPACE
+#define QT_END_NAMESPACE }
+#define Q_OBJECT public: QT_WARNING_PUSH Q_OBJECT_NO_OVERRIDE_WARNING static const QMetaObject staticMetaObject; virtual const QMetaObject *metaObject() const; virtual void *qt_metacast(const char *); virtual int qt_metacall(QMetaObject::Call, int, void **); QT_TR_FUNCTIONS private: QT_OBJECT_GADGET_COMMON QT_DEFINE_TAG_STRUCT(QPrivateSignal); QT_WARNING_POP QT_ANNOTATE_CLASS(qt_qobject, "")
+#define Q_OBJECT
