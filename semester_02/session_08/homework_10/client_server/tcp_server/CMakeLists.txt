@@ -23,10 +23,10 @@ set(PROJECT_SOURCES
 qt_standard_project_setup()
 qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${COMMON_SOURCES})
 
-set_target_properties(${PROJECT_NAME}
-    PROPERTIES
-        WIN32_EXECUTABLE TRUE
-)
+#set_target_properties(${PROJECT_NAME}
+#    PROPERTIES
+#        WIN32_EXECUTABLE TRUE
+#)
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
