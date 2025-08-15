@@ -1,7 +1,9 @@
 ﻿/// tcpserver.cpp
-
 #include "../common/inout.h"
 #include "../common/protocol.h"
+#include "../logger/handler.h"
+#include "../logger/handlers.h"
+#include "../logger/logger.h"
 #include "tcpserver.h"
 #include <cstdint>
 #include <memory>
@@ -10,25 +12,33 @@
 #include <qdatetime.h>
 #include <qhostaddress.h>
 #include <qiodevice.h>
+#include <qlist.h>
 #include <qlogging.h>
 #include <qobject.h>
 #include <qstring.h>
 #include <qtcpserver.h>
 #include <qtcpsocket.h>
 #include <qtimer.h>
+#include <qtypes.h>
+#include <stdexcept>
+#include <utility>
 
-TcpServer::TcpServer(QObject* parent, uint64_t capacity, uint16_t port) : _server{ std::make_unique<QTcpServer>() },
-_data{ std::make_unique<QByteArray>(capacity,'\0') }, _timer{ std::make_unique<QTimer>() },
-_capacity{ capacity }
+TcpServer::TcpServer(QObject* parent, uint64_t capacity, uint16_t port) :
+	_server{ std::make_unique<QTcpServer>() },
+	_data{ std::make_unique<QByteArray>(capacity,'\0') },
+	_timer{ std::make_unique<QTimer>() },
+	_log{ event::Logger::getInstance() },
+	_capacity{ capacity }
 {
+	loggingSetup();
+
 	if (_server->listen(QHostAddress::Any, port)) {
 		_timer->start(1000);
-		qDebug() << "Server started.";
-		qDebug() << "Time: " << QDateTime::currentDateTime();
-		qDebug() << "Port: " << port;
+		qDebug() << timepoint() << "starting server";
+		qDebug() << timepoint() << "connecting to a port: " << port;
 	}
 	else {
-		qDebug() << "Error start server!";
+		qDebug() << timepoint() << "error starting server";
 	}
 
 	QObject::connect(_timer.get(), &QTimer::timeout,
@@ -45,12 +55,12 @@ _capacity{ capacity }
 			QObject::connect(newSocket, &QTcpSocket::disconnected, this, [&]
 				{
 					QTcpSocket* curSocket = (QTcpSocket*)sender();
-					qDebug() << "Socket " << _sockets.find(curSocket).value() << " disconnected!";
+					qDebug() << timepoint() << "disconnecting from socket: " << _sockets.find(curSocket).value();
 					curSocket->deleteLater();
 					_sockets.erase(_sockets.find(curSocket));
 					--_state.connectedClients;
 				});
-			qDebug() << "Socket " << newSocket->socketDescriptor() << " connected!";
+			qDebug() << timepoint() << "connecting to a socket: " << newSocket->socketDescriptor();
 		});
 }
 
@@ -62,6 +72,7 @@ void TcpServer::processingMessage(QDataStream& data, const protocol::ServiceHead
 	const auto& [idHead, typeMsg, statusMsg, sizeMsg] = header;
 	using namespace protocol;
 	ServiceHeader head{ idHead, typeMsg, statusMsg, sizeMsg };
+
 	switch (typeMsg)
 	{
 	case RequestTypeMessages::GetTime:
@@ -100,13 +111,42 @@ void TcpServer::processingMessage(QDataStream& data, const protocol::ServiceHead
 		ou << head;
 		ou << freeSpace();
 		break;
-	default:
+	}
+
+	try {
+		toLog(socket->socketDescriptor(), typeMsg);
+	}
+	catch (const std::runtime_error& e)
+	{
+		qDebug() << timepoint() << "error in logging: " << e.what();
+		protocol::ServiceHeader new_head{};
+		std::swap(new_head, head);
+		ou << head;
+		socket->write(*_data);
 		return;
 	}
 
 	socket->write(*_data);
 	++_state.packetsTransferred;
 	_state.bytesTransferred += sizeof(ServiceHeader) + head.sizeMsg;
+}
+
+void TcpServer::loggingSetup()
+{
+	_events.push_back(std::make_shared<event::GetTime>());
+	_events.push_back(std::make_shared<event::GetFreeSpace>());
+	_events.push_back(std::make_shared<event::GetStat>());
+	_events.push_back(std::make_shared<event::SendData>());
+	_events.push_back(std::make_shared<event::ClearData>());
+
+	for (decltype(_events)::size_type pos{}; pos < _events.size(); ++pos)
+		_events[pos]->next(pos + 1 < _events.size() ? _events[pos + 1] : nullptr);
+}
+
+void TcpServer::toLog(qintptr socketDescriptor, protocol::RequestTypeMessages typeMsg) const
+{
+	auto& handler = _events.front();
+	handler->receiver(_log.send(socketDescriptor, typeMsg, QDateTime::currentDateTime()));
 }
 
 void TcpServer::readyRead()
@@ -116,10 +156,9 @@ void TcpServer::readyRead()
 
 	if (ou.status() != QDataStream::Ok)
 	{
-		qDebug() << "Error open stream for client " << socket->socketDescriptor();
+		qDebug() << timepoint() << "error open stream for client: " << socket->socketDescriptor();
 		return;
 	}
-	qDebug() << "Incoming data from client " << socket->socketDescriptor();
 	++_state.packetsReceived;
 
 	for (protocol::ServiceHeader head{}; socket->bytesAvailable();)

@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(COMMON_SOURCES "common/")
+set(LOGGER_SOURCES "logger/")
 
 add_subdirectory(tcp_client)
 add_subdirectory(tcp_server)

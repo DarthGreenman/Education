@@ -21,7 +21,7 @@ set(PROJECT_SOURCES
 )
 
 qt_standard_project_setup()
-qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${COMMON_SOURCES})
+qt_add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${COMMON_SOURCES} ${LOGGER_SOURCES})
 
 #set_target_properties(${PROJECT_NAME}
 #    PROPERTIES

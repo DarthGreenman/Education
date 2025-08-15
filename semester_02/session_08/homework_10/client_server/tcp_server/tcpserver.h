@@ -4,16 +4,23 @@
 #define TCPSERVER_H_IN_MY_PROJECT
 
 #include "../common/protocol.h"
+#include "../logger/handler.h"
+#include "../logger/logger.h"
+
 #include <cstdint>
 #include <memory>
 #include <qbytearray.h>
+#include <qcontainerfwd.h>
 #include <qdatastream.h>
+#include <qdatetime.h>
 #include <qmap.h>
 #include <qobject.h>
 #include <qtcpserver.h>
 #include <qtcpsocket.h>
 #include <qtimer.h>
 #include <qtmetamacros.h>
+#include <qtypes.h>
+#include <qvector.h>
 
 class TcpServer : public QTcpServer
 {
@@ -25,6 +32,9 @@ public:
 private:
 	void processingMessage(QDataStream& data, const protocol::ServiceHeader& header, QTcpSocket* socket);
 	auto freeSpace() const { return _capacity - _data->size(); }
+	auto timepoint() const { return QDateTime::currentDateTime().toString(); }
+	void loggingSetup();
+	void toLog(qintptr socketDescriptor, protocol::RequestTypeMessages typeMsg) const;
 
 private slots:
 	/// <summary>
@@ -41,11 +51,14 @@ private:
 	std::unique_ptr<QTcpServer> _server{};
 	std::unique_ptr<QByteArray> _data{};
 	std::unique_ptr<QTimer> _timer{};
+	event::Logger& _log;	
 	uint64_t _capacity{};
 
 	QMap<QTcpSocket*, int> _sockets{};
 	QMap<uint16_t, protocol::ServiceHeader> _queue{};
 	protocol::StatServer _state{};
+	QVector<std::shared_ptr<event::LogHandler>> _events{};
+
 
 }; /// class TcpServer
 
