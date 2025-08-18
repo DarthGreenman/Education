@@ -24,18 +24,20 @@ namespace driver
 	{
 		Q_OBJECT
 	public:
+		enum class ConnectionStatus { connected, disconnected };
 		AirportInspectorDriver(QObject* parent, const ConnectionParameters& connectParams);
 		~AirportInspectorDriver();
 
+		void connect();
 		void checkConnectionStatus();
 	private:
 		void setParams(const ConnectionParameters& connectParams);
 
 	private:
 		std::unique_ptr<QSqlDatabase> _db{};
-	
+
 	signals:
-		void connectionStatus(bool);
+		void connectionStatus(ConnectionStatus);
 		void connectionStatus(QString);
 
 	}; /// class AirportInspectorDriver

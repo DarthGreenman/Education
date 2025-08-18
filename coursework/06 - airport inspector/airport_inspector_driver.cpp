@@ -4,8 +4,9 @@
 #include <memory>
 #include <qobject.h>
 #include <qsqldatabase.h>
-#include <qtmetamacros.h>
 #include <qsqlerror.h>
+#include <qstring.h>
+#include <qtmetamacros.h>
 
 namespace driver
 {
@@ -14,17 +15,26 @@ namespace driver
 	{
 		*_db = QSqlDatabase::addDatabase("QPSQL", connectParams.name);
 		setParams(connectParams);
-		_db->open();
 	}
 
 	AirportInspectorDriver::~AirportInspectorDriver() { _db->close(); }
 
+	void AirportInspectorDriver::connect() 
+	{ 
+		_db->open();
+		checkConnectionStatus();
+	}
+
 	void AirportInspectorDriver::checkConnectionStatus()
 	{
-		if (const auto err = _db->lastError().isValid(); err)
-			emit connectionStatus(false);
+		if (const auto err = _db->lastError(); err.isValid())
+		{
+			emit connectionStatus(QString{ tr("Error connecting to database %1\n%2").
+				arg(err.databaseText()).arg(err.driverText()) });
+			emit connectionStatus(ConnectionStatus::disconnected);
+		}
 		else
-			emit connectionStatus(true);
+			emit connectionStatus(ConnectionStatus::connected);
 	}
 
 	void AirportInspectorDriver::setParams(const ConnectionParameters& connectParams)
