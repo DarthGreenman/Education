@@ -2,11 +2,15 @@
 
 #include "airport_inspector_driver.h"
 #include <memory>
+#include <qcontainerfwd.h>
+#include <qnamespace.h>
 #include <qobject.h>
 #include <qsqldatabase.h>
 #include <qsqlerror.h>
+#include <qsqlquerymodel.h>
 #include <qstring.h>
 #include <qtmetamacros.h>
+#include <utility>
 
 namespace driver
 {
@@ -19,22 +23,28 @@ namespace driver
 
 	AirportInspectorDriver::~AirportInspectorDriver() { _db->close(); }
 
-	void AirportInspectorDriver::connect() 
-	{ 
-		_db->open();
-		checkConnectionStatus();
+	void AirportInspectorDriver::connect()
+	{
+		if (!_db->open()) {
+			connectionStatus();
+			emit disconnected();
+			return;
+		};
+		emit connected();
 	}
 
-	void AirportInspectorDriver::checkConnectionStatus()
+	void AirportInspectorDriver::executeQuery(const QString& query, const QStringList& header, 
+		QueryEntity entity)
 	{
-		if (const auto err = _db->lastError(); err.isValid())
-		{
-			emit connectionStatus(QString{ tr("Error connecting to database %1\n%2").
-				arg(err.databaseText()).arg(err.driverText()) });
-			emit connectionStatus(ConnectionStatus::disconnected);
+		QSqlQueryModel* model = new QSqlQueryModel(this);
+		model->setQuery(query, *_db);
+		if (model->lastError().isValid()) {
+			connectionStatus();
+			return;
 		}
-		else
-			emit connectionStatus(ConnectionStatus::connected);
+		for (std::size_t col{}; col < header.size(); ++col)
+			model->setHeaderData(col, Qt::Horizontal, header[col]);
+		emit sendData(model, entity);
 	}
 
 	void AirportInspectorDriver::setParams(const ConnectionParameters& connectParams)
@@ -44,6 +54,14 @@ namespace driver
 		_db->setUserName(connectParams.user);
 		_db->setPassword(connectParams.pass);
 		_db->setPort(connectParams.port);
+	}
+
+	void AirportInspectorDriver::connectionStatus()
+	{
+		if (const auto err = _db->lastError(); err.isValid())
+			emit sendConnectionStatus(QString{ tr("Error connecting to database %1 %2\n%3") }.
+				arg(_db->databaseName()).arg(err.databaseText()).arg(err.driverText()));
+		emit sendConnectionStatus(QString{ tr("Connected to database %1") }.arg(_db->databaseName()));
 	}
 
 } /// namespace air

@@ -7,6 +7,8 @@
 
 #include <memory>
 #include <qmainwindow.h>
+#include <qsqldatabase.h>
+#include <qsqlquerymodel.h>
 #include <qtconfigmacros.h>
 #include <qtmetamacros.h>
 #include <qwidget.h>
@@ -17,18 +19,20 @@ QT_END_NAMESPACE
 
 class AirportInspectorViewer : public QMainWindow
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    AirportInspectorViewer(QWidget* parent, const driver::ConnectionParameters& connectParams);
-    ~AirportInspectorViewer();
+	AirportInspectorViewer(QWidget* parent, const driver::ConnectionParameters& connectParams);
+	~AirportInspectorViewer();
 
 private:
-    void setControlView();
-    void setControlHandling();
+	void setupEnvironment();
+	void setupControlView();
+	void setupControlHandling();
+	void receiveData(QSqlQueryModel* model, driver::AirportInspectorDriver::QueryEntity entity);
 
 private:
-    std::unique_ptr<Ui::AirportInspectorViewerClass> _ui{};
-    std::unique_ptr<driver::AirportInspectorDriver> _db{};
+	std::unique_ptr<Ui::AirportInspectorViewerClass> _ui{};
+	std::unique_ptr<driver::AirportInspectorDriver> _db{};
 
 }; /// class AirportInspectorViewer
 

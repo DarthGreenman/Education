@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>1454</width>
+    <height>437</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,13 +16,34 @@
   <property name="windowIcon">
    <iconset theme="QIcon::ThemeIcon::DocumentSend"/>
   </property>
-  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QTableView" name="airports">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>331</width>
+      <height>361</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableView" name="flights">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>10</y>
+      <width>1091</width>
+      <height>361</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>1454</width>
      <height>21</height>
     </rect>
    </property>
