@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1454</width>
-    <height>437</height>
+    <width>1158</width>
+    <height>533</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,20 +20,20 @@
    <widget class="QTableView" name="airports">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>331</width>
-      <height>361</height>
+      <x>9</x>
+      <y>9</y>
+      <width>361</width>
+      <height>451</height>
      </rect>
     </property>
    </widget>
    <widget class="QTableView" name="flights">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>385</x>
       <y>10</y>
-      <width>1091</width>
-      <height>361</height>
+      <width>561</width>
+      <height>451</height>
      </rect>
     </property>
    </widget>
@@ -43,7 +43,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1454</width>
+     <width>1158</width>
      <height>21</height>
     </rect>
    </property>

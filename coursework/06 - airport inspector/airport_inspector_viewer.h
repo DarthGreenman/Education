@@ -28,7 +28,8 @@ private:
 	void setupEnvironment();
 	void setupControlView();
 	void setupControlHandling();
-	void receiveData(QSqlQueryModel* model, driver::AirportInspectorDriver::QueryEntity entity);
+	void receiveData(QSqlQueryModel* model, const driver::AirportInspectorDriver::Airports& airports);
+	void receiveData(QSqlQueryModel* model, const driver::AirportInspectorDriver::Flights& flights);
 
 private:
 	std::unique_ptr<Ui::AirportInspectorViewerClass> _ui{};

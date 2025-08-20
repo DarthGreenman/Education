@@ -25,26 +25,12 @@ namespace driver
 
 	void AirportInspectorDriver::connect()
 	{
-		if (!_db->open()) {
-			connectionStatus();
-			emit disconnected();
+		_db->open();
+		if (const auto error = _db->lastError(); error.isValid()) {
+			errorHandling(error);
 			return;
 		};
 		emit connected();
-	}
-
-	void AirportInspectorDriver::executeQuery(const QString& query, const QStringList& header, 
-		QueryEntity entity)
-	{
-		QSqlQueryModel* model = new QSqlQueryModel(this);
-		model->setQuery(query, *_db);
-		if (model->lastError().isValid()) {
-			connectionStatus();
-			return;
-		}
-		for (std::size_t col{}; col < header.size(); ++col)
-			model->setHeaderData(col, Qt::Horizontal, header[col]);
-		emit sendData(model, entity);
 	}
 
 	void AirportInspectorDriver::setParams(const ConnectionParameters& connectParams)
@@ -56,12 +42,26 @@ namespace driver
 		_db->setPort(connectParams.port);
 	}
 
-	void AirportInspectorDriver::connectionStatus()
+	void AirportInspectorDriver::errorHandling(const QSqlError& error)
 	{
-		if (const auto err = _db->lastError(); err.isValid())
-			emit sendConnectionStatus(QString{ tr("Error connecting to database %1 %2\n%3") }.
-				arg(_db->databaseName()).arg(err.databaseText()).arg(err.driverText()));
-		emit sendConnectionStatus(QString{ tr("Connected to database %1") }.arg(_db->databaseName()));
+		const auto errorType = error.type();
+		switch (errorType)
+		{
+		case QSqlError::ErrorType::ConnectionError:
+			emit connectionError(QString{ tr("Connection error to database %1 %2\n%3") }.
+				arg(_db->databaseName()).arg(error.databaseText()).arg(error.driverText()));
+			break;
+		case QSqlError::ErrorType::StatementError:
+			emit statementError(QString{ tr("SQL statement syntax error %1 %2\n%3") }.
+				arg(_db->databaseName()).arg(error.databaseText()).arg(error.driverText()));
+			break;
+		case QSqlError::ErrorType::TransactionError:
+			emit transactionError(QString{ tr("Transaction failed error %1 %2\n%3") }.
+				arg(_db->databaseName()).arg(error.databaseText()).arg(error.driverText()));
+			break;
+		case QSqlError::ErrorType::NoError:
+		case QSqlError::ErrorType::UnknownError:
+			break;
+		}
 	}
-
 } /// namespace air
