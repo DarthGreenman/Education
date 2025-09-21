@@ -4,6 +4,12 @@
 
 AMyPlayerController::AMyPlayerController() {}
 
+void AMyPlayerController::BeginSpectatingState()
+{
+	AController::SetControlRotation(FRotator{-45.0f, 0.0f, 0.0f});
+	Super::BeginSpectatingState();
+}
+
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
