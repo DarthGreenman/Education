@@ -56,13 +56,18 @@ void AMyCharacter::BeginPlay()
 	if (CursorMaterial)
 		CurrentCursor = UGameplayStatics::SpawnDecalAtLocation(Super::GetWorld(), CursorMaterial, CursorSize, FVector(0));
 
-	WalkSpeed = std::make_unique<SprintParameters>(GetCharacterMovement()->MaxWalkSpeed, 2.0f, 1.0f);
-
 	Health->OnDeath.AddUObject(this, &AMyCharacter::OnDeath);
 	OnHealthChanged(Health->GetHealth());
 	Health->OnHealthChanged.AddUObject(this, &AMyCharacter::OnHealthChanged);
+
+	Stamina = StaminaParameters.Stamina;
 }
 
+void AMyCharacter::ShowActorInformation() const
+{
+	UE_LOG(LogTemp, Display, TEXT("Скорость игрока:%f"), Super::GetCharacterMovement()->GetMaxSpeed());
+	UE_LOG(LogTemp, Display, TEXT("Выносливость:%f"), Stamina / 100);
+}
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
@@ -71,10 +76,10 @@ void AMyCharacter::Tick(float DeltaTime)
 	if (!(Health->IsDead()))
 		RotationPlayerOnCursor();
 
-	if (IsSprint)
+	if (IsSprint() && Stamina > StaminaLowerLimit())
 	{
-		WalkSpeed->Stamina -= 0.005f;
-		SprintControl(Super::GetCharacterMovement()->MaxWalkSpeed, WalkSpeed->Acceleration * WalkSpeed->Stamina);
+		const auto CurrentStamina = StaminaDepletion();
+		Sprint(SprintParameters.WalkSpeed, SprintParameters.Acceleration, CurrentStamina / 100);
 	}
 }
 
@@ -84,38 +89,50 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMyCharacter::SprintStart);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMyCharacter::SprintStop);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMyCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMyCharacter::MoveRight);
 }
 
-void AMyCharacter::MoveForward(float Value)
+void AMyCharacter::MoveForward(float AxisValue)
 {
-	APawn::AddMovementInput(GetActorForwardVector(), Value);
+	APawn::AddMovementInput(AActor::GetActorForwardVector(), AxisValue);
 }
 
-void AMyCharacter::MoveRight(float Value)
+void AMyCharacter::MoveRight(float AxisValue)
 {
-	APawn::AddMovementInput(GetActorRightVector(), Value);
+	APawn::AddMovementInput(AActor::GetActorRightVector(), AxisValue);
 }
 
 void AMyCharacter::SprintStart()
 {
-	const auto& [Speed, Acceleration, Stamina] = *WalkSpeed;
-	SprintControl(Speed, Acceleration);
-	IsSprint = true;
+	if (StaminaRestored())
+		/// Устанавливаем начальную (максимальную) скорость спринта.
+		Sprint(SprintParameters.WalkSpeed, SprintParameters.Acceleration, Stamina / 100);
 }
 
 void AMyCharacter::SprintStop()
 {
-	SprintControl(WalkSpeed->Speed);
-	IsSprint = false;
-	WalkSpeed->Stamina = 1.0f;
+	/// Устанавливаем скорость после завещения спринта с учетом усталости.
+	Sprint(SprintParameters.WalkSpeed);
+	/// Востанавливаем выносливость
+	StaminaRecovery();
 }
 
-void AMyCharacter::SprintControl(float Speed, float Acceleration)
+void AMyCharacter::Sprint(float Speed, float Acceleration, float CurrentStamina)
 {
 	if (auto MovementComponent = Super::GetCharacterMovement(); MovementComponent)
-		MovementComponent->MaxWalkSpeed = Speed * Acceleration;
+		MovementComponent->MaxWalkSpeed = Speed * Acceleration * CurrentStamina;
+}
+
+float AMyCharacter::StaminaDepletion()
+{
+	return Stamina -= StaminaParameters.DepletionRate;
+}
+
+void AMyCharacter::StaminaRecovery()
+{
+	Stamina = StaminaParameters.Stamina;
 }
 
 void AMyCharacter::OnDeath()
