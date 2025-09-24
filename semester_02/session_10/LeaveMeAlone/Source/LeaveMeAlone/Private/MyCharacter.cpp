@@ -3,6 +3,8 @@
 #include "MyCharacter.h"
 #include "MyHealth.h"
 
+#include <limits>
+
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/InputComponent.h"
@@ -60,7 +62,7 @@ void AMyCharacter::BeginPlay()
 	OnHealthChanged(Health->GetHealth());
 	Health->OnHealthChanged.AddUObject(this, &AMyCharacter::OnHealthChanged);
 
-	Stamina = StaminaParameters.Stamina;
+	Stamina = StaminaParameters.UpperBound;
 }
 
 void AMyCharacter::ShowActorInformation() const
@@ -76,22 +78,24 @@ void AMyCharacter::Tick(float DeltaTime)
 	if (!(Health->IsDead()))
 		RotationPlayerOnCursor();
 
-	if (IsSprint() && Stamina > StaminaLowerLimit())
-	{
-		const auto CurrentStamina = StaminaDepletion();
-		Sprint(SprintParameters.WalkSpeed, SprintParameters.Acceleration, CurrentStamina / 100);
-	}
+	if (IsSprint && StillHaveStamina())
+		Sprint(SprintParameters.WalkSpeed, SprintParameters.Acceleration, StaminaDepletion());
+
+	if (StaminaRestored())
+		GetWorldTimerManager().ClearTimer(TimerHandle);
 }
 
 // Called to bind functionality to input
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMyCharacter::SprintStart);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMyCharacter::SprintStop);
+	if (Super::SetupPlayerInputComponent(PlayerInputComponent); PlayerInputComponent)
+	{
+		PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AMyCharacter::SprintStart);
+		PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AMyCharacter::SprintStop);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &AMyCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AMyCharacter::MoveRight);
+		PlayerInputComponent->BindAxis("MoveForward", this, &AMyCharacter::MoveForward);
+		PlayerInputComponent->BindAxis("MoveRight", this, &AMyCharacter::MoveRight);
+	}
 }
 
 void AMyCharacter::MoveForward(float AxisValue)
@@ -107,22 +111,23 @@ void AMyCharacter::MoveRight(float AxisValue)
 void AMyCharacter::SprintStart()
 {
 	if (StaminaRestored())
-		/// Устанавливаем начальную (максимальную) скорость спринта.
-		Sprint(SprintParameters.WalkSpeed, SprintParameters.Acceleration, Stamina / 100);
+		Sprint(SprintParameters.WalkSpeed, SprintParameters.Acceleration);
 }
 
 void AMyCharacter::SprintStop()
 {
-	/// Устанавливаем скорость после завещения спринта с учетом усталости.
 	Sprint(SprintParameters.WalkSpeed);
-	/// Востанавливаем выносливость
-	StaminaRecovery();
+	IsSprint = false;
+	AActor::GetWorldTimerManager().SetTimer(TimerHandle, this, &AMyCharacter::StaminaRecovery, 1.0f, true);
 }
 
 void AMyCharacter::Sprint(float Speed, float Acceleration, float CurrentStamina)
 {
 	if (auto MovementComponent = Super::GetCharacterMovement(); MovementComponent)
-		MovementComponent->MaxWalkSpeed = Speed * Acceleration * CurrentStamina;
+	{
+		MovementComponent->MaxWalkSpeed = Speed * Acceleration * CurrentStamina / StaminaParameters.UpperBound;
+		IsSprint = true;
+	}
 }
 
 float AMyCharacter::StaminaDepletion()
@@ -132,7 +137,19 @@ float AMyCharacter::StaminaDepletion()
 
 void AMyCharacter::StaminaRecovery()
 {
-	Stamina = StaminaParameters.Stamina;
+	Stamina += StaminaParameters.RecoveryRate;
+}
+
+bool AMyCharacter::StaminaRestored() const
+{
+	const static auto Epsilon = std::numeric_limits<float>::epsilon();
+	return std::abs(Stamina - StaminaParameters.UpperBound) < Epsilon || (Stamina - StaminaParameters.UpperBound) > Epsilon;
+}
+
+bool AMyCharacter::StillHaveStamina() const
+{
+	const static auto Epsilon = std::numeric_limits<float>::epsilon();
+	return (Stamina - StaminaParameters.LowerBound) > Epsilon;
 }
 
 void AMyCharacter::OnDeath()

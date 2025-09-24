@@ -37,7 +37,10 @@ struct FStaminaParameters
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float Stamina;
+	float UpperBound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LowerBound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DepletionRate;
@@ -99,22 +102,28 @@ private:
 	void MoveForward(float AxisValue);
 	void MoveRight(float AxisValue);
 
+	/**/
 	void SprintStart();
 	void SprintStop();
-	void Sprint(float Speed, float Acceleration = 1.0f, float Stamina = 1.0f);
-	auto IsSprint() const { return Super::GetCharacterMovement()->GetMaxSpeed() > SprintParameters.WalkSpeed; }
+	void Sprint(float Speed, float Acceleration = 1.0f, float Stamina = 100.0f);
 
+	/**/
 	float StaminaDepletion();
 	void StaminaRecovery();
-	auto StaminaRestored() const { return Stamina == StaminaParameters.Stamina; }
-	auto StaminaLowerLimit() const { return StaminaParameters.Stamina / SprintParameters.Acceleration; } 
+	bool StaminaRestored() const;
+	bool StillHaveStamina() const;
 
+	/**/
 	void OnDeath();
 	void OnHealthChanged(float NewHealth);
 	void RotationPlayerOnCursor();
 
-	CameraParameters CameraParams{55.0f, 1400.0f, -45.0f};
+	/**/
+	FTimerHandle TimerHandle{};
+	const CameraParameters CameraParams{55.0f, 1400.0f, -45.0f};
 	const FSprintParameters SprintParameters{500.0f, 2.0f};
-	const FStaminaParameters StaminaParameters{100.0f, 0.1f, 10.0f};
+	const FStaminaParameters StaminaParameters{100.0f, 30.f, 0.1f, 10.0f};
+	
 	float Stamina{};
+	bool IsSprint{};
 };
