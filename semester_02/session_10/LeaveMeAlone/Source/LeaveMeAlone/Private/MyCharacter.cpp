@@ -2,6 +2,7 @@
 
 #include "MyCharacter.h"
 #include "MyHealth.h"
+#include "MyWeapon.h"
 
 #include <limits>
 
@@ -42,7 +43,8 @@ AMyCharacter::AMyCharacter()
 	APawn::bUseControllerRotationYaw = false;
 	APawn::bUseControllerRotationRoll = false;
 
-	Health = CreateDefaultSubobject<UMyHealth>("HealthComponent");
+	Health = UObject::CreateDefaultSubobject<UMyHealth>("HealthComponent");
+	Weapon = UObject::CreateDefaultSubobject<UMyWeapon>("Weapon");
 }
 
 // Called when the game starts or when spawned
@@ -62,7 +64,7 @@ void AMyCharacter::BeginPlay()
 	OnHealthChanged(Health->GetHealth());
 	Health->OnHealthChanged.AddUObject(this, &AMyCharacter::OnHealthChanged);
 
-	Stamina = StaminaParameters.UpperBound;
+	Stamina = StaminaParams.UpperBound;
 }
 
 void AMyCharacter::ShowActorInformation() const
@@ -79,7 +81,7 @@ void AMyCharacter::Tick(float DeltaTime)
 		RotationPlayerOnCursor();
 
 	if (IsSprint && StillHaveStamina())
-		Sprint(SprintParameters.WalkSpeed, SprintParameters.Acceleration, StaminaDepletion());
+		Sprinted(SprintParams.WalkSpeed, SprintParams.Acceleration, StaminaDepletion());
 
 	if (StaminaRestored())
 		GetWorldTimerManager().ClearTimer(TimerHandle);
@@ -110,46 +112,51 @@ void AMyCharacter::MoveRight(float AxisValue)
 
 void AMyCharacter::SprintStart()
 {
-	if (StaminaRestored())
-		Sprint(SprintParameters.WalkSpeed, SprintParameters.Acceleration);
+	if (IsMoving() && StaminaRestored())
+		Sprinted(SprintParams.WalkSpeed, SprintParams.Acceleration);
 }
 
 void AMyCharacter::SprintStop()
 {
-	Sprint(SprintParameters.WalkSpeed);
+	Sprinted(SprintParams.WalkSpeed);
 	IsSprint = false;
 	AActor::GetWorldTimerManager().SetTimer(TimerHandle, this, &AMyCharacter::StaminaRecovery, 1.0f, true);
 }
 
-void AMyCharacter::Sprint(float Speed, float Acceleration, float CurrentStamina)
+void AMyCharacter::Sprinted(float Speed, float Acceleration, float CurrentStamina)
 {
 	if (auto MovementComponent = Super::GetCharacterMovement(); MovementComponent)
 	{
-		MovementComponent->MaxWalkSpeed = Speed * Acceleration * CurrentStamina / StaminaParameters.UpperBound;
+		MovementComponent->MaxWalkSpeed = Speed * Acceleration * CurrentStamina / StaminaParams.UpperBound;
 		IsSprint = true;
 	}
 }
 
+bool AMyCharacter::IsMoving() const
+{
+	return true; // Реализовать логику
+}
+
 float AMyCharacter::StaminaDepletion()
 {
-	return Stamina -= StaminaParameters.DepletionRate;
+	return Stamina -= StaminaParams.DepletionRate;
 }
 
 void AMyCharacter::StaminaRecovery()
 {
-	Stamina += StaminaParameters.RecoveryRate;
+	Stamina += StaminaParams.RecoveryRate;
 }
 
 bool AMyCharacter::StaminaRestored() const
 {
 	const static auto Epsilon = std::numeric_limits<float>::epsilon();
-	return std::abs(Stamina - StaminaParameters.UpperBound) < Epsilon || (Stamina - StaminaParameters.UpperBound) > Epsilon;
+	return std::abs(Stamina - StaminaParams.UpperBound) < Epsilon || (Stamina - StaminaParams.UpperBound) > Epsilon;
 }
 
 bool AMyCharacter::StillHaveStamina() const
 {
 	const static auto Epsilon = std::numeric_limits<float>::epsilon();
-	return (Stamina - StaminaParameters.LowerBound) > Epsilon;
+	return (Stamina - StaminaParams.LowerBound) > Epsilon;
 }
 
 void AMyCharacter::OnDeath()
