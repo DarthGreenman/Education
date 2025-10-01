@@ -16,6 +16,17 @@ void UHealth::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+bool UHealth::AddHealth(float NewHealth)
+{
+	if (IsDead() || IsHealthFull())
+	{
+		return false;
+	}
+	*Health = FMath::Clamp(*Health + NewHealth, 0.0f, MaxHealth);
+	OnHealthChanged.Broadcast(*Health);
+	return true;
+}
+
 // Called when the game starts
 void UHealth::BeginPlay()
 {
@@ -27,17 +38,6 @@ void UHealth::BeginPlay()
 	{
 		Owner->OnTakeAnyDamage.AddDynamic(this, &UHealth::OnTakeAnyDamage);
 	}
-}
-
-bool UHealth::AddHealth(float NewHealth)
-{
-	if (IsDead() || IsHealthFull())
-	{
-		return false;
-	}
-	*Health = FMath::Clamp(*Health + NewHealth, 0.0f, MaxHealth);
-	OnHealthChanged.Broadcast(*Health);
-	return true;
 }
 
 void UHealth::OnTakeAnyDamage(

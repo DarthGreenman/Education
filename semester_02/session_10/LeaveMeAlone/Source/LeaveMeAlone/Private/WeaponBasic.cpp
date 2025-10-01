@@ -20,20 +20,14 @@ void AWeaponBasic::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AWeaponBasic::Shoot(int32 FiringRange, int32 RateOfFire)
+void AWeaponBasic::Shoot(int32 FiringRange)
 {
-	AActor::GetWorldTimerManager().SetTimer(TimerHandle, this, &AWeaponBasic::PickUpTheShutter, RateOfFire, true);
 	if (FiringRange > 0)
 	{
 		ShowTracer(FiringRange);
 	}
 
-	bBullethInTheChamber_ = false;
-}
-
-void AWeaponBasic::ReleaseTheTrigger()
-{
-	AActor::GetWorldTimerManager().ClearTimer(TimerHandle);
+	bBullethInTheChamber = false;
 }
 
 // Called when the game starts or when spawned
@@ -44,7 +38,7 @@ void AWeaponBasic::BeginPlay()
 
 void AWeaponBasic::PickUpTheShutter()
 {
-	bBullethInTheChamber_ = true;
+	bBullethInTheChamber = true;
 }
 
 void AWeaponBasic::ShowTracer(int32 FiringRange)

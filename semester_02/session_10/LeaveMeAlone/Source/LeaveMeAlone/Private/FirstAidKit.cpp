@@ -19,16 +19,16 @@ AFirstAidKit::AFirstAidKit()
 	Super::SetRootComponent(Sphere);
 }
 
-// Called when the game starts or when spawned
-void AFirstAidKit::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 // Called every frame
 void AFirstAidKit::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+// Called when the game starts or when spawned
+void AFirstAidKit::BeginPlay()
+{
+	Super::BeginPlay();
 }
 
 void AFirstAidKit::NotifyActorBeginOverlap(AActor* OtherActor)

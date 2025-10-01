@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TimerHandle.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Engine/TimerHandle.h"
 
 #include "BasicCharacter.generated.h"
 
@@ -70,12 +70,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
 	UCameraComponent* Camera{};
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components|Health")
-	UHealth* Health{};
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-	UWeaponSpecific* Weapon{};
-
 	UPROPERTY()
 	UDecalComponent* CurrentCursor{};
 
@@ -85,8 +79,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
 	FVector CursorSize{20.0f, 40.0f, 40.0f};
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components|Health")
+	UHealth* Health{};
+
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* DeathMontage{};
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+	UWeaponSpecific* Weapon{};
 
 private:
 	void MoveForward(float AxisValue);

@@ -15,6 +15,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogSprint, All, All);
+
 // Sets default values
 ABasicCharacter::ABasicCharacter()
 {
@@ -48,33 +50,6 @@ ABasicCharacter::ABasicCharacter()
 	Weapon = UObject::CreateDefaultSubobject<UWeaponSpecific>("Weapon");
 }
 
-// Called when the game starts or when spawned
-void ABasicCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	/// В данной логике мы проверяем задан ли материал для нашего курсора и если он задан, тогда мы используем функцию,
-	/// реализованную в библиотеке GameplayStatics, которая называется SpawnDecalAtLocation.
-	/// В качестве параметров она принимает указатель на мир, материал, размеры курсора, а также точку спауну.
-	/// В настоящее время мы размещаем курсор в нулевой координате нашей игры.
-
-	if (IsValid(CursorMaterial))
-	{
-		CurrentCursor = UGameplayStatics::SpawnDecalAtLocation(Super::GetWorld(), CursorMaterial, CursorSize, FVector(0));
-	}
-
-	Health->OnDeath.AddUObject(this, &ABasicCharacter::OnDeath);
-	OnHealthChanged(Health->GetHealth());
-	Health->OnHealthChanged.AddUObject(this, &ABasicCharacter::OnHealthChanged);
-
-	Stamina = StaminaParams.UpperBound;
-}
-
-void ABasicCharacter::ShowActorInformation() const
-{
-	UE_LOG(LogTemp, Display, TEXT("Скорость игрока:%f"), Super::GetCharacterMovement()->GetMaxSpeed());
-	UE_LOG(LogTemp, Display, TEXT("Выносливость:%f"), Stamina / 100);
-}
 // Called every frame
 void ABasicCharacter::Tick(float DeltaTime)
 {
@@ -104,8 +79,7 @@ void ABasicCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABasicCharacter::SprintStart);
 		PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABasicCharacter::SprintStop);
 		PlayerInputComponent->BindAction("Fire", IE_Pressed, Weapon, &UWeaponSpecific::Fire);
-		PlayerInputComponent->BindAction("FireInBursts", IE_Pressed, Weapon, &UWeaponSpecific::Fire);
-		/// PlayerInputComponent->BindAction("Fire", IE_Released, Weapon, &UWeaponSpecific::ReleaseTheTrigger);
+		PlayerInputComponent->BindAction("Fire", IE_Released, Weapon, &UWeaponSpecific::ReleaseTheTrigger);
 		PlayerInputComponent->BindAction("Reload", IE_Pressed, Weapon, &UWeaponSpecific::Reload);
 
 		PlayerInputComponent->BindAxis("MoveForward", this, &ABasicCharacter::MoveForward);
@@ -113,6 +87,33 @@ void ABasicCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	}
 }
 
+// Called when the game starts or when spawned
+void ABasicCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	/// В данной логике мы проверяем задан ли материал для нашего курсора и если он задан, тогда мы используем функцию,
+	/// реализованную в библиотеке GameplayStatics, которая называется SpawnDecalAtLocation.
+	/// В качестве параметров она принимает указатель на мир, материал, размеры курсора, а также точку спауну.
+	/// В настоящее время мы размещаем курсор в нулевой координате нашей игры.
+
+	if (IsValid(CursorMaterial))
+	{
+		CurrentCursor = UGameplayStatics::SpawnDecalAtLocation(Super::GetWorld(), CursorMaterial, CursorSize, FVector(0));
+	}
+
+	Health->OnDeath.AddUObject(this, &ABasicCharacter::OnDeath);
+	OnHealthChanged(Health->GetHealth());
+	Health->OnHealthChanged.AddUObject(this, &ABasicCharacter::OnHealthChanged);
+
+	Stamina = StaminaParams.UpperBound;
+}
+
+void ABasicCharacter::ShowActorInformation() const
+{
+	UE_LOG(LogSprint, Display, TEXT("Скорость:%f"), Super::GetCharacterMovement()->GetMaxSpeed());
+	UE_LOG(LogSprint, Display, TEXT("Выносливость:%f"), Stamina / 100);
+}
 void ABasicCharacter::MoveForward(float AxisValue)
 {
 	APawn::AddMovementInput(AActor::GetActorForwardVector(), AxisValue);
@@ -176,8 +177,8 @@ bool ABasicCharacter::StillHaveStamina() const
 
 void ABasicCharacter::OnDeath()
 {
-	if(IsValid(CurrentCursor))
-{
+	if (IsValid(CurrentCursor))
+	{
 		CurrentCursor->DestroyRenderState_Concurrent();
 	}
 

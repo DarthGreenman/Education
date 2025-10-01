@@ -30,12 +30,17 @@ void UWeaponSpecific::Fire()
 
 void UWeaponSpecific::Reload()
 {
-	if (ACharacter * Character{Cast<ACharacter>(GetOwner())}; IsValid(Character) && NeedsRecharged())
+	if (ACharacter * Character{Cast<ACharacter>(GetOwner())}; IsValid(Character) && IsNeedsRecharged())
 	{
 		Weapon->Reload();
 		bIsRunningAnim = true;
 		Character->PlayAnimMontage(ReloadMontage);
 	}
+}
+
+void UWeaponSpecific::ReleaseTheTrigger()
+{
+	Weapon->ReleaseTheTrigger();
 }
 
 // Called when the game starts
@@ -71,7 +76,7 @@ void UWeaponSpecific::InitAnimNotify()
 		return;
 	}
 	const TArray<FAnimNotifyEvent>& NotifiesEvents{ReloadMontage->Notifies};
-	for (auto& NotifyEvent : NotifiesEvents)
+	for (const auto& NotifyEvent : NotifiesEvents)
 	{
 		if (UWeaponReloadAnim * ReloadFinish{Cast<UWeaponReloadAnim>(NotifyEvent.Notify)}; ReloadFinish)
 		{
@@ -89,7 +94,7 @@ void UWeaponSpecific::OnNotifyReloadFinished(USkeletalMeshComponent* SkeletalMes
 	}
 }
 
-bool UWeaponSpecific::NeedsRecharged() const
+bool UWeaponSpecific::IsNeedsRecharged() const
 {
 	return Weapon->IsClipEmpty();
 }

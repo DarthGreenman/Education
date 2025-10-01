@@ -37,7 +37,7 @@ struct FWeaponParameters
 	int32 FiringRange{};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	int32 RateOfFire{}; /// Темп стрельбы около 600 выстрелов в минуту
+	float RateOfFire{};
 };
 
 UCLASS()
@@ -52,12 +52,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void Fire() override;
+	virtual void ReleaseTheTrigger() override;
 	virtual void Reload() override;
+
 	bool IsClipEmpty() const;
 	bool IsCombatLoadEmpty() const;
-
-
- void EditorKeyPressed(FKey Key, EInputEvent Event) override;
 
 protected:
 	// Called when the game starts or when spawned
@@ -67,10 +66,11 @@ protected:
 	FAmmoWeapon FullCombatLoad{30, 19, true};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	FWeaponParameters Kalashnikov{1000, 1};
+	FWeaponParameters Kalashnikov{1000, 60.0f / 100};
 
 private:
-	void DecrementBullets();
+	void ShowWeaponInformation() const;
 
 	std::unique_ptr<FAmmoWeapon> Ammo{};
+	FTimerHandle TimerHandle{};
 };

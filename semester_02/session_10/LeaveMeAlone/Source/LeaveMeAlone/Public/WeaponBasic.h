@@ -19,8 +19,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void Shoot(int32 FiringRange, int32 RateOfFire);
-	void ReleaseTheTrigger();
+	void Shoot(int32 FiringRange);
 
 protected:
 	// Called when the game starts or when spawned
@@ -33,6 +32,5 @@ private:
 	void PickUpTheShutter();
 	void ShowTracer(int32 FiringRange);
 
-	bool bBullethInTheChamber_{};
-	FTimerHandle TimerHandle{};
+	bool bBullethInTheChamber{};
 };

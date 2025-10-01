@@ -26,6 +26,7 @@ public:
 
 	virtual void Fire() override final;
 	virtual void Reload() override final;
+	virtual void ReleaseTheTrigger() override final;
 
 protected:
 	// Called when the game starts
@@ -41,7 +42,7 @@ private:
 	void SpawnWeapon();
 	void InitAnimNotify();
 	void OnNotifyReloadFinished(USkeletalMeshComponent* SkeletalMesh);
-	bool NeedsRecharged() const;
+	bool IsNeedsRecharged() const;
 
 	UPROPERTY()
 	AWeaponAutomatic* Weapon{};
