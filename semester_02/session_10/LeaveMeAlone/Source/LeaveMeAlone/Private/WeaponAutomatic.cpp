@@ -27,8 +27,6 @@ void AWeaponAutomatic::Fire()
 	Super::GetWorldTimerManager().SetTimer(TimerHandle, this, &AWeaponAutomatic::Fire, Kalashnikov.RateOfFire, true);
 	Super::Shoot(Kalashnikov.FiringRange);
 	--Ammo->Bullets;
-
-	ShowWeaponInformation();
 }
 
 void AWeaponAutomatic::ReleaseTheTrigger()
@@ -50,6 +48,11 @@ bool AWeaponAutomatic::IsClipEmpty() const
 bool AWeaponAutomatic::IsCombatLoadEmpty() const
 {
 	return Ammo->Clips == 0;
+}
+
+FAmmoWeapon AWeaponAutomatic::GetAmmoWeapon() const
+{
+	return *Ammo;
 }
 
 // Called when the game starts or when spawned

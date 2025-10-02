@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
 
@@ -24,15 +22,15 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-	float GetHealth() const { return *Health; }
+	float GetHealth() const { return Health; }
 
 	UFUNCTION(BlueprintCallable)
-	bool IsDead() const { return !(*Health); }
+	bool IsDead() const { return !(Health); }
 
 	// Прибавляет количество жизней и возвращает значение true, если здоровье было успешно прибавлено.
 	bool AddHealth(float NewHealth);
 	//  Проверяет, полное ли здоровье в настоящее время.
-	bool IsHealthFull() const { return FMath::IsNearlyEqual(*Health, MaxHealth); }
+	bool IsHealthFull() const { return FMath::IsNearlyEqual(Health, MaxHealth); }
 
 	FOnDeath OnDeath;
 	FOnHealthChanged OnHealthChanged;
@@ -46,7 +44,7 @@ protected:
 
 public:
 private:
-	std::unique_ptr<float> Health{};
+	float Health{};
 	UFUNCTION()
 	void OnTakeAnyDamage(
 		AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

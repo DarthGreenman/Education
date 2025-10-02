@@ -28,6 +28,9 @@ public:
 	virtual void Reload() override final;
 	virtual void ReleaseTheTrigger() override final;
 
+	UFUNCTION(BlueprintCallable)
+	bool GetAmmoWeapon(FAmmoWeapon& Ammo) const;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

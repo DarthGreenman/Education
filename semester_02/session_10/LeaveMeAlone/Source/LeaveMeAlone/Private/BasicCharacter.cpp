@@ -195,7 +195,7 @@ void ABasicCharacter::OnDeath()
 void ABasicCharacter::OnHealthChanged(float NewHealth)
 {
 	// Таким образом, вывод жизней на экран будет происходить в начале игры, а также при каждом изменении показателей.
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Health = %f"), NewHealth));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Health = %f"), NewHealth));
 }
 
 void ABasicCharacter::RotationPlayerOnCursor()

@@ -22,8 +22,8 @@ bool UHealth::AddHealth(float NewHealth)
 	{
 		return false;
 	}
-	*Health = FMath::Clamp(*Health + NewHealth, 0.0f, MaxHealth);
-	OnHealthChanged.Broadcast(*Health);
+	Health = FMath::Clamp(Health + NewHealth, 0.0f, MaxHealth);
+	OnHealthChanged.Broadcast(Health);
 	return true;
 }
 
@@ -31,8 +31,8 @@ bool UHealth::AddHealth(float NewHealth)
 void UHealth::BeginPlay()
 {
 	Super::BeginPlay();
-	Health = std::make_unique<float>(MaxHealth);
-	OnHealthChanged.Broadcast(*Health);
+	Health = MaxHealth;
+	OnHealthChanged.Broadcast(Health);
 
 	if (AActor * Owner{Super::GetOwner()}; IsValid(Owner))
 	{
@@ -48,8 +48,8 @@ void UHealth::OnTakeAnyDamage(
 		return;
 	}
 
-	*Health = FMath::Clamp(*Health - Damage, 0.0f, MaxHealth);
-	OnHealthChanged.Broadcast(*Health);
+	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
+	OnHealthChanged.Broadcast(Health);
 	if (IsDead())
 	{
 		OnDeath.Broadcast();

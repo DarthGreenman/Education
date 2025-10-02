@@ -43,6 +43,16 @@ void UWeaponSpecific::ReleaseTheTrigger()
 	Weapon->ReleaseTheTrigger();
 }
 
+bool UWeaponSpecific::GetAmmoWeapon(FAmmoWeapon& Ammo) const 
+{
+	if (IsValid(Weapon))
+	{
+		Ammo = Weapon->GetAmmoWeapon();
+		return true;
+	}
+	return false;
+}
+
 // Called when the game starts
 void UWeaponSpecific::BeginPlay()
 {

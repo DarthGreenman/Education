@@ -28,17 +28,14 @@ struct FAmmoWeapon
 	bool Infinite{};
 };
 
-USTRUCT(BlueprintType)
-struct FWeaponParameters
+namespace Helper
 {
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+struct WeaponParameters
+{
 	int32 FiringRange{};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	float RateOfFire{};
 };
+} // namespace Helper
 
 UCLASS()
 class LEAVEMEALONE_API AWeaponAutomatic : public AWeaponBasic, public IWeaponInterface
@@ -57,20 +54,18 @@ public:
 
 	bool IsClipEmpty() const;
 	bool IsCombatLoadEmpty() const;
+	FAmmoWeapon GetAmmoWeapon() const;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	FAmmoWeapon FullCombatLoad{30, 19, true};
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
-	FWeaponParameters Kalashnikov{1000, 60.0f / 100};
-
 private:
 	void ShowWeaponInformation() const;
 
+	const Helper::WeaponParameters Kalashnikov{1000, 60.0f / 100};
+	const FAmmoWeapon FullCombatLoad{30, 19, true};
 	std::unique_ptr<FAmmoWeapon> Ammo{};
+	
 	FTimerHandle TimerHandle{};
 };
