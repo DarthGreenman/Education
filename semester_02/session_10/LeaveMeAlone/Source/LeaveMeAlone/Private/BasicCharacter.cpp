@@ -136,7 +136,7 @@ void ABasicCharacter::SprintStop()
 {
 	Sprinted(SprintParams.WalkSpeed);
 	bIsSprint = false;
-	AActor::GetWorldTimerManager().SetTimer(TimerHandle, this, &ABasicCharacter::StaminaRecovery, 1.0f, true);
+	AActor::GetWorldTimerManager().SetTimer(TimerHandle, this, &ABasicCharacter::StaminaRecovery, 0.50f, true);
 }
 
 void ABasicCharacter::Sprinted(float Speed, float Acceleration, float CurrentStamina)
@@ -155,12 +155,21 @@ bool ABasicCharacter::IsMoving() const
 
 float ABasicCharacter::StaminaDepletion()
 {
-	return Stamina -= StaminaParams.DepletionRate;
+	Stamina -= StaminaParams.DepletionRate;
+	if (Stamina < StaminaParams.LowerBound)
+	{
+		Stamina = StaminaParams.LowerBound;
+	}
+	return Stamina;
 }
 
 void ABasicCharacter::StaminaRecovery()
 {
 	Stamina += StaminaParams.RecoveryRate;
+	if (Stamina > StaminaParams.UpperBound)
+	{
+		Stamina = StaminaParams.UpperBound;
+	}
 }
 
 bool ABasicCharacter::StaminaRestored() const
@@ -195,7 +204,7 @@ void ABasicCharacter::OnDeath()
 void ABasicCharacter::OnHealthChanged(float NewHealth)
 {
 	// Таким образом, вывод жизней на экран будет происходить в начале игры, а также при каждом изменении показателей.
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Health = %f"), NewHealth));
+	// GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Health = %f"), NewHealth));
 }
 
 void ABasicCharacter::RotationPlayerOnCursor()

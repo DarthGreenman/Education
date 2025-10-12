@@ -13,6 +13,10 @@ void AGamePlayerController::BeginSpectatingState()
 void AGamePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	Super::SetInputMode(FInputModeGameAndUI());
-	Super::bShowMouseCursor = true;
+	
+	//Super::SetInputMode(FInputModeGameAndUI());
+	//Super::bShowMouseCursor = true;
+
+	Super::SetInputMode(FInputModeGameOnly());
+	Super::bShowMouseCursor = false;
 }

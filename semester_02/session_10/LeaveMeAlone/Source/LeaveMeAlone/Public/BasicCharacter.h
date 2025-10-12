@@ -57,6 +57,9 @@ public:
 	UFUNCTION()
 	UHealth* GetHealthComponent() const { return Health; }
 
+	UFUNCTION(BlueprintCallable)
+	float GetStamina() const { return Stamina; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -113,7 +116,7 @@ private:
 	FTimerHandle TimerHandle{};
 	const Helper::CameraParameters CameraParams{55.0f, 1400.0f, -45.0f};
 	const Helper::SprintParameters SprintParams{500.0f, 2.0f};
-	const Helper::StaminaParameters StaminaParams{100.0f, 30.f, 0.1f, 10.0f};
+	const Helper::StaminaParameters StaminaParams{100.0f, 30.f, 0.1f, 5.0f};
 
 	float Stamina{};
 	bool bIsSprint{};
