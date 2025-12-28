@@ -3,6 +3,10 @@
 #include "WeaponBasic.h"
 
 #include <limits>
+#include <Kismet/GameplayStatics.h>
+
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 
 // Sets default values
 AWeaponBasic::AWeaponBasic()
@@ -41,19 +45,26 @@ void AWeaponBasic::PickUpTheShutter()
 	bBullethInTheChamber = true;
 }
 
+/* DrawDebugLine(Super::GetWorld(), TraceStart, TraceEnd, FColor::Black, false, 1.0f, 0, 2.0f); */
+/* DrawDebugSphere(Super::GetWorld(), HitResult.ImpactPoint, 5.0f, 24, FColor::Red, false, 1.0f); */
 void AWeaponBasic::ShowTracer(int32 FiringRange)
 {
 	const FTransform SocketTransform{Weapon->GetSocketTransform("Muzzle")};
 	const FVector TraceStart{SocketTransform.GetLocation()};
 	const FVector ShootDirection{SocketTransform.GetRotation().GetForwardVector()};
 	const FVector TraceEnd{TraceStart + ShootDirection * FiringRange};
-
-	DrawDebugLine(Super::GetWorld(), TraceStart, TraceEnd, FColor::Black, false, 1.0f, 0, 2.0f);
-
 	FHitResult HitResult{};
+
 	Super::GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility);
-	if (HitResult.bBlockingHit)
+	SpawnTrace(TraceStart, HitResult.bBlockingHit ? HitResult.ImpactPoint : TraceEnd);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShootWave, TraceStart);
+}
+
+void AWeaponBasic::SpawnTrace(const FVector& TraceStart, const FVector& TraceEnd)
+{
+	const auto TraceFX = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TraceEffect, TraceStart);
+	if (TraceFX)
 	{
-		DrawDebugSphere(Super::GetWorld(), HitResult.ImpactPoint, 5.0f, 24, FColor::Red, false, 1.0f);
+		TraceFX->SetNiagaraVariableVec3(TraceName, TraceEnd);
 	}
 }
