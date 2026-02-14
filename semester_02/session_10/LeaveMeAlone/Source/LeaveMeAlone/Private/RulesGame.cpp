@@ -3,12 +3,12 @@
 
 #include "RulesGame.h"
 
-#include "BasicCharacter.h"
+#include "Hero.h"
 
-#include "GamePlayerController.h"
+#include "HeroController.h"
 
 ARulesGame::ARulesGame() 
 {
-	AGameModeBase::DefaultPawnClass = ABasicCharacter::StaticClass();
-	AGameModeBase::PlayerControllerClass = AGamePlayerController::StaticClass();
+	AGameModeBase::DefaultPawnClass = AHero::StaticClass();
+	AGameModeBase::PlayerControllerClass = AHeroController::StaticClass();
 }
