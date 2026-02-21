@@ -10,9 +10,9 @@ wokwi::triple_led::triple_led(const uint8_t (&pins)[3])
     }
 }
 
-void wokwi::triple_led::blink(unsigned long timeout) const
+void wokwi::triple_led::blink() const
 {
-    blink({wokwi::rgb_color::red, wokwi::rgb_color::green, wokwi::rgb_color::blue}, timeout);
+    blink({wokwi::rgb_color::red, wokwi::rgb_color::green, wokwi::rgb_color::blue});
 }
 
 void wokwi::triple_led::power_on(wokwi::rgb_color color) const { _led[get_pin(color)].power_on(); }
