@@ -2,20 +2,24 @@
 #include "button.h"
 #include <Arduino.h>
 
-wokwi::button::button(uint8_t pin, unsigned long timeout) : _pin{pin}, _timeout{timeout}
+wokwi::button::button(uint8_t pin, unsigned long duration_bounce)
+    : _pin{pin}, _duration_bounce{duration_bounce}
 {
     pinMode(_pin, INPUT_PULLUP);
 }
 
-int wokwi::button::get_state(int state) const
+void wokwi::button::tick()
 {
-    auto curr_state = digitalRead(_pin);
-    if (state != curr_state)
+    bool state = !digitalRead(_pin);
+    _click = false;
+
+    if (_state != state && millis() - _timer >= _duration_bounce)
     {
-        delay(_timeout);
-        curr_state = digitalRead(_pin);
+        _state = state;
+        _timer = millis();
+        if (state)
+            _click = true;
     }
-    return curr_state;
 }
 
-unsigned long wokwi::button::get_response_time() const { return _timeout * 2; }
+bool wokwi::button::click() const { return _click; }
