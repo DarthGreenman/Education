@@ -1,4 +1,6 @@
-// diagram.json
+// Мигание в асинхронном режиме
+// static const wokwi::triple_led test{{3, 4, 5}};
+// test.blink(1000);
 
 #include "rgb_color.h"
 #include "triple_led.h"

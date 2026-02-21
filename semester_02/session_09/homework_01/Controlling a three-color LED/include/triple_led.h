@@ -22,9 +22,9 @@ namespace wokwi
         triple_led &operator=(const triple_led &) = delete;
         triple_led &operator=(triple_led &&) = delete;
 
-        void blink() const;
+        void blink(unsigned long timeout = 500) const;
         template <size_t N>
-        void blink(const wokwi::rgb_color (&mix)[N]) const;
+        void blink(const wokwi::rgb_color (&mix)[N],unsigned long timeout = 500) const;
 
         void power_on(wokwi::rgb_color color) const;
         void power_on() const;
@@ -37,15 +37,20 @@ namespace wokwi
     };
 
     template <size_t N>
-    inline void triple_led::blink(const wokwi::rgb_color (&mix)[N]) const
+    inline void triple_led::blink(const wokwi::rgb_color (&mix)[N], unsigned long timeout) const
     {
-        static bool mode{LOW};
-        for (auto color = 0ull; color < N; ++color)
+        static unsigned long time{};
+        if (millis() - time >= timeout)
         {
-            const auto pin = get_pin(mix[color]);
-            (!mode) ? _led[pin].power_on() : _led[pin].power_off();
+            static bool mode{LOW};
+            for (auto color = 0ull; color < N; ++color)
+            {
+                const auto pin = get_pin(mix[color]);
+                (!mode) ? _led[pin].power_on() : _led[pin].power_off();
+            }
+            mode = !mode;
+            time = millis();
         }
-        mode = !mode;
     }
 }
 

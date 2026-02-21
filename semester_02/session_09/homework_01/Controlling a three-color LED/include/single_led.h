@@ -14,7 +14,7 @@ namespace wokwi
         explicit single_led(uint8_t pin);
         ~single_led() = default;
         
-        void blink() const;
+        void blink(unsigned long timeout = 500) const;
         void power_on() const;
         void power_off() const;
 
