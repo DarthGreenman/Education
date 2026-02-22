@@ -1,9 +1,6 @@
-// Мигание в асинхронном режиме
-// static const wokwi::triple_led test{{3, 4, 5}};
-// test.blink(1000);
 
 #include "rgb_color.h"
-#include "triple_led.h"
+#include "tricolor_led.h"
 #include "button.h"
 
 void setup() {}
@@ -14,7 +11,7 @@ void loop()
   button.tick();
   if (button.click())
   {
-    static const wokwi::triple_led led{{3, 4, 5}};
+    static const wokwi::tricolor_led led{{3, 4, 5}, wokwi::tricolor_led::common_pin::anode};
     static auto color = wokwi::rgb_range::begin();
 
     if (color != wokwi::rgb_range::end())

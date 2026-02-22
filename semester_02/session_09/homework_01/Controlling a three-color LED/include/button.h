@@ -21,9 +21,9 @@ namespace wokwi
         bool click() const;
 
     private:
-        unsigned long _timer{};
-        unsigned long _duration_bounce{};
         uint8_t _pin{};
+        unsigned long _duration_bounce{};
+        unsigned long _timer{};
         bool _click{};
         bool _state{};
     };
