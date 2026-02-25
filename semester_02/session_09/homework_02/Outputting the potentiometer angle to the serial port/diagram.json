@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno1", "top": 61, "left": 9, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": 184.5, "left": 325.6, "attrs": {} }
+  ],
+  "connections": [
+    [ "pot1:GND", "uno1:GND.2", "black", [ "v19.2", "h-19.2" ] ],
+    [ "uno1:5V", "pot1:VCC", "red", [ "v38.9", "h205.6" ] ],
+    [ "uno1:A0", "pot1:SIG", "green", [ "v29.3", "h147.2" ] ]
+  ],
+  "dependencies": {}
+}
