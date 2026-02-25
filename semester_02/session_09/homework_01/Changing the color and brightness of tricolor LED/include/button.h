@@ -10,16 +10,15 @@ namespace wokwi
     {
     public:
         constexpr button() = default;
-        explicit button(uint8_t pin, unsigned long duration_bounce = 50);
+        explicit button(uint8_t pin, uint32_t duration_bounce = 50);
         ~button() = default;
 
         void tick();
         bool click() const;
 
     private:
+        uint32_t _duration_bounce{};
         uint8_t _pin{};
-        unsigned long _duration_bounce{};
-        unsigned long _timer{};
         bool _click{};
         bool _state{};
     };

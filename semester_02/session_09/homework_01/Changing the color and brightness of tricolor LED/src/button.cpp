@@ -1,25 +1,27 @@
 
 #include "button.h"
+#include "time.h"
 #include <Arduino.h>
 
-wokwi::button::button(uint8_t pin, unsigned long duration_bounce)
-    : _pin{pin}, _duration_bounce{duration_bounce}
+wokwi::button::button(uint8_t pin, uint32_t duration_bounce)
+    : _duration_bounce{duration_bounce}, _pin{pin}
 {
     pinMode(_pin, INPUT_PULLUP);
 }
 
 void wokwi::button::tick()
 {
-    bool state = !digitalRead(_pin);
     _click = false;
-
-    if (_state != state && millis() - _timer >= _duration_bounce)
+    bool state{!digitalRead(_pin)};
+    auto curr_state = [&, state]()
     {
         _state = state;
-        _timer = millis();
         if (state)
             _click = true;
-    }
+    };
+
+    if (_state != state)
+        wokwi::tick(_duration_bounce, curr_state);
 }
 
 bool wokwi::button::click() const { return _click; }
