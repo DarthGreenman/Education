@@ -13,7 +13,7 @@ void wokwi::button::tick()
 {
     _click = false;
     bool state{!digitalRead(_pin)};
-    auto curr_state = [&, state]()
+    auto curr_state = [this, state]()
     {
         _state = state;
         if (state)
