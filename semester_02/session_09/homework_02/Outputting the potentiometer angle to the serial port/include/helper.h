@@ -16,10 +16,10 @@ template <typename Type, size_t N> size_t find(const Type (&elems)[N], Type elem
     return N;
 }
 
-template <typename Type> struct couple
+template <typename Type_first, typename Type_second> struct couple
 {
-    Type first;
-    Type second;
+    Type_first first;
+    Type_second second;
 }; // template<typename Type> struct couple
 
 float map(float x, float in_min, float in_max, float out_min, float out_max)

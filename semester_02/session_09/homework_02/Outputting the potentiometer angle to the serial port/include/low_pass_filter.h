@@ -3,6 +3,8 @@
 #ifndef LOW_PASS_FILTER_H
 #define LOW_PASS_FILTER_H
 
+#include "helper.h"
+
 #include <stdint.h>
 #include <Arduino.h>
 
@@ -10,17 +12,28 @@ namespace wokwi
 {
 namespace low_pass_filter
 {
-template <typename Type, uint8_t Number_of_iterations, uint8_t Polling_time_interval> struct arithmetic_mean
+template <uint16_t Number_of_iterations> struct arithmetic_mean
 {
-    using pointer_to_function_type = uint16_t (Type::*)(uint8_t) const;
-    float operator()(const Type &object, pointer_to_function_type func, uint8_t value)
-    {
-        constexpr auto timeout = Polling_time_interval / Number_of_iterations;
-        uint16_t sum{};
-        for (uint8_t count{}; count < Number_of_iterations; ++count, delay(timeout))
-            sum += (object.*func)(value);
-        return sum / Number_of_iterations;
-    };
+	bool operator()(uint16_t signal_value)
+	{
+		static uint16_t count{};
+		if (count < Number_of_iterations)
+		{
+			mean_value += signal_value;
+			++count;
+			return false;
+		}
+		else
+		{
+			mean_value /= count;
+			count = 0;
+			return true;
+		}
+	};
+	float operator()() const { return mean_value; }
+
+private:
+	float mean_value{};
 };
 
 } // namespace low_pass_filter
