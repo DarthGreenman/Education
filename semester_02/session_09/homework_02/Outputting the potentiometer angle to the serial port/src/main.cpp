@@ -19,8 +19,8 @@ potentiometer pot{{{A0, signal_type::analog, signal_direction::input}}, -135, 13
 wokwi::task<potentiometer> task_pot{&potentiometer::update, &pot, polling_time_interval};
 
 using led = wokwi::light_emitting_diode<1u>;
-wokwi::task<led> task_led[]{wokwi::task<led>{&led::blink, led{{{9, signal_type::digital, signal_direction::output}}}, 1000u, 2000u},
-	wokwi::task<led>{&led::blink, led{{{13, signal_type::digital, signal_direction::output}}}, 1000u}};
+wokwi::task<led> task_led[]{wokwi::task<led>{&led::blink, led{9, signal_type::digital, signal_direction::output}, 1000u, 2000u},
+	wokwi::task<led>{&led::blink, led{13, signal_type::digital, signal_direction::output}, 1000u}};
 constexpr auto number_of_tasks = sizeof(task_led) / sizeof(task_led[0]);
 
 void setup()
