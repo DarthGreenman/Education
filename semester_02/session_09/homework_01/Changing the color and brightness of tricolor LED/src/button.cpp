@@ -12,7 +12,8 @@ wokwi::button::button(uint8_t pin, uint32_t duration_bounce)
 void wokwi::button::tick()
 {
     _click = false;
-    bool state{!digitalRead(_pin)};
+    const bool state{!digitalRead(_pin)};
+
     auto curr_state = [this, state]()
     {
         _state = state;
