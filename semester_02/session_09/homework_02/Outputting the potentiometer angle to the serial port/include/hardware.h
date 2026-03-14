@@ -90,7 +90,7 @@ inline electronic_component<Number_of_channels>::electronic_component(
 template <uint8_t Number_of_channels>
 inline void electronic_component<Number_of_channels>::set_params(uint8_t pin, wokwi::signal_type type, wokwi::signal_direction direction)
 {
-	if (_count == Number_of_channels)
+	if (_count >= Number_of_channels)
 	{
 		_count = 0;
 		return;
