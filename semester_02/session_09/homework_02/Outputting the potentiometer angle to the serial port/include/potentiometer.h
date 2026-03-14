@@ -24,8 +24,8 @@ public:
 	using basic = wokwi::electronic_component<1u>;
 
 	potentiometer() = default;
-	explicit potentiometer(const wokwi::channel_connect_params (&channel)[1u], int left_border, int right_border,
-		Low_pass_filter low_pass_filter = Low_pass_filter{});
+	explicit potentiometer(uint8_t pin, wokwi::signal_type type, wokwi::signal_direction direction,
+		helper::couple<int, int> boundaries_of_scale, Low_pass_filter low_pass_filter = Low_pass_filter{});
 	potentiometer(const potentiometer&) = default;
 	potentiometer(potentiometer&&) = default;
 	~potentiometer() = default;
@@ -46,10 +46,9 @@ private:
 };
 
 template <typename Low_pass_filter>
-inline potentiometer<Low_pass_filter>::potentiometer(
-	const wokwi::channel_connect_params (&channel)[1u], int left_border, int right_border, Low_pass_filter low_pass_filter)
-	: wokwi::electronic_component<1u>(channel), _handler_table{}, _low_pass_filter{low_pass_filter}, _signal_value{},
-	  _boundaries_of_scale{left_border, right_border}
+inline potentiometer<Low_pass_filter>::potentiometer(uint8_t pin, wokwi::signal_type type, wokwi::signal_direction direction,
+	helper::couple<int, int> boundaries_of_scale, Low_pass_filter low_pass_filter)
+	: wokwi::electronic_component<1u>{pin, type, direction}, _handler_table{}, _signal_value{}, _boundaries_of_scale{boundaries_of_scale}
 {
 	analogReference(DEFAULT);
 }

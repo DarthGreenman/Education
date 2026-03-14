@@ -15,7 +15,7 @@ constexpr uint32_t polling_time_interval = 1;
 using low_pass_filter = wokwi::low_pass_filter::arithmetic_mean<10>;
 using potentiometer = wokwi::potentiometer<low_pass_filter>;
 
-potentiometer pot{{{A0, signal_type::analog, signal_direction::input}}, -135, 134, low_pass_filter{}};
+potentiometer pot{A0, signal_type::analog, signal_direction::input, {-135, 134}, low_pass_filter{}};
 wokwi::task<potentiometer> task_pot{&potentiometer::update, &pot, polling_time_interval};
 
 using led = wokwi::light_emitting_diode<1u>;
