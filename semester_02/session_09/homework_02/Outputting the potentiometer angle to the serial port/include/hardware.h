@@ -70,7 +70,6 @@ private:
 		int signal_value;			   // 0 to 1023 for analog, 0 or 1 for digital
 	};
 	channel_params _channels[Number_of_channels]{};
-	uint8_t _count{};
 }; // template<uint8_t Number_of_channels> class electronic_component
 
 template <uint8_t Number_of_channels>
@@ -90,14 +89,16 @@ inline electronic_component<Number_of_channels>::electronic_component(
 template <uint8_t Number_of_channels>
 inline void electronic_component<Number_of_channels>::set_params(uint8_t pin, wokwi::signal_type type, wokwi::signal_direction direction)
 {
-	if (_count >= Number_of_channels)
-	{
-		_count = 0;
+	static uint8_t count{};
+	if (count >= Number_of_channels)
 		return;
-	}
+
 	assert(is_valid_pin_params(pin, type, direction) && "Incorrect channel parameters.");
-	_channels[_count++] = channel_params{wokwi::channel_connect_params{pin, type, direction}, 0};
+	_channels[count++] = channel_params{wokwi::channel_connect_params{pin, type, direction}, 0};
 	pinMode(pin, static_cast<uint8_t>(direction));
+
+	if (count == Number_of_channels)
+		count = 0;
 }
 
 template <uint8_t Number_of_channels>
