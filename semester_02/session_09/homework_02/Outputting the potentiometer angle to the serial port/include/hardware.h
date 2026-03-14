@@ -46,7 +46,7 @@ protected:
 	static constexpr auto number_of_channels = Number_of_channels;
 
 	constexpr electronic_component() = default;
-	explicit electronic_component(const wokwi::channel_connect_params (&pins)[Number_of_channels]);
+	explicit electronic_component(const wokwi::channel_connect_params (&channels)[Number_of_channels]);
 	explicit electronic_component(uint8_t pin, wokwi::signal_type type, wokwi::signal_direction direction);
 	electronic_component(const electronic_component&) = default;
 	electronic_component(electronic_component&& movable) = default;
@@ -55,6 +55,7 @@ protected:
 	electronic_component& operator=(const electronic_component&) = delete;
 	electronic_component& operator=(electronic_component&&) = delete;
 
+	void set_params(uint8_t pin, wokwi::signal_type type, wokwi::signal_direction direction);
 	void write(uint8_t channel_number, digital_signal_values signal_value);
 	void write(uint8_t channel_number, uint16_t signal_value);
 	uint16_t read(uint8_t channel_number) const;
@@ -69,18 +70,22 @@ private:
 		int signal_value;			   // 0 to 1023 for analog, 0 or 1 for digital
 	};
 	channel_params _channels[Number_of_channels]{};
+	uint8_t _count{};
 }; // template<uint8_t Number_of_channels> class electronic_component
 
 template <uint8_t Number_of_channels>
-inline electronic_component<Number_of_channels>::electronic_component(const wokwi::channel_connect_params (&pins)[Number_of_channels])
-{
-	for (uint8_t number{}; number < Number_of_channels; ++number)
-	{
-		const auto& ch = pins[number];
-		assert(is_valid_pin_params(ch.pin, ch.type, ch.direction) && "Incorrect channel parameters.");
-		_channels[number] = channel_params{wokwi::channel_connect_params{ch.pin, ch.type, ch.direction}, 0};
-		pinMode(ch.pin, static_cast<uint8_t>(ch.direction));
-	}
+inline electronic_component<Number_of_channels>::electronic_component(const wokwi::channel_connect_params (&channels)[Number_of_channels])
+{ /*
+	 for (uint8_t number{}; number < Number_of_channels; ++number)
+	 {
+		 const auto& ch = pins[number];
+		 assert(is_valid_pin_params(ch.pin, ch.type, ch.direction) && "Incorrect channel parameters.");
+		 _channels[number] = channel_params{wokwi::channel_connect_params{ch.pin, ch.type, ch.direction}, 0};
+		 pinMode(ch.pin, static_cast<uint8_t>(ch.direction));
+	 }
+ */
+	for (auto&& ch : channels)
+		set_params(ch.pin, ch.type, ch.direction);
 }
 
 template <uint8_t Number_of_channels>
@@ -91,10 +96,17 @@ inline electronic_component<Number_of_channels>::electronic_component(
 }
 
 template <uint8_t Number_of_channels>
-inline const wokwi::channel_connect_params& electronic_component<Number_of_channels>::get_params(uint8_t channel_number) const
+inline void electronic_component<Number_of_channels>::set_params(uint8_t pin, wokwi::signal_type type, wokwi::signal_direction direction)
 {
-	assert(channel_number <= Number_of_channels && "Incorrect channel number value.");
-	return _channels[channel_number].params;
+	//static uint8_t number{};
+	if (_count == Number_of_channels)
+	{
+		_count = 0;
+		return;
+	}
+	assert(is_valid_pin_params(pin, type, direction) && "Incorrect channel parameters.");
+	_channels[_count++] = channel_params{wokwi::channel_connect_params{pin, type, direction}, 0};
+	pinMode(pin, static_cast<uint8_t>(direction));
 }
 
 template <uint8_t Number_of_channels>
@@ -135,6 +147,13 @@ inline bool electronic_component<Number_of_channels>::is_valid_pin_params(
 		return pin <= 13u;
 	}
 	return false;
+}
+
+template <uint8_t Number_of_channels>
+inline const wokwi::channel_connect_params& electronic_component<Number_of_channels>::get_params(uint8_t channel_number) const
+{
+	assert(channel_number <= Number_of_channels && "Incorrect channel number value.");
+	return _channels[channel_number].params;
 }
 
 } // namespace wokwi
