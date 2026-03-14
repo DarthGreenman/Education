@@ -75,15 +75,7 @@ private:
 
 template <uint8_t Number_of_channels>
 inline electronic_component<Number_of_channels>::electronic_component(const wokwi::channel_connect_params (&channels)[Number_of_channels])
-{ /*
-	 for (uint8_t number{}; number < Number_of_channels; ++number)
-	 {
-		 const auto& ch = pins[number];
-		 assert(is_valid_pin_params(ch.pin, ch.type, ch.direction) && "Incorrect channel parameters.");
-		 _channels[number] = channel_params{wokwi::channel_connect_params{ch.pin, ch.type, ch.direction}, 0};
-		 pinMode(ch.pin, static_cast<uint8_t>(ch.direction));
-	 }
- */
+{
 	for (auto&& ch : channels)
 		set_params(ch.pin, ch.type, ch.direction);
 }
@@ -98,7 +90,6 @@ inline electronic_component<Number_of_channels>::electronic_component(
 template <uint8_t Number_of_channels>
 inline void electronic_component<Number_of_channels>::set_params(uint8_t pin, wokwi::signal_type type, wokwi::signal_direction direction)
 {
-	//static uint8_t number{};
 	if (_count == Number_of_channels)
 	{
 		_count = 0;
