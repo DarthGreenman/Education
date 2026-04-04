@@ -6,7 +6,6 @@
 #include "helper.h"
 
 #include <stdint.h>
-#include <Arduino.h>
 
 namespace wokwi
 {
