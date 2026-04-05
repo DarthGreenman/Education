@@ -33,15 +33,15 @@ namespace wokwi
 
     private:
         void construct(uint8_t pin_number, wokwi::signal_type signal_type, uint16_t signal_value);
-        uint8_t get_current_position() const { return _current_position; }
+        uint8_t get_channel_number() const { return _channel_number; }
         uint16_t get_signal() const { return _signal_value; }
         template <typename Function>
         void shift(uint8_t limit, Function action);
 
-        wokwi::light_emitting_diode _led_strip[number_of_diode]{};
+        wokwi::light_emitting_diode _diode[number_of_diode]{};
         constexpr static helper::pair<uint8_t, uint8_t> _range{static_cast<uint8_t>(-1), number_of_diode};
         uint16_t _signal_value{};
-        uint8_t _current_position{};
+        uint8_t _channel_number{};
     };
     /**
      * @brief
@@ -50,10 +50,10 @@ namespace wokwi
      */
     template <uint8_t... PinNumbers>
     inline light_emitting_diode_strip<PinNumbers...>::light_emitting_diode_strip(
-        wokwi::signal_type signal_type, uint16_t signal_value) : _signal_value{signal_value}, _current_position{}
+        wokwi::signal_type signal_type, uint16_t signal_value) : _signal_value{signal_value}, _channel_number{}
     {
         helper::expand_parameter_package{(construct(PinNumbers, signal_type, signal_value), 1)...};
-        _current_position = _range.first;
+        _channel_number = _range.first;
     }
     /**
      * @brief
@@ -62,23 +62,23 @@ namespace wokwi
     inline void light_emitting_diode_strip<PinNumbers...>::shift_right()
     {
         shift(_range.second, [this]()
-              { ++_current_position; });
+              { ++_channel_number; });
     }
     template <uint8_t... PinNumbers>
     inline void light_emitting_diode_strip<PinNumbers...>::shift_left()
     {
         shift(_range.first, [this]()
-              { --_current_position; });
+              { --_channel_number; });
     }
     template <uint8_t... PinNumbers>
     inline void light_emitting_diode_strip<PinNumbers...>::swap()
     {
-        if (get_signal() && get_current_position() == 0)
+        if (get_signal() && get_channel_number() == 0)
             shift(_range.second, [this]()
-                  { _current_position += _range.second - 1u; });
-        else if (get_signal() && get_current_position() == _range.second - 1u)
+                  { _channel_number += _range.second - 1u; });
+        else if (get_signal() && get_channel_number() == _range.second - 1u)
             shift(_range.first, [this]()
-                  { _current_position = 0; });
+                  { _channel_number = 0; });
         else
             return;
     }
@@ -89,8 +89,8 @@ namespace wokwi
     template <uint8_t... PinNumbers>
     inline void light_emitting_diode_strip<PinNumbers...>::change_brightness(uint16_t signal_value)
     {
-        if (get_current_position() != _range.first && get_current_position() != _range.second)
-            _led_strip[get_current_position()].change_brightness(_signal_value = signal_value);
+        if (get_channel_number() != _range.first && get_channel_number() != _range.second)
+            _diode[get_channel_number()].change_brightness(_signal_value = signal_value);
     }
     /**
      * @brief
@@ -102,7 +102,7 @@ namespace wokwi
     inline void light_emitting_diode_strip<PinNumbers...>::construct(uint8_t pin_number,
                                                                      wokwi::signal_type signal_type, uint16_t signal_value)
     {
-        _led_strip[_current_position++] = wokwi::light_emitting_diode{pin_number, signal_type, signal_value};
+        _diode[_channel_number++] = wokwi::light_emitting_diode{pin_number, signal_type, signal_value};
     }
     /**
      * @brief
@@ -114,18 +114,18 @@ namespace wokwi
     inline void light_emitting_diode_strip<PinNumbers...>::shift(uint8_t limit, Function action)
     {
         assert((limit == _range.first || limit == _range.second) && "Limits out of range");
-        if (get_current_position() == limit)
+        if (get_channel_number() == limit)
             return;
 
         auto change_brightness = [this](uint8_t position, uint16_t signal_value)
         {
             if (position != _range.first && position != _range.second)
-                _led_strip[position].change_brightness(signal_value);
+                _diode[position].change_brightness(signal_value);
         };
 
-        change_brightness(get_current_position(), static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::low));
+        change_brightness(get_channel_number(), static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::low));
         action();
-        change_brightness(get_current_position(), get_signal());
+        change_brightness(get_channel_number(), get_signal());
     }
 } // namespace wokwi
 

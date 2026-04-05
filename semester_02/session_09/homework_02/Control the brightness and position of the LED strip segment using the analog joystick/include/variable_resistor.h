@@ -60,7 +60,6 @@ namespace wokwi
 
     /**
      * @brief
-     * @tparam LowPassFilter
      * @param pin_number
      * @param low_pass_filter
      */
@@ -73,7 +72,6 @@ namespace wokwi
     }
     /**
      * @brief
-     * @tparam LowPassFilter
      * @param low
      * @param high
      * @return
@@ -87,7 +85,6 @@ namespace wokwi
     }
     /**
      * @brief
-     * @tparam LowPassFilter
      */
     template <typename LowPassFilter>
     inline void variable_resistor<LowPassFilter>::update()
@@ -107,6 +104,5 @@ namespace wokwi
             _signal_value = signal_value;
         }
     }
-
 } // namespace wokwi
 #endif // VARIABLE_RESISTOR_H

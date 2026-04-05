@@ -3,8 +3,6 @@
 #ifndef LOW_PASS_FILTER_H
 #define LOW_PASS_FILTER_H
 
-#include "helper.h"
-
 #include <stdint.h>
 
 namespace wokwi

@@ -6,7 +6,6 @@
 #include "button.h"
 #include "callbacks_table.h"
 #include "events.h"
-#include "hardware.h"
 #include "helper.h"
 #include "variable_resistor.h"
 
@@ -104,7 +103,6 @@ namespace wokwi
     }
     /**
      * @brief
-     * @tparam LowPassFilter
      * @param pin_type
      * @param pin_number
      */

@@ -3,10 +3,10 @@
 #ifndef TABLE_OF_POINTER_TO_CALLBACK_FUNCTION_H
 #define TABLE_OF_POINTER_TO_CALLBACK_FUNCTION_H
 
+#include "events.h"
+
 #include <assert.h>
 #include <stdint.h>
-
-#include "events.h"
 
 namespace wokwi
 {
