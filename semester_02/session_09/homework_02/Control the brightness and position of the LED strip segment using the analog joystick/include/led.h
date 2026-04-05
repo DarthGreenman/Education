@@ -74,7 +74,7 @@ namespace wokwi
     inline void light_emitting_diode::blink(uint16_t signal_value)
     {
         !basic::read(channel_number) ? change_brightness(signal_value)
-                                     : change_brightness(static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::low));
+                                     : change_brightness(wokwi::analog_signal_low());
     }
 } // namespace wokwi
 

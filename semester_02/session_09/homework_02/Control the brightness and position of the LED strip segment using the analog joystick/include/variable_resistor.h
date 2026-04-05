@@ -80,8 +80,8 @@ namespace wokwi
     template <typename ValueType>
     inline ValueType variable_resistor<LowPassFilter>::get_signal(ValueType low, ValueType high) const
     {
-        return helper::map(static_cast<ValueType>(_signal_value), static_cast<ValueType>(wokwi::boundary_values_of_analog_signal::low),
-                           static_cast<ValueType>(wokwi::boundary_values_of_analog_signal::high), low, high);
+        return helper::map(static_cast<ValueType>(_signal_value), static_cast<ValueType>(analog_signal_low()),
+                           static_cast<ValueType>(analog_signal_high()), low, high);
     }
     /**
      * @brief

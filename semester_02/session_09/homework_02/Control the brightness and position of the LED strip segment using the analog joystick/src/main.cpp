@@ -44,8 +44,7 @@ void setup()
 #ifdef DEBUGGING_EVENTS
                        Serial.println(analogRead(pin_horz_number));
 #else
-                       if (analogRead(pin_horz_number) ==
-                           static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::low))
+                       if (analogRead(pin_horz_number) == wokwi::analog_signal_low())
                            strip.shift_right();
 #endif
                    });
@@ -55,8 +54,7 @@ void setup()
 #ifdef DEBUGGING_EVENTS
                       Serial.println(analogRead(pin_horz_number));
 #else
-                      if (analogRead(pin_horz_number) ==
-                          static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::high))
+                      if (analogRead(pin_horz_number) == wokwi::analog_signal_high())
                           strip.shift_left();
 #endif
                   });
@@ -66,8 +64,7 @@ void setup()
 #ifdef DEBUGGING_EVENTS
                     Serial.println(analogRead(pin_vert_number));
 #else
-                    if (analogRead(pin_vert_number) ==
-                        static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::high))
+                    if (analogRead(pin_vert_number) == wokwi::analog_signal_high())
                     {
                         strip.change_brightness(signal_value);
                         if (signal_value == static_cast<uint8_t>(brightness::high))
@@ -82,14 +79,13 @@ void setup()
 #ifdef DEBUGGING_EVENTS
                       Serial.println(analogRead(pin_vert_number));
 #else
-                      if (analogRead(pin_vert_number) ==
-                          static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::low))
-                      {
-                          strip.change_brightness(signal_value);
-                          if (signal_value == static_cast<uint8_t>(brightness::low))
-                              return;
-                          signal_value -= signal_value_step;
-                      }
+                      if (analogRead(pin_vert_number) == wokwi::analog_signal_low())
+                          {
+                              strip.change_brightness(signal_value);
+                              if (signal_value == static_cast<uint8_t>(brightness::low))
+                                  return;
+                              signal_value -= signal_value_step;
+                          }
 #endif
                   });
 

@@ -145,7 +145,7 @@ namespace wokwi
      * @brief по сравнению с предыдущим состоянием. Если состояние изменилось, то будем обрабатывать
      * @brief это изменение и обновлять _signal_value.
      */
-    uint8_t _signal_value{};
+    wokwi::digital_signal_values _signal_value{};
   };
   /**
    * @brief
@@ -158,8 +158,8 @@ namespace wokwi
                                                                         ? wokwi::signal_direction::input_pullup
                                                                         : wokwi::signal_direction::input}},
         _idle_signal_value{idle_value},
-        _signal_value{idle_value == behaviour::pull_up ? static_cast<uint8_t>(wokwi::digital_signal_values::high)
-                                                       : static_cast<uint8_t>(wokwi::digital_signal_values::low)}
+        _signal_value{idle_value == behaviour::pull_up ? wokwi::digital_signal_values::high
+                                                       : wokwi::digital_signal_values::low}
   {
   }
   /**
@@ -167,23 +167,28 @@ namespace wokwi
    */
   void wokwi::button::update()
   {
-    const uint8_t curr_signal_value = basic::read(channel_number);
     using signal_value = wokwi::digital_signal_values;
+
+    const auto curr_signal_value = !basic::read(channel_number) ? signal_value::low
+                                                                : signal_value::high;
+
     auto call = [this, curr_signal_value](signal_value pressed, signal_value release)
     {
       if (curr_signal_value != _signal_value)
       {
-        if (curr_signal_value == static_cast<uint8_t>(pressed))
+        if (curr_signal_value == pressed)
           if (_handlers.handler(event::pressed))
             _handlers.handler(event::pressed)();
-        if (curr_signal_value == static_cast<uint8_t>(release))
+        if (curr_signal_value == release)
           if (_handlers.handler(event::release))
             _handlers.handler(event::release)();
       }
       _signal_value = curr_signal_value;
     };
 
-    _idle_signal_value == behaviour::pull_up ? call(signal_value::low, signal_value::high) : call(signal_value::high, signal_value::low);
+    _idle_signal_value == behaviour::pull_up
+        ? call(signal_value::low, signal_value::high)
+        : call(signal_value::high, signal_value::low);
   }
 } // namespace wokwi
 

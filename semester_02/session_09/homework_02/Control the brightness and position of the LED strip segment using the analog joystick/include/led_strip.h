@@ -123,7 +123,7 @@ namespace wokwi
                 _diode[position].change_brightness(signal_value);
         };
 
-        change_brightness(get_channel_number(), static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::low));
+        change_brightness(get_channel_number(), wokwi::analog_signal_low());
         action();
         change_brightness(get_channel_number(), get_signal());
     }

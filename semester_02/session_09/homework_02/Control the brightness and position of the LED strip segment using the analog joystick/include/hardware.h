@@ -22,17 +22,26 @@ namespace wokwi
         input_pullup = INPUT_PULLUP,
         output = OUTPUT
     };
+    
     enum class boundary_values_of_analog_signal : uint16_t
     {
         low,
         high = 1023
+    };
+    static constexpr uint16_t analog_signal_low()
+    {
+        return static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::low);
+    };
+    static constexpr uint16_t analog_signal_high()
+    {
+        return static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::high);
     };
     enum digital_signal_values : uint8_t
     {
         low,
         high
     };
-
+   
     struct channel_connect_params
     {
         uint8_t pin;
@@ -111,8 +120,7 @@ namespace wokwi
     template <typename... Channels>
     inline void electronic_component<Channels...>::write(uint8_t channel_number, uint16_t signal_value) const
     {
-        assert(signal_value >= static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::low) &&
-               signal_value <= static_cast<uint16_t>(wokwi::boundary_values_of_analog_signal::high) && "Incorrect analog signal value.");
+        assert(signal_value >= wokwi::analog_signal_low() && signal_value <= wokwi::analog_signal_high() && "Incorrect analog signal value.");
         assert(get_pin_type(channel_number) == wokwi::signal_type::analog && "The method is designed to process analog signals.");
 
         analogWrite(get_pin_number(channel_number), signal_value);
