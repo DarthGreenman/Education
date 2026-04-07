@@ -1,0 +1,35 @@
+Константы и идентификаторы событий организованны в перечислениях:
+1. enum class signal_type : uint8_t
+2. enum class signal_direction : uint8_t
+3. enum class boundary_values_of_analog_signal : uint16_t
+4. enum class button_events : uint8_t
+5. enum class potentiometer_events : uint8_t
+
+template <uint8_t Number_of_channels> class electronic_component
+1. Базовый класс для подключаемых элементов. 
+2. Описывает параметры подключения: номер пина платы, тип и направление сигнала; величину сигнала.
+3. В режиме отладки проверяет корректность соответствия параметров. Например: номер пина и тип сигнала.
+4. Дочерние классы наследуют защищенный интерфейс базового.
+5. Методы интерфейса:
+   5.1. read(uin8t) const.
+   5.2. write(uint8t, digital_signal_values).
+   5.3. write(uint8t, uint16_t).
+
+template <typename Events> class table_of_callback_functions
+Регистрирует и предоставляет события.
+
+template <typename Type> class task
+Запускает методы производных классов с интервалом, определяемым пользователем.Например для blink() с интервалом 500 мс для led, или update() с интервалом 16мс для потенциометра.
+
+Производные классы - элементы:
+1. LED RGB - template <uint8_t Number_of_channels> class light_emitting_diode : public wokwi::electronic_component<Number_of_channels>
+2. LED - template <> class light_emitting_diode<1u> : public wokwi::electronic_component<1u> (специализация для led двухконтактного)
+2. Потенциометр - template <typename Low_pass_filter> class potentiometer : public wokwi::electronic_component<1u>
+3. Методы класса описывают состояние объекта в интервале одного опроса.
+4. Классы элементов, которые должны отвечать на изменение состояния (поворот потенциометра, или нажатие кнопки) содержат table_of_callback_functions, в которой зарегистрированные соответствующие события. 
+
+
+
+
+ 
+
