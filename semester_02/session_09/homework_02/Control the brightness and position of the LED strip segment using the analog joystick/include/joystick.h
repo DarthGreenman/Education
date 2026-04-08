@@ -25,6 +25,12 @@ namespace wokwi
         };
 
         constexpr joystick() = default;
+        /**
+         * @brief Construct a new joystick object
+         *
+         * @tparam Binds
+         * @param binds
+         */
         template <typename... Binds>
         explicit joystick(Binds &&...binds) { fox::expand_parameter_package{(construct(binds.first, binds.second), 1)...}; }
         joystick(const joystick &) = default;
@@ -39,11 +45,20 @@ namespace wokwi
         void up(const pointer_to_callback_function action) { _axes.vert.decreased_resistance(action); }
         void down(const pointer_to_callback_function action) { _axes.vert.increased_resistance(action); }
         void select(const pointer_to_callback_function action) { _select.pressed(action); }
-
+        /**
+         * @brief 
+         * 
+         */
         void update();
-        fox::pair<uint16_t, uint16_t> get_signal_axes() const { return fox::pair<uint16_t, uint16_t>{_axes.horz.get_signal(), _axes.vert.get_signal()}; }
+        fox::pair<uint16_t, uint16_t> get_signal_axes() const { return fox::pair<uint16_t, uint16_t>{_axes.horz.get_signal_value(), _axes.vert.get_signal_value()}; }
 
     private:
+        /**
+         * @brief
+         *
+         * @param pin_type
+         * @param pin_number
+         */
         void construct(pin_type_element pin_type, uint8_t pin_number);
 
         struct axes

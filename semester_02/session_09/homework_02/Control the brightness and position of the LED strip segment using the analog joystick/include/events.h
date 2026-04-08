@@ -14,13 +14,14 @@ namespace wokwi
         begin = release,
         end = pressed + 1u
     };
+
     enum class variable_resistor_events : uint8_t
     {
         decreased_resistance,
         increased_resistance,
         begin = decreased_resistance,
         end = increased_resistance + 1u
-    };
+    }; 
 
     enum class joystick_events : uint8_t
     {
@@ -33,10 +34,10 @@ namespace wokwi
         end = selection + 1u
     };
 
-    template <typename Events>
-    static Events &operator++(Events &event)
+    template <typename E>
+    static E &operator++(E &event)
     {
-        event = static_cast<Events>(static_cast<uint8_t>(event) + 1u);
+        event = static_cast<E>(static_cast<uint8_t>(event) + 1u);
         return event;
     }
 } // namespace wokwi

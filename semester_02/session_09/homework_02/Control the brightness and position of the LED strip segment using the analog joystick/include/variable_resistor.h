@@ -39,9 +39,12 @@ namespace wokwi
         void increased_resistance(const pointer_to_callback_function action) { _handlers.add_handler(event::increased_resistance, action); }
 
         template <typename T>
-        T get_signal(T low, T high) const;
-        uint16_t get_signal() const { return basic::read(); }
-
+        T get_signal_value(T low, T high) const;
+        uint16_t get_signal_value() const { return basic::read(); }
+        /**
+         * @brief 
+         * 
+         */
         void update();
 
     private:
@@ -49,9 +52,9 @@ namespace wokwi
     };
 
     template <typename T>
-    inline T variable_resistor::get_signal(T low, T high) const
+    inline T variable_resistor::get_signal_value(T low, T high) const
     {
-        const auto signal_value = get_signal();
+        const auto signal_value = get_signal_value();
         return fox::map(static_cast<T>(signal_value), static_cast<T>(wokwi::signal_analog::low),
                            static_cast<T>(wokwi::signal_analog::high), low, high);
     }

@@ -19,7 +19,7 @@ wokwi::joystick joystick{
     fox::make_pair(pin_type_element::vert, A1),
     fox::make_pair(pin_type_element::select, 2)};
 
-wokwi::task<wokwi::joystick> task_joystick{&wokwi::joystick::update, &joystick, 150};
+wokwi::task<wokwi::joystick> task_joystick{&wokwi::joystick::update, &joystick, 125};
 
 enum brightness
 {

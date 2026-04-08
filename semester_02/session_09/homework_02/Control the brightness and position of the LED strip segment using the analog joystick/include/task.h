@@ -8,17 +8,33 @@
 
 namespace wokwi
 {
-    template <typename Type>
+    template <typename T>
     class task
     {
     public:
-        using const_pointer_to_function_type = void (Type::*const)();
-        using const_pointer_to_object_type = Type *const;
+        using const_pointer_to_function_type = void (T::*const)();
+        using const_pointer_to_object_type = T *const;
 
         task() = default;
+        /**
+         * @brief Construct a new task object
+         *
+         * @param function
+         * @param object
+         * @param polling_time_interval
+         * @param time_before_start
+         */
         explicit task(const_pointer_to_function_type function, const_pointer_to_object_type object,
                       uint32_t polling_time_interval, uint32_t time_before_start = 0ul);
-        explicit task(const_pointer_to_function_type function, Type &&object, uint32_t polling_time_interval,
+        /**
+         * @brief Construct a new task object
+         *
+         * @param function
+         * @param object
+         * @param polling_time_interval
+         * @param time_before_start
+         */
+        explicit task(const_pointer_to_function_type function, T &&object, uint32_t polling_time_interval,
                       uint32_t time_before_start = 0ul);
         task(const task &) = default;
         task(task &&) = default;
@@ -26,13 +42,16 @@ namespace wokwi
 
         task &operator=(const task &) = default;
         task &operator=(task &&) = default;
-
+        /**
+         * @brief
+         *
+         */
         void exec();
 
     private:
         bool wework(uint32_t curr_time) const { return _timeslot.to_work == curr_time ? true : false; }
 
-        Type _object{};
+        T _object{};
         const_pointer_to_object_type _cptr_object{};
         const_pointer_to_function_type _cptr_func{};
 
@@ -47,24 +66,24 @@ namespace wokwi
         bool _we_work{};
     };
 
-    template <typename Type>
-    inline task<Type>::task(const_pointer_to_function_type function,
-                            const_pointer_to_object_type object, uint32_t polling_time_interval, uint32_t time_before_start)
-        : _object{Type{}}, _cptr_object{object}, _cptr_func{function},
+    template <typename T>
+    inline task<T>::task(const_pointer_to_function_type function,
+                         const_pointer_to_object_type object, uint32_t polling_time_interval, uint32_t time_before_start)
+        : _object{T{}}, _cptr_object{object}, _cptr_func{function},
           _timeslot{polling_time_interval, millis() + time_before_start, millis()}, _we_work{}
     {
     }
 
-    template <typename Type>
-    inline task<Type>::task(const_pointer_to_function_type function, Type &&object, uint32_t polling_time_interval,
-                            uint32_t time_before_start)
+    template <typename T>
+    inline task<T>::task(const_pointer_to_function_type function, T &&object, uint32_t polling_time_interval,
+                         uint32_t time_before_start)
         : _object{object}, _cptr_object{&_object}, _cptr_func{function},
           _timeslot{polling_time_interval, millis() + time_before_start, millis()}, _we_work{}
     {
     }
 
-    template <typename Type>
-    inline void task<Type>::exec()
+    template <typename T>
+    inline void task<T>::exec()
     {
         const auto curr_time = millis();
 
