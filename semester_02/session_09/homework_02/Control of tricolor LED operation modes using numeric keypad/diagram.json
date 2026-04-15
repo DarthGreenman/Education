@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "author": "darth_greenman",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -72,
+      "left": 37.85,
+      "rotate": 90,
+      "attrs": { "value": "85" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": -72,
+      "left": 18.65,
+      "rotate": 90,
+      "attrs": { "value": "85" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "top": -72,
+      "left": -0.55,
+      "rotate": 90,
+      "attrs": { "value": "145" }
+    },
+    {
+      "type": "wokwi-rgb-led",
+      "id": "rgb1",
+      "top": -188,
+      "left": 1.1,
+      "attrs": { "common": "anode" }
+    },
+    { "type": "wokwi-membrane-keypad", "id": "keypad1", "top": -174.8, "left": 380, "attrs": {} }
+  ],
+  "connections": [
+    [ "rgb1:G", "r2:1", "limegreen", [ "h1.3", "v28.8", "h9.6" ] ],
+    [ "rgb1:B", "r1:1", "blue", [ "v9.6", "h30.4" ] ],
+    [ "uno:5V", "rgb1:COM", "red", [ "v29.3", "h-179.2", "v-345.6", "h38.3" ] ],
+    [ "rgb1:R", "r3:1", "magenta", [ "v28.8", "h-28.8" ] ],
+    [ "uno:2", "keypad1:C4", "yellow", [ "v-18.6", "h51.5", "v259.2", "h278.2", "v-86.4" ] ],
+    [ "uno:3", "keypad1:C3", "cyan", [ "v-28.2", "h70.6", "v259.2", "h240.15" ] ],
+    [ "uno:4", "keypad1:C2", "limegreen", [ "v-37.8", "h89.7", "v259.2", "h220.8" ] ],
+    [ "uno:5", "keypad1:C1", "magenta", [ "v-47.4", "h108.8", "v259.2", "h201.7" ] ],
+    [ "uno:6", "keypad1:R4", "blue", [ "v-57", "h127.9", "v259.2", "h182.6" ] ],
+    [ "uno:7", "keypad1:R3", "orange", [ "v-66.6", "h147", "v259.2", "h163.5" ] ],
+    [ "uno:8", "keypad1:R2", "#8f4814", [ "v-76.2", "h172.6", "v259.2", "h144.4" ] ],
+    [ "uno:12", "keypad1:R1", "gray", [ "h-0.1", "v-85.8", "h220.8", "v259.2", "h124.8" ] ],
+    [ "r1:2", "uno:9", "blue", [ "h0", "v8.4", "h96" ] ],
+    [ "r2:2", "uno:10", "limegreen", [ "h0", "v18", "h105.6" ] ],
+    [ "r3:2", "uno:11", "magenta", [ "h0", "v27.6", "h115.2" ] ]
+  ],
+  "dependencies": {}
+}
