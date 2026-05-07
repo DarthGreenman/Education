@@ -11,8 +11,8 @@ namespace uno {
 	enum class common_pin : uint8_t { anode, cathode };
 
 	enum class single_seven_segment_indicator : uint32_t {
-		a = 0x1ul << 0u, b = 0x1ul << 4u, c = 0x1ul << 8u, d = 0x1ul << 12u, e = 0x1ul << 16u,
-		f = 0x1ul << 20u, g = 0x1ul << 24u, dp = 0x1ul << 28u
+		a = 0x00000001, b = 0x00000010, c = 0x00000100, d = 0x00001000,
+		e = 0x00010000, f = 0x00100000, g = 0x01000000, dp = 0x10000000
 	};
 
 	constexpr decltype(auto) operator | (single_seven_segment_indicator lhs, single_seven_segment_indicator rhs) {
