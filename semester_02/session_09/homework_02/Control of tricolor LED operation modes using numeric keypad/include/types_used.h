@@ -25,11 +25,51 @@ enum class signal_direction : uint8_t {
     output = OUTPUT
 };
 
+template <uint16_t L, uint16_t H>
+struct signal {
+    static constexpr auto low = L;
+    static constexpr auto high = H;
+};
+using analog = typename uno::signal<0, 1023>;
+using digital = typename uno::signal<0, 1>;
+using pwm = typename uno::signal<0, 255>;
+
+template <typename T>
+struct is_analog {
+    static constexpr auto value = fox::is_same<typename T::signal, uno::analog>::value;
+};
+
+template <typename T>
+struct is_digital {
+    static constexpr auto value = fox::is_same<typename T::signal, uno::digital>::value;
+};
+
+template <typename T>
+struct is_pwm {
+    static constexpr auto value = fox::is_same<typename T::signal, uno::pwm>::value;
+};
+
+template <typename T>
+constexpr bool Is_analog(T value)
+{
+    return uno::is_analog<T>::value;
+}
+
+template <typename T>
+constexpr bool Is_digital(T value)
+{
+    return uno::is_digital<T>::value;
+}
+
+template <typename T>
+constexpr bool Is_pwm(T value)
+{
+    return uno::is_pwm<T>::value;
+}
+
 namespace color {
 
-    constexpr uint32_t red = 0x00ff0000,
-                       green = 0x0000ff00,
-                       blue = 0x000000ff;
+    constexpr uint32_t red = 0x00ff0000, green = 0x0000ff00, blue = 0x000000ff;
 
     template <typename T>
     struct rgb {
@@ -41,9 +81,7 @@ namespace color {
     static rgb<uint8_t> unpack_rgb(uint32_t color)
     {
         return rgb<uint8_t> {
-            static_cast<uint8_t>((color >> 16) & 0xff),
-            static_cast<uint8_t>((color >> 8) & 0xff),
-            static_cast<uint8_t>(color & 0xff)
+            static_cast<uint8_t>((color >> 16) & 0xff), static_cast<uint8_t>((color >> 8) & 0xff), static_cast<uint8_t>(color & 0xff)
         };
     }
 

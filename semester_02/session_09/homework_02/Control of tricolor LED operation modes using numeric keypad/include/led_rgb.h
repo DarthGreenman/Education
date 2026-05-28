@@ -82,7 +82,6 @@ public:
                     ? ~value
                     : value);
         write(channel.red, channel.green, channel.blue);
-        
     }
 
 private:
