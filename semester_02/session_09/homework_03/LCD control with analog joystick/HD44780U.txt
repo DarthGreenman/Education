@@ -1,0 +1,26 @@
+Clear display		0 0 0 0 0 0 0 0 0 1	Clears entire display and sets DDRAM address 0 in address counter.
+						Очищает весь дисплей и устанавливает адрес DDRAM 0 в счетчике адресов.
+
+Return home		0 0 0 0 0 0 0 0 1 —	Sets DDRAM address 0 in address counter. Also returns display from
+						being shifted to original position. DDRAM contents remain unchanged. (1.52 ms)
+						Устанавливает адрес DDRAM равным 0 в счетчике адресов. Также возвращает
+						отображение из смещенного состояния в исходное положение.
+						Содержимое DDRAM остается неизменным.
+
+Entry mode set		0 0 0 0 0 0 0 1 I/D S	Sets cursor move direction and specifies display shift. These operations are
+						performed during data write and read. (37 ms)
+						Задает направление перемещения курсора и сдвиг отображения. Эти операции 
+						выполняются во время записи и чтения данных.
+
+Disp. on/off control	0 0 0 0 0 0 1 D C B	Sets entire display (D) on/off, cursor on/off (C), and blinking of cursor
+						position character (B). (37 ms)
+						Включает/выключает весь дисплей (D), включение/выключение курсора (C) и 
+						мигание символа положения курсора (B).
+
+Cursor or disp. shift	0 0 0 0 0 1 S/C R/L — —	Moves cursor and shifts display without changing DDRAM contents. (37 ms)
+						Перемещает курсор и изменяет отображение без изменения содержимого DDRAM.
+
+Function set		0 0 0 0 1 DL N F — —	Sets interface data length (DL), number of display lines (N), 
+						and character font (F). (37 ms)
+						Устанавливает длину данных интерфейса (DL), количество отображаемых 
+						строк (N) и шрифт символов (F).

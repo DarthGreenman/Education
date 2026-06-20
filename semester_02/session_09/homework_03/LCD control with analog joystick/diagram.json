@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 87, "left": -154.2, "attrs": {} },
+    { "type": "wokwi-lcd1602", "id": "lcd1", "top": -207.77, "left": -156.8, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -53.65,
+      "left": 76.8,
+      "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-analog-joystick",
+      "id": "joystick1",
+      "top": 143.4,
+      "left": 139.8,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [ "lcd1:D7", "uno:3", "white", [ "v57.6", "h73.1" ] ],
+    [ "lcd1:D6", "uno:4", "gray", [ "v67.2", "h73.1" ] ],
+    [ "lcd1:D5", "uno:5", "violet", [ "v76.8", "h73.1" ] ],
+    [ "lcd1:D4", "uno:6", "blue", [ "v86.4", "h73.1" ] ],
+    [ "lcd1:D3", "uno:7", "green", [ "v96", "h73.1" ] ],
+    [ "lcd1:D2", "uno:8", "gold", [ "v105.6", "h66.6" ] ],
+    [ "lcd1:D1", "uno:9", "orange", [ "v115.2", "h66.1" ] ],
+    [ "lcd1:D0", "uno:10", "#8f4814", [ "v124.8", "h66.6" ] ],
+    [ "lcd1:E", "uno:11", "cyan", [ "v134.4", "h66.6" ] ],
+    [ "lcd1:RS", "uno:12", "yellow", [ "v144", "h76.6" ] ],
+    [ "lcd1:VSS", "uno:GND.2", "black", [ "v19.2", "h-57.6", "v384", "h197.7" ] ],
+    [ "lcd1:RW", "uno:GND.2", "black", [ "v19.2", "h-96.1", "v384", "h197.7" ] ],
+    [ "lcd1:K", "uno:GND.2", "black", [ "v19.2", "h-201.6", "v384", "h197.7" ] ],
+    [ "lcd1:VDD", "uno:5V", "red", [ "v48", "h-47.9", "v326.4", "h169" ] ],
+    [ "r1:2", "uno:5V", "red", [ "h8.4", "v19.2", "h-307.2", "v326.4", "h169" ] ],
+    [ "lcd1:A", "r1:1", "red", [ "v28.8", "h38.3" ] ],
+    [ "joystick1:HORZ", "uno:A0", "yellow", [ "v57.6", "h-167" ] ],
+    [ "joystick1:VERT", "uno:A1", "cyan", [ "v48", "h-144" ] ],
+    [ "joystick1:VCC", "uno:5V", "red", [ "v38.4", "h-201.6" ] ],
+    [ "joystick1:GND", "uno:GND.2", "black", [ "v67.2", "h-220.8" ] ],
+    [ "joystick1:SEL", "uno:2", "magenta", [ "v19.2", "h67.2", "v-201.6", "h-215.3" ] ]
+  ],
+  "dependencies": {}
+}
