@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 87, "left": -154.2, "attrs": {} },
+    { "type": "wokwi-lcd1602", "id": "lcd1", "top": -207.77, "left": -156.8, "attrs": {} },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -53.65,
+      "left": 76.8,
+      "attrs": { "value": "1000" }
+    },
+    { "type": "wokwi-rgb-led", "id": "rgb1", "top": -159.2, "left": -238.9, "attrs": {} },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "ultrasonic1",
+      "top": 183.9,
+      "left": 168.7,
+      "attrs": { "distance": "250" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": -72,
+      "left": -230.95,
+      "rotate": 90,
+      "attrs": { "value": "300" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "top": -72,
+      "left": -240.55,
+      "rotate": 90,
+      "attrs": { "value": "300" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r4",
+      "top": -72,
+      "left": -259.75,
+      "rotate": 90,
+      "attrs": { "value": "300" }
+    },
+    {
+      "type": "wokwi-ntc-temperature-sensor",
+      "id": "ntc1",
+      "top": 223.4,
+      "left": -384.6,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [ "lcd1:D7", "uno:3", "white", [ "v57.6", "h73.1" ] ],
+    [ "lcd1:D6", "uno:4", "gray", [ "v67.2", "h73.1" ] ],
+    [ "lcd1:D5", "uno:5", "violet", [ "v76.8", "h73.1" ] ],
+    [ "lcd1:D4", "uno:6", "blue", [ "v86.4", "h73.1" ] ],
+    [ "lcd1:D3", "uno:7", "green", [ "v96", "h73.1" ] ],
+    [ "lcd1:D2", "uno:8", "gold", [ "v105.6", "h66.6" ] ],
+    [ "lcd1:D1", "uno:9", "orange", [ "v115.2", "h66.1" ] ],
+    [ "lcd1:D0", "uno:10", "#8f4814", [ "v124.8", "h66.6" ] ],
+    [ "lcd1:E", "uno:11", "cyan", [ "v134.4", "h66.6" ] ],
+    [ "lcd1:RS", "uno:12", "yellow", [ "v144", "h76.6" ] ],
+    [ "lcd1:VSS", "uno:GND.2", "black", [ "v19.2", "h-48", "v364.8", "h188.1" ] ],
+    [ "lcd1:RW", "uno:GND.2", "black", [ "v19.2", "h-86.5", "v364.8", "h188.1" ] ],
+    [ "lcd1:K", "uno:GND.2", "black", [ "v19.2", "h-192", "v364.8", "h188.1" ] ],
+    [ "lcd1:VDD", "uno:5V", "red", [ "v48", "h-47.9", "v326.4", "h169" ] ],
+    [ "r1:2", "uno:5V", "red", [ "h8.4", "v19.2", "h-307.2", "v326.4", "h169" ] ],
+    [ "lcd1:A", "r1:1", "red", [ "v28.8", "h38.3" ] ],
+    [ "ultrasonic1:VCC", "uno:5V", "red", [ "v19.2", "h-230.4" ] ],
+    [ "ultrasonic1:GND", "uno:GND.2", "black", [ "v48", "h-254.7" ] ],
+    [ "ultrasonic1:TRIG", "uno:A5", "purple", [ "v28.8", "h-148.7" ] ],
+    [ "ultrasonic1:ECHO", "uno:A4", "yellow", [ "v38.4", "h-168.2" ] ],
+    [ "rgb1:R", "r4:1", "magenta", [ "v0" ] ],
+    [ "rgb1:G", "r3:1", "green", [ "v19.2", "h10.9" ] ],
+    [ "rgb1:B", "r2:1", "blue", [ "v19.2", "h11.2" ] ],
+    [ "ntc1:GND", "uno:GND.2", "black", [ "h76.8", "v57.6", "h188.1" ] ],
+    [ "ntc1:VCC", "uno:5V", "red", [ "h86.4", "v38.4", "h169" ] ],
+    [ "ntc1:OUT", "uno:A3", "orange", [ "h67.2", "v47.9", "h264.7" ] ],
+    [ "r4:2", "uno:A2", "violet", [ "v392.4", "h303.2" ] ],
+    [ "r3:2", "uno:A1", "green", [ "h0", "v382.8", "h278.4" ] ],
+    [ "r2:2", "uno:A0", "blue", [ "h0", "v373.2", "h259.2" ] ],
+    [ "rgb1:COM", "uno:5V", "red", [ "v76.4", "h57.7", "v326.4", "h169" ] ]
+  ],
+  "dependencies": {}
+}
