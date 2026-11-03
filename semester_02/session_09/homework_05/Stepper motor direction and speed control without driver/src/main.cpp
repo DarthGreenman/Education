@@ -68,8 +68,12 @@ bool is_running{}; /**< Флаг опредляющий выполнять вр�
 enum class direction_of_rotation : int8_t { counterclockwise = -1, clockwise = 1 }; /**< Возможные направления вращения ротора. */
 auto curr_direction = direction_of_rotation::clockwise; /**< Текщее направление вращения. */
 
-enum class rotation_speed : uint16_t { slow = 10, fast = 150 }; /**< Пределы частот вращения ротора [об / мин]. */
-auto time_between_steps_calc = [](rotation_speed value) { return 60'000 / number_of_steps / static_cast<uint16_t>(value); };
+enum class rotation_speed : long { slow = 10, fast = 150 }; /**< Пределы частот вращения ротора [об / мин]. */
+auto time_between_steps_calc = [](rotation_speed value) {
+	if(!static_cast<long>(value))
+		return (core::numeric_limits<long>::max)();
+	return 60'000L / number_of_steps / static_cast<long>(value);
+};
 auto time_between_steps = time_between_steps_calc(rotation_speed::slow); /**< Интервал между шагами. */
 
 #define DEBUG_TASK
