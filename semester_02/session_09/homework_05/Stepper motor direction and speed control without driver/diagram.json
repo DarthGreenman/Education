@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "author": "Дмитрий Костюченко",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-stepper-motor",
+      "id": "stepper1",
+      "top": -211.9,
+      "left": 142.28,
+      "attrs": { "size": "11", "display": "steps", "arrow": "orange" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 130.8,
+      "left": 435.8,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -43.75,
+      "left": 229,
+      "rotate": 180,
+      "attrs": { "value": "220" }
+    },
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": 123.5, "left": 345.4, "attrs": {} },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn1",
+      "top": 28.7,
+      "left": 329.9,
+      "rotate": 90,
+      "attrs": { "color": "yellow", "xray": "1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn2",
+      "top": 28.7,
+      "left": 387.5,
+      "rotate": 90,
+      "attrs": { "color": "red", "xray": "1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn3",
+      "top": 28.7,
+      "left": 445.1,
+      "rotate": 90,
+      "attrs": { "color": "blue", "xray": "1" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 52.8,
+      "left": 258.65,
+      "rotate": 90,
+      "attrs": { "value": "10000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "top": 52.8,
+      "left": 277.85,
+      "rotate": 90,
+      "attrs": { "value": "10000" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r4",
+      "top": 52.8,
+      "left": 297.05,
+      "rotate": 90,
+      "attrs": { "value": "10000" }
+    }
+  ],
+  "connections": [
+    [ "pot1:GND", "uno:GND.3", "black", [ "v19.2", "h-147.4" ] ],
+    [ "pot1:SIG", "uno:A0", "cyan", [ "v28.8", "h-125.2" ] ],
+    [ "pot1:VCC", "uno:5V", "red", [ "v38.4", "h-183.2" ] ],
+    [ "stepper1:A-", "uno:12", "limegreen", [ "v9.6", "h-48" ] ],
+    [ "stepper1:A+", "uno:11", "yellow", [ "v19.2", "h-48" ] ],
+    [ "stepper1:B+", "uno:10", "yellow", [ "v28.8", "h-48.01" ] ],
+    [ "stepper1:B-", "uno:9", "limegreen", [ "v38.4", "h-48.01" ] ],
+    [ "uno:8", "btn1:2.l", "gold", [ "v-18.6", "h143.8" ] ],
+    [ "btn1:1.r", "uno:5V", "red", [ "v19.4", "h115.2", "v124.8", "h-288" ] ],
+    [ "uno:7", "btn2:2.l", "purple", [ "v-28.2", "h185.6" ] ],
+    [ "btn2:1.r", "uno:5V", "red", [ "v19.4", "h57.6", "v124.8", "h-288" ] ],
+    [ "btn3:1.r", "uno:5V", "red", [ "v144.2", "h-288" ] ],
+    [ "uno:6", "btn3:2.l", "blue", [ "v-37.8", "h233.5" ] ],
+    [ "uno:8", "r2:1", "gold", [ "v-18.6", "h115" ] ],
+    [ "r2:2", "uno:GND.3", "black", [ "h0", "v123.6", "h-105.6" ] ],
+    [ "uno:7", "r3:1", "purple", [ "v-28.2", "h118.2" ] ],
+    [ "r3:2", "uno:GND.3", "black", [ "h0", "v123.6", "h-124.8" ] ],
+    [ "uno:6", "r4:1", "blue", [ "v-37.8", "h127.9" ] ],
+    [ "r4:2", "uno:GND.3", "black", [ "h0", "v123.6", "h-144" ] ],
+    [ "led1:C", "uno:GND.3", "black", [ "v38.4", "h-268.4" ] ],
+    [ "led1:A", "r1:1", "white", [ "v38.4", "h48", "v-249.6" ] ],
+    [ "r1:2", "uno:5", "white", [ "v0", "h-18" ] ]
+  ],
+  "dependencies": {}
+}
