@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 125.4, "left": -0.6, "attrs": {} },
+    {
+      "type": "wokwi-stepper-motor",
+      "id": "stepper1",
+      "top": 66.5,
+      "left": 401.48,
+      "attrs": { "size": "11", "display": "steps", "arrow": "orange" }
+    },
+    { "type": "wokwi-a4988", "id": "drv1", "top": 206.4, "left": 369.6, "attrs": {} }
+  ],
+  "connections": [
+    [ "stepper1:A-", "drv1:2B", "yellow", [ "v0" ] ],
+    [ "stepper1:A+", "drv1:2A", "yellow", [ "v0" ] ],
+    [ "stepper1:B+", "drv1:1A", "cyan", [ "v0" ] ],
+    [ "stepper1:B-", "drv1:1B", "cyan", [ "v0" ] ],
+    [ "drv1:GND.1", "uno:GND.2", "black", [ "h19.35", "v57.68", "h-243.9" ] ],
+    [ "drv1:VDD", "uno:5V", "red", [ "h28.95", "v76.88", "h-268.8" ] ],
+    [ "uno:2", "drv1:DIR", "gold", [ "v-19.2", "h80.9", "v163.2" ] ],
+    [ "uno:3", "drv1:STEP", "white", [ "v-28.8", "h100", "v163.2" ] ],
+    [ "drv1:SLEEP", "drv1:RESET", "green", [ "h-19.2", "v-9.6" ] ],
+    [ "uno:5", "drv1:MS3", "magenta", [ "v-48", "h128.6", "v153.6" ] ],
+    [ "uno:6", "drv1:MS2", "limegreen", [ "v-57.6", "h147.7", "v153.6" ] ],
+    [ "drv1:MS1", "uno:7", "yellow", [ "h-19.2", "v-153.6", "h-147.6" ] ],
+    [ "drv1:ENABLE", "uno:8", "cyan", [ "h-9.6", "v-153.6", "h-172.8" ] ]
+  ],
+  "dependencies": {}
+}
