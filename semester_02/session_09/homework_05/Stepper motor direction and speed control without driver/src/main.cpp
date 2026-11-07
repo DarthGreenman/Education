@@ -76,7 +76,7 @@ auto time_between_steps_calc = [](rotation_speed value) {
 };
 auto time_between_steps = time_between_steps_calc(rotation_speed::slow); /**< Интервал между шагами. */
 
-#define DEBUG_TASK
+#define _DEBUG_TASK
 
 void setup() {
 #ifdef DEBUG_TASK
