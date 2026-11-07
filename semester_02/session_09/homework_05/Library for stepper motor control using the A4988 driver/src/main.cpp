@@ -32,7 +32,7 @@ namespace drv {
 }
 /// Количество шагов, необходимых для поворота ротора на 360 градусов.
 constexpr auto steps = core::pure_type_t<decltype(drv::motor)>::number_of_steps;
-enum class rotation_speed : uint16_t { slow = 10, fast = 200 }; /**< Пределы частот вращения ротора [об / мин]. */
+enum class rotation_speed : uint16_t { slow = 5, fast = 75 }; /**< Пределы частот вращения ротора [об / мин]. */
 
 #ifdef DEBUG_MODE
 constexpr auto work_time = 60'000'000; /**< Время работы программы в микросекундах. */
