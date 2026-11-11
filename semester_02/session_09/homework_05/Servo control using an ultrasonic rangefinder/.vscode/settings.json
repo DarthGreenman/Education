@@ -1,0 +1,7 @@
+{
+    "C_Cpp.default.cppStandard": "c++26",
+    "editor.fontLigatures": false,
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools"
+    }
+}
