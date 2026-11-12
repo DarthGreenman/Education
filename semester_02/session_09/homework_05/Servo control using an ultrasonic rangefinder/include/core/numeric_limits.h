@@ -312,6 +312,7 @@
 
 #include <meta.h>
 #include <type_traits.h>
+#include <float.h>
 
 #if defined(_MSC_VER)
 #include <climits>
@@ -447,6 +448,9 @@ namespace core {
 
 		static constexpr int exponent_min{ -125 };
 		static constexpr int exponent_max{ 128 };
+
+		static constexpr float max() noexcept { return FLT_MAX; }
+		static constexpr float min() noexcept { return FLT_MIN; }
 	};
 
 	/**

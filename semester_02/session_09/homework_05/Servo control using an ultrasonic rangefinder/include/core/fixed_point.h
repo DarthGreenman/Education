@@ -325,9 +325,10 @@ namespace core {
 			static_cast<make_wider_type_t<value_type>>(1U) << Fraction; /**< Масштаб */
 		value_type _rep{}; /**< Внутреннее представление числа с фиксированной точкой. */
 	};
-	/*************************************************************************/
+	
 	/**
-	 * @brief
+	 * @brief Вычисляет сумму двух чисел с фиксированной точкой.
+	 * 
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -335,9 +336,9 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        левое слагаемое
+	 * @param [in] rhs        правое слагаемое
+	 * @return                сумму 
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -348,7 +349,9 @@ namespace core {
 		return lhs += rhs;
 	}
 	/**
-	 * @brief
+	 * @brief Вычисляет сумму числа с фиксированной точкой и числа с плавающей
+	 *        точкой.
+	 * 
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -356,9 +359,9 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        левое слагаемое
+	 * @param [in] rhs        правое слагаемое
+	 * @return                сумму 
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -369,7 +372,9 @@ namespace core {
 		return lhs += fixed_point<Width, Fraction, Signed, BehaviorPolicy>{rhs};
 	}
 	/**
-	 * @brief
+	 * @brief Вычисляет сумму числа с плавающей точкой и числа с фиксированной 
+	 *        точкой.
+	 *
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -377,9 +382,32 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        левое слагаемое
+	 * @param [in] rhs        правое слагаемое
+	 * @return                сумму
+	 */
+	template<
+		unsigned short int Width, unsigned short int Fraction, signedness Signed,
+		typename BehaviorPolicy
+	>
+	FORCEINLINE constexpr auto operator+(float lhs, 
+		fixed_point<Width, Fraction, Signed, BehaviorPolicy> rhs) noexcept {
+		return rhs + lhs;
+	}
+	/**
+	 * @brief Вычисляет сумму числа с фиксированной точкой и целого числа.
+	 * 
+	 * @tparam Width          количество бит внутреннего представления
+	 * @tparam Fraction       количество бит дробной части, определяющее
+	 *                        положение двоичной точки
+	 * @tparam Signed         знаковость внутреннего представления
+	 * @tparam BehaviorPolicy политика обработки результатов арифметических
+	 *                        операций, выходящих за пределы представимого
+	 *                        диапазона
+	 * @tparam T              целочисленный арифметический тип
+	 * @param [in] lhs        левое слагаемое
+	 * @param [in] rhs        правое слагаемое
+	 * @return                сумму 
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -390,9 +418,9 @@ namespace core {
 		static_assert(is_arithmetic_integer_v<T>, "Only integer types are supported.");
 		return lhs += fixed_point<Width, Fraction, Signed, BehaviorPolicy>{rhs};
 	}
-	/*************************************************************************/
 	/**
-	 * @brief
+	 * @brief Вычисляет сумму целого числа и числа с фиксированной точкой.
+	 *
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -400,9 +428,34 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @tparam T              целочисленный арифметический тип
+	 * @param [in] lhs        левое слагаемое
+	 * @param [in] rhs        правое слагаемое
+	 * @return                сумму
+	 */
+	template<
+		unsigned short int Width, unsigned short int Fraction, signedness Signed,
+		typename BehaviorPolicy, typename T
+	>
+	FORCEINLINE constexpr auto operator+(T lhs, 
+		fixed_point<Width, Fraction, Signed, BehaviorPolicy> rhs) noexcept {
+		static_assert(is_arithmetic_integer_v<T>, "Only integer types are supported.");
+		return rhs + lhs;
+	}
+	
+	/**
+	 * @brief Вычисляет разность двух чисел с фиксированной точкой.
+	 * 
+	 * @tparam Width          количество бит внутреннего представления
+	 * @tparam Fraction       количество бит дробной части, определяющее
+	 *                        положение двоичной точки
+	 * @tparam Signed         знаковость внутреннего представления
+	 * @tparam BehaviorPolicy политика обработки результатов арифметических
+	 *                        операций, выходящих за пределы представимого
+	 *                        диапазона
+	 * @param [in] lhs        уменьшаемое
+	 * @param [in] rhs        вычитаемое
+	 * @return                разность
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -413,7 +466,9 @@ namespace core {
 		return lhs -= rhs;
 	}
 	/**
-	 * @brief
+	 * @brief Вычисляет разность числа с фиксированной точкой и 
+	 *        числа с плавающей точкой.
+	 * 
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -421,9 +476,9 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        уменьшаемое
+	 * @param [in] rhs        вычитаемое
+	 * @return                разность
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -434,7 +489,9 @@ namespace core {
 		return lhs -= fixed_point<Width, Fraction, Signed, BehaviorPolicy>{rhs};
 	}
 	/**
-	 * @brief
+	 * @brief Вычисляет разность числа с плавающей точкой и
+	 *        числа с фиксированной точкой .
+	 *
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -442,10 +499,33 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @tparam T
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        уменьшаемое
+	 * @param [in] rhs        вычитаемое
+	 * @return                разность
+	 */
+	template<
+		unsigned short int Width, unsigned short int Fraction, signedness Signed,
+		typename BehaviorPolicy
+	>
+	FORCEINLINE constexpr auto operator-(float lhs,
+		fixed_point<Width, Fraction, Signed, BehaviorPolicy> rhs) noexcept {
+		const core::pure_type_t<decltype(rhs)> tmp{ lhs };
+		return tmp - rhs;
+	}
+	/**
+	 * @brief Вычисляет разность числа с фиксированной точкой и целого числа.
+	 * 
+	 * @tparam Width          количество бит внутреннего представления
+	 * @tparam Fraction       количество бит дробной части, определяющее
+	 *                        положение двоичной точки
+	 * @tparam Signed         знаковость внутреннего представления
+	 * @tparam BehaviorPolicy политика обработки результатов арифметических
+	 *                        операций, выходящих за пределы представимого
+	 *                        диапазона
+	 * @tparam T              целочисленный арифметический тип
+	 * @param [in] lhs        уменьшаемое
+	 * @param [in] rhs        вычитаемое
+	 * @return                разность
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -456,9 +536,9 @@ namespace core {
 		static_assert(is_arithmetic_integer_v<T>, "Only integer types are supported.");
 		return lhs -= fixed_point<Width, Fraction, Signed, BehaviorPolicy>{rhs};
 	}
-	/*************************************************************************/
 	/**
-	 * @brief
+	 * @brief Вычисляет разность целого числа и числа с фиксированной точкой.
+	 *
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -466,9 +546,35 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @tparam T              целочисленный арифметический тип
+	 * @param [in] lhs        уменьшаемое
+	 * @param [in] rhs        вычитаемое
+	 * @return                разность
+	 */
+	template<
+		unsigned short int Width, unsigned short int Fraction, signedness Signed,
+		typename BehaviorPolicy, typename T
+	>
+	FORCEINLINE constexpr auto operator-(T lhs,
+		fixed_point<Width, Fraction, Signed, BehaviorPolicy> rhs) noexcept {
+		static_assert(is_arithmetic_integer_v<T>, "Only integer types are supported.");
+		const core::pure_type_t<decltype(rhs)> tmp{ lhs };
+		return tmp - rhs;
+	}
+	
+	/**
+	 * @brief Вычисляет произведение двух чисел с фиксированной точкой.
+	 * 
+	 * @tparam Width          количество бит внутреннего представления
+	 * @tparam Fraction       количество бит дробной части, определяющее
+	 *                        положение двоичной точки
+	 * @tparam Signed         знаковость внутреннего представления
+	 * @tparam BehaviorPolicy политика обработки результатов арифметических
+	 *                        операций, выходящих за пределы представимого
+	 *                        диапазона
+	 * @param [in] lhs        левый множитель
+	 * @param [in] rhs        правый множитель
+	 * @return                произведение
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -479,7 +585,9 @@ namespace core {
 		return lhs *= rhs;
 	}
 	/**
-	 * @brief
+	 * @brief Вычисляет произведение числа с фиксированной точкой и 
+	 *        числа с плавающей точкой.
+	 * 
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -487,9 +595,9 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        левый множитель
+	 * @param [in] rhs        правый множитель
+	 * @return                произведение
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -500,7 +608,9 @@ namespace core {
 		return lhs *= fixed_point<Width, Fraction, Signed, BehaviorPolicy>{rhs};
 	}
 	/**
-	 * @brief
+	 * @brief Вычисляет произведение числа с плавающей точкой и 
+	 *        числа с фиксированной точкой.
+	 *
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -508,10 +618,32 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @tparam T
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        левый множитель
+	 * @param [in] rhs        правый множитель
+	 * @return                произведение
+	 */
+	template<
+		unsigned short int Width, unsigned short int Fraction, signedness Signed,
+		typename BehaviorPolicy
+	>
+	FORCEINLINE constexpr auto operator*(float lhs,
+		fixed_point<Width, Fraction, Signed, BehaviorPolicy> rhs) noexcept {
+		return rhs * lhs;
+	}
+	/**
+	 * @brief Вычисляет произведение числа с фиксированной точкой и целого числа.
+	 * 
+	 * @tparam Width          количество бит внутреннего представления
+	 * @tparam Fraction       количество бит дробной части, определяющее
+	 *                        положение двоичной точки
+	 * @tparam Signed         знаковость внутреннего представления
+	 * @tparam BehaviorPolicy политика обработки результатов арифметических
+	 *                        операций, выходящих за пределы представимого
+	 *                        диапазона
+	 * @tparam T              целочисленный арифметический тип
+	 * @param [in] lhs        левый множитель
+	 * @param [in] rhs        правый множитель
+	 * @return                произведение
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -522,9 +654,9 @@ namespace core {
 		static_assert(is_arithmetic_integer_v<T>, "Only integer types are supported.");
 		return lhs *= fixed_point<Width, Fraction, Signed, BehaviorPolicy>{rhs};
 	}
-	/*************************************************************************/
-	/**
-	 * @brief
+    /**
+	 * @brief Вычисляет произведение целого числа и числа с фиксированной точкой.
+	 * 
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -532,9 +664,34 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @tparam T              целочисленный арифметический тип
+	 * @param [in] lhs        левый множитель
+	 * @param [in] rhs        правый множитель
+	 * @return                произведение
+	 */
+	template<
+		unsigned short int Width, unsigned short int Fraction, signedness Signed,
+		typename BehaviorPolicy, typename T
+	>
+	FORCEINLINE constexpr auto operator*(T lhs,
+		fixed_point<Width, Fraction, Signed, BehaviorPolicy> rhs) noexcept {
+		static_assert(is_arithmetic_integer_v<T>, "Only integer types are supported.");
+		return rhs * lhs;
+	}
+		
+	/**
+	 * @brief Вычисляет частное двух чисел с фиксированной точкой.
+	 * 
+	 * @tparam Width          количество бит внутреннего представления
+	 * @tparam Fraction       количество бит дробной части, определяющее
+	 *                        положение двоичной точки
+	 * @tparam Signed         знаковость внутреннего представления
+	 * @tparam BehaviorPolicy политика обработки результатов арифметических
+	 *                        операций, выходящих за пределы представимого
+	 *                        диапазона
+	 * @param [in] lhs        делимое
+	 * @param [in] rhs        делитель
+	 * @return                частное
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -545,7 +702,9 @@ namespace core {
 		return lhs /= rhs;
 	}
 	/**
-	 * @brief
+	 * @brief Вычисляет частное числа с фиксированной точкой и 
+	 *        числа с плавающей точкой.
+	 * 
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -553,9 +712,9 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        делимое
+	 * @param [in] rhs        делитель
+	 * @return                частное
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -566,7 +725,9 @@ namespace core {
 		return lhs /= fixed_point<Width, Fraction, Signed, BehaviorPolicy>{rhs};
 	}
 	/**
-	 * @brief
+	 * @brief Вычисляет частное числа с плавающей точкой и 
+	 *       числа с фиксированной точкой.
+	 *
 	 * @tparam Width          количество бит внутреннего представления
 	 * @tparam Fraction       количество бит дробной части, определяющее
 	 *                        положение двоичной точки
@@ -574,10 +735,33 @@ namespace core {
 	 * @tparam BehaviorPolicy политика обработки результатов арифметических
 	 *                        операций, выходящих за пределы представимого
 	 *                        диапазона
-	 * @tparam T
-	 * @param lhs
-	 * @param rhs
-	 * @return
+	 * @param [in] lhs        делимое
+	 * @param [in] rhs        делитель
+	 * @return                частное
+	 */
+	template<
+		unsigned short int Width, unsigned short int Fraction, signedness Signed,
+		typename BehaviorPolicy
+	>
+	FORCEINLINE constexpr auto operator/(float lhs,
+		fixed_point<Width, Fraction, Signed, BehaviorPolicy> rhs) noexcept {
+		const core::pure_type_t<decltype(rhs)> tmp{ lhs };
+		return tmp / rhs;
+	}
+	/**
+	 * @brief Вычисляет частное числа с фиксированной точкой и целого числа.
+	 * 
+	 * @tparam Width          количество бит внутреннего представления
+	 * @tparam Fraction       количество бит дробной части, определяющее
+	 *                        положение двоичной точки
+	 * @tparam Signed         знаковость внутреннего представления
+	 * @tparam BehaviorPolicy политика обработки результатов арифметических
+	 *                        операций, выходящих за пределы представимого
+	 *                        диапазона
+	 * @tparam T              целочисленный арифметический тип
+	 * @param [in] lhs        делимое
+	 * @param [in] rhs        делитель
+	 * @return                частное
 	 */
 	template<
 		unsigned short int Width, unsigned short int Fraction, signedness Signed,
@@ -587,6 +771,31 @@ namespace core {
 		T rhs) noexcept {
 		static_assert(is_arithmetic_integer_v<T>, "Only integer types are supported.");
 		return lhs /= fixed_point<Width, Fraction, Signed, BehaviorPolicy>{rhs};
+	}
+	/**
+	 * @brief Вычисляет частное целого числа и числа с фиксированной точкой.
+	 *
+	 * @tparam Width          количество бит внутреннего представления
+	 * @tparam Fraction       количество бит дробной части, определяющее
+	 *                        положение двоичной точки
+	 * @tparam Signed         знаковость внутреннего представления
+	 * @tparam BehaviorPolicy политика обработки результатов арифметических
+	 *                        операций, выходящих за пределы представимого
+	 *                        диапазона
+	 * @tparam T              целочисленный арифметический тип
+	 * @param [in] lhs        делимое
+	 * @param [in] rhs        делитель
+	 * @return                частное
+	 */
+	template<
+		unsigned short int Width, unsigned short int Fraction, signedness Signed,
+		typename BehaviorPolicy, typename T
+	>
+	FORCEINLINE constexpr auto operator/(T lhs,
+		fixed_point<Width, Fraction, Signed, BehaviorPolicy> rhs) noexcept {
+		static_assert(is_arithmetic_integer_v<T>, "Only integer types are supported.");
+		const core::pure_type_t<decltype(rhs)> tmp{ lhs };
+		return tmp / rhs;
 	}
 
 } /// !namespace core
